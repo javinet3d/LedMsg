@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="background-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LedMsg">
+  <meta name="application-name" content="LedMsg">
+  <meta name="description" content="Cartel luminoso LED de texto deslizante configurable en pantalla completa">
+  <title>LedMsg - Cartel LED</title>
+
+  <!-- Favicon SVG incrustado directamente en código (LED brillante rojo sobre fondo negro) -->
+  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff2a2a'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%23ff1e1e'/%3E%3Ccircle cx='28' cy='28' r='4' fill='%23ffffff' fill-opacity='0.85'/%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS para diseño moderno, oscuro y responsivo -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Garantizar fondo negro puro en toda circunstancia */
+    html, body {
+      background-color: #000000 !important;
+      color: #e5e5e5;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Personalización de sliders (range inputs) */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: #262626;
+      border: 1px solid #333333;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-color, #ff1e1e);
+      border: 2px solid #ffffff;
+      margin-top: -7px;
+      box-shadow: 0 0 10px var(--accent-color, #ff1e1e);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      border-radius: 999px;
+      background: #262626;
+      border: 1px solid #333333;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-color, #ff1e1e);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 10px var(--accent-color, #ff1e1e);
+    }
+
+    /* Personalización del selector de color nativo */
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      padding: 0;
+      background: none;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: 2px solid #404040;
+      border-radius: 10px;
+    }
+
+    /* Transiciones suaves para ocultar controles en pantalla completa */
+    .controls-transition {
+      transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="bg-black text-neutral-200 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white">
+
+  <!-- Barra superior minimalista (se oculta en modo pantalla completa / cine) -->
+  <header id="top-bar" class="controls-transition w-full px-4 py-3 sm:px-6 flex items-center justify-between border-b border-neutral-900 bg-black z-20">
+    <div class="flex items-center gap-2.5">
+      <span id="status-dot" class="w-3.5 h-3.5 rounded-full inline-block transition-all duration-300" style="background-color: #ff1e1e; box-shadow: 0 0 12px #ff1e1e;"></span>
+      <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">Led<span id="brand-accent" style="color: #ff1e1e;">Msg</span></h1>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Botón de Instalación PWA (visible cuando Chrome dispara beforeinstallprompt o como guía) -->
+      <button id="btn-install" type="button" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition active:scale-95" title="Instalar aplicación en Android / Chrome">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        <span id="btn-install-text">Instalar App</span>
+      </button>
+
+      <!-- Botón de Pantalla Completa -->
+      <button id="btn-fullscreen" type="button" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-700 transition active:scale-95 shadow-lg" title="Activar pantalla completa">
+        <svg id="icon-fs-enter" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+        <span class="hidden xs:inline sm:inline">Pantalla Completa</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenedor Central del Cartel LED (Protagonista) -->
+  <main id="led-stage" class="relative flex-1 w-full bg-black flex flex-col items-center justify-center overflow-hidden cursor-pointer" title="Toca la pantalla para mostrar u ocultar los controles">
+    <!-- Marco sutil del panel LED -->
+    <div id="canvas-wrapper" class="w-full h-full flex items-center justify-center px-1 sm:px-3 py-2 bg-black">
+      <canvas id="led-canvas" class="block w-full h-full bg-black"></canvas>
+    </div>
+
+    <!-- Botón flotante discreto para salir de pantalla completa / mostrar controles -->
+    <div id="floating-exit" class="fixed bottom-4 right-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center gap-2">
+      <button id="btn-exit-fullscreen" type="button" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-neutral-900/90 hover:bg-neutral-800 text-neutral-200 border border-neutral-700/80 backdrop-blur-md text-xs font-medium shadow-2xl active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"/>
+        </svg>
+        <span>Mostrar Controles</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- Panel de Controles Inferior (Colapsable / Auto-ocultable en pantalla completa) -->
+  <section id="control-panel" class="controls-transition w-full bg-neutral-950/95 border-t border-neutral-900 px-4 py-4 sm:px-6 sm:py-5 z-20">
+    <div class="max-w-5xl mx-auto space-y-4">
+
+      <!-- Fila 1: Caja de texto del mensaje -->
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        <div class="relative flex-1">
+          <label for="led-text-input" class="sr-only">Mensaje del cartel LED</label>
+          <input
+            id="led-text-input"
+            type="text"
+            maxlength="200"
+            value="BIENVENIDO A LEDMSG • HOLA MUNDO • "
+            placeholder="Escribe tu mensaje aquí..."
+            autocomplete="off"
+            spellcheck="false"
+            class="w-full bg-black text-white placeholder-neutral-600 border border-neutral-800 focus:border-neutral-600 rounded-xl px-4 py-3 text-base sm:text-lg font-medium tracking-wide outline-none transition"
+          >
+          <button id="btn-clear-text" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 p-1.5 rounded-lg" title="Limpiar texto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Fila 2: Grid de Ajustes (Color, Brillo, Velocidad de Scroll, Parpadeo) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+
+        <!-- Tarjeta 1: Color de los LEDs -->
+        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Color LED</span>
+            <span id="color-hex-label" class="text-xs font-mono text-neutral-400">#FF1E1E</span>
+          </div>
+          <div class="flex items-center justify-between gap-1.5">
+            <!-- Botones rápidos de colores clásicos -->
+            <button type="button" data-color="#ff1e1e" class="color-preset w-7 h-7 rounded-full border-2 border-white scale-110 transition-transform" style="background-color: #ff1e1e;" title="Rojo Clásico"></button>
+            <button type="button" data-color="#ffaa00" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ffaa00;" title="Ámbar / Naranja"></button>
+            <button type="button" data-color="#00ff41" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #00ff41;" title="Verde Matriz"></button>
+            <button type="button" data-color="#00bfff" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #00bfff;" title="Azul Eléctrico"></button>
+            <button type="button" data-color="#ff00cc" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ff00cc;" title="Rosa Neón"></button>
+            <button type="button" data-color="#ffffff" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ffffff;" title="Blanco Puro"></button>
+            <!-- Selector libre de color -->
+            <input id="led-color-picker" type="color" value="#ff1e1e" class="w-8 h-7 cursor-pointer rounded-lg" title="Elegir cualquier color">
+          </div>
+        </div>
+
+        <!-- Tarjeta 2: Intensidad de Brillo -->
+        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between">
+            <label for="led-brightness" class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Intensidad Brillo</label>
+            <span id="brightness-value" class="text-xs font-mono text-neutral-300">85%</span>
+          </div>
+          <div class="flex items-center gap-2.5 py-1">
+            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <input id="led-brightness" type="range" min="15" max="100" value="85" class="w-full">
+          </div>
+        </div>
+
+        <!-- Tarjeta 3: Velocidad de Scroll -->
+        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between">
+            <label for="led-speed" class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Velocidad Scroll</label>
+            <span id="speed-value" class="text-xs font-mono text-neutral-300">12 col/s</span>
+          </div>
+          <div class="flex items-center gap-2.5 py-1">
+            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+            </svg>
+            <input id="led-speed" type="range" min="0" max="45" value="14" class="w-full">
+          </div>
+        </div>
+
+        <!-- Tarjeta 4: Parpadeo y Velocidad de Parpadeo -->
+        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between">
+            <label for="led-blink-toggle" class="text-xs font-semibold uppercase tracking-wider text-neutral-400 cursor-pointer">Parpadeo</label>
+            <div class="flex items-center gap-2">
+              <span id="blink-speed-label" class="text-xs font-mono text-neutral-500">Apagado</span>
+              <!-- Interruptor Toggle -->
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="led-blink-toggle" type="checkbox" class="sr-only peer">
+                <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600" id="blink-toggle-track"></div>
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5 py-1">
+            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <input id="led-blink-speed" type="range" min="1" max="15" value="4" disabled class="w-full opacity-40 transition-opacity">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal / Toast informativo para instalación PWA en Android / Chrome -->
+  <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+    <div class="bg-neutral-950 border border-neutral-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+          Instalar LedMsg en Android
+        </h2>
+        <button id="close-install-modal" type="button" class="text-neutral-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="text-sm text-neutral-300 leading-relaxed">
+        Puedes instalar <strong>LedMsg</strong> como una aplicación independiente en pantalla completa en tu dispositivo Android desde Google Chrome:
+      </p>
+      <ol class="text-xs sm:text-sm text-neutral-400 space-y-2 list-decimal list-inside bg-black p-3.5 rounded-xl border border-neutral-900">
+        <li>Abre esta página directamente en <strong>Google Chrome</strong> (asegúrate de servirla por HTTPS o localhost, o alojada en la web).</li>
+        <li>Toca el menú de <strong>tres puntos (⋮)</strong> en la esquina superior derecha de Chrome.</li>
+        <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong> o <strong>"Instalar aplicación"</strong>.</li>
+      </ol>
+      <div class="flex justify-end">
+        <button id="ok-install-modal" type="button" class="px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * LEDMSG - SIMULADOR DE CARTEL LUMINOSO LED EN CANVAS (UNA SOLA LÍNEA)
+     * ============================================================================
+     */
+
+    (function () {
+      'use strict';
+
+      // --------------------------------------------------------------------------
+      // 1. CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
+      // --------------------------------------------------------------------------
+      const state = {
+        text: 'BIENVENIDO A LEDMSG • HOLA MUNDO • ',
+        color: '#ff1e1e',
+        brightness: 0.85,     // 0.15 a 1.0
+        scrollSpeed: 14,      // Columnas LED por segundo
+        blinkEnabled: false,
+        blinkSpeed: 4,        // Ciclos por segundo (Hz)
+        rows: 16,             // Altura fija de la matriz en filas de LEDs (16px de alto = alta legibilidad con tildes y ñ)
+        scrollOffset: 0,      // Desplazamiento actual en columnas (float para movimiento ultrasuave)
+        blinkTimer: 0,        // Acumulador de tiempo para parpadeo
+        isBlinkOn: true,      // Estado actual del parpadeo
+        isFullscreenMode: false,
+        controlsHidden: false
+      };
+
+      // Referencias al DOM
+      const canvas = document.getElementById('led-canvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const textInput = document.getElementById('led-text-input');
+      const btnClearText = document.getElementById('btn-clear-text');
+      const colorPicker = document.getElementById('led-color-picker');
+      const colorHexLabel = document.getElementById('color-hex-label');
+      const colorPresets = document.querySelectorAll('.color-preset');
+      const brightnessSlider = document.getElementById('led-brightness');
+      const brightnessValue = document.getElementById('brightness-value');
+      const speedSlider = document.getElementById('led-speed');
+      const speedValue = document.getElementById('speed-value');
+      const blinkToggle = document.getElementById('led-blink-toggle');
+      const blinkToggleTrack = document.getElementById('blink-toggle-track');
+      const blinkSpeedSlider = document.getElementById('led-blink-speed');
+      const blinkSpeedLabel = document.getElementById('blink-speed-label');
+      const btnFullscreen = document.getElementById('btn-fullscreen');
+      const btnExitFullscreen = document.getElementById('btn-exit-fullscreen');
+      const floatingExit = document.getElementById('floating-exit');
+      const topBar = document.getElementById('top-bar');
+      const controlPanel = document.getElementById('control-panel');
+      const ledStage = document.getElementById('led-stage');
+      const statusDot = document.getElementById('status-dot');
+      const brandAccent = document.getElementById('brand-accent');
+      const btnInstall = document.getElementById('btn-install');
+      const btnInstallText = document.getElementById('btn-install-text');
+      const installModal = document.getElementById('install-modal');
+      const closeInstallModal = document.getElementById('close-install-modal');
+      const okInstallModal = document.getElementById('ok-install-modal');
+
+      // --------------------------------------------------------------------------
+      // 2. GENERACIÓN DINÁMICA DE PWA (MANIFEST + ICONOS CANVAS + SERVICE WORKER)
+      // --------------------------------------------------------------------------
+      let deferredInstallPrompt = null;
+
+      function generateLedIconDataURL(size) {
+        const iconCanvas = document.createElement('canvas');
+        iconCanvas.width = size;
+        iconCanvas.height = size;
+        const ictx = iconCanvas.getContext('2d');
+
+        // Fondo negro puro
+        ictx.fillStyle = '#000000';
+        ictx.fillRect(0, 0, size, size);
+
+        // Dibujar una mini-matriz de 5x5 LEDs rojos brillantes
+        const grid = 5;
+        const cell = size / (grid + 1);
+        const radius = cell * 0.34;
+        // Patrón de letra "L" o pulso LED
+        const pattern = [
+          [0, 1, 0, 0, 0],
+          [0, 1, 0, 0, 0],
+          [0, 1, 0, 1, 0],
+          [0, 1, 1, 1, 0],
+          [0, 0, 0, 0, 0]
+        ];
+
+        for (let r = 0; r < grid; r++) {
+          for (let c = 0; c < grid; c++) {
+            const cx = cell * (c + 1);
+            const cy = cell * (r + 1);
+            const active = pattern[r][c] === 1;
+
+            if (active) {
+              const grad = ictx.createRadialGradient(cx, cy, radius * 0.1, cx, cy, radius * 2.1);
+              grad.addColorStop(0, '#ffffff');
+              grad.addColorStop(0.3, '#ff1e1e');
+              grad.addColorStop(0.7, 'rgba(255, 30, 30, 0.35)');
+              grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+              ictx.fillStyle = grad;
+              ictx.beginPath();
+              ictx.arc(cx, cy, radius * 2.1, 0, Math.PI * 2);
+              ictx.fill();
+
+              ictx.fillStyle = '#ff2a2a';
+              ictx.beginPath();
+              ictx.arc(cx, cy, radius, 0, Math.PI * 2);
+              ictx.fill();
+            } else {
+              ictx.fillStyle = '#181818';
+              ictx.beginPath();
+              ictx.arc(cx, cy, radius * 0.85, 0, Math.PI * 2);
+              ictx.fill();
+            }
+          }
+        }
+        return iconCanvas.toDataURL('image/png');
+      }
+
+      function setupPWA() {
+        try {
+          const icon192 = generateLedIconDataURL(192);
+          const icon512 = generateLedIconDataURL(512);
+
+          // Añadir apple-touch-icon dinámico
+          const appleIcon = document.createElement('link');
+          appleIcon.rel = 'apple-touch-icon';
+          appleIcon.href = icon192;
+          document.head.appendChild(appleIcon);
+
+          // Crear manifiesto PWA en Blob URL
+          const manifestObj = {
+            name: 'LedMsg - Cartel Luminoso LED',
+            short_name: 'LedMsg',
+            description: 'Simulador de cartel luminoso de texto deslizante hecho con matriz LED.',
+            start_url: location.href,
+            scope: './',
+            display: 'fullscreen',
+            orientation: 'landscape',
+            background_color: '#000000',
+            theme_color: '#000000',
+            icons: [
+              {
+                src: icon192,
+                sizes: '192x192',
+                type: 'image/png',
+                purpose: 'any maskable'
+              },
+              {
+                src: icon512,
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'any maskable'
+              }
+            ]
+          };
+
+          const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+          const manifestURL = URL.createObjectURL(manifestBlob);
+          const manifestLink = document.createElement('link');
+          manifestLink.rel = 'manifest';
+          manifestLink.href = manifestURL;
+          document.head.appendChild(manifestLink);
+
+          // Registrar Service Worker mínimo mediante Blob URL (cuando el protocolo es http/https)
+          if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+            const swCode = `
+              self.addEventListener('install', (e) => self.skipWaiting());
+              self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+              self.addEventListener('fetch', (e) => {
+                e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
+              });
+            `;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swURL).catch(() => {
+              // Ignorar silenciosamente si el sandbox bloquea SW en Blob URL
+            });
+          }
+        } catch (err) {
+          console.warn('No se pudo inicializar completamente el manifiesto PWA:', err);
+        }
+      }
+
+      // Escuchar evento nativo de instalación en Chrome / Android
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        btnInstallText.textContent = 'Instalar App';
+        btnInstall.classList.add('border-emerald-500/50', 'bg-emerald-950/30');
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        btnInstallText.textContent = 'Instalada';
+      });
+
+      btnInstall.addEventListener('click', async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          const { outcome } = await deferredInstallPrompt.userChoice;
+          if (outcome === 'accepted') {
+            deferredInstallPrompt = null;
+          }
+        } else {
+          // Mostrar instrucciones claras para Android Chrome si el prompt automático no está disponible
+          installModal.classList.remove('hidden');
+          installModal.classList.add('flex');
+        }
+      });
+
+      closeInstallModal.addEventListener('click', () => {
+        installModal.classList.add('hidden');
+        installModal.classList.remove('flex');
+      });
+
+      okInstallModal.addEventListener('click', () => {
+        installModal.classList.add('hidden');
+        installModal.classList.remove('flex');
+      });
+
+      // --------------------------------------------------------------------------
+      // 3. RASTERIZADOR DE TEXTO A MATRIZ BINARIA DE PUNTOS LED (OFFSCREEN CANVAS)
+      // --------------------------------------------------------------------------
+      const offscreenCanvas = document.createElement('canvas');
+      const offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
+
+      let textBitmap = []; // Array 2D [col][row] de booleanos (true = LED encendido)
+      let textBitmapCols = 0;
+
+      /**
+       * Convierte el texto actual en una rejilla binaria nítida de altura `state.rows` (16 filas).
+       * Soporta cualquier carácter Unicode (tildes, ñ, signos, números y emojis básicos).
+       */
+      function rasterizeTextToMatrix(rawText) {
+        const rows = state.rows;
+        // Asegurar un espacio final para que el bucle continuo no pegue el final con el principio
+        const displayText = rawText.length > 0 ? rawText : '   ';
+
+        // Configurar fuente pixel-friendly en el canvas oculto
+        const fontSize = 13; // Tamaño óptimo para matriz de 16 filas incluyendo tildes superiores
+        const fontSpec = `700 ${fontSize}px "Inter", "Arial", sans-serif`;
+        offscreenCtx.font = fontSpec;
+
+        const metrics = offscreenCtx.measureText(displayText);
+        // Añadir pequeño margen horizontal para evitar recortes en letras inclinadas
+        const measuredWidth = Math.max(1, Math.ceil(metrics.width) + 4);
+
+        offscreenCanvas.width = measuredWidth;
+        offscreenCanvas.height = rows;
+
+        // Limpiar en negro puro
+        offscreenCtx.fillStyle = '#000000';
+        offscreenCtx.fillRect(0, 0, measuredWidth, rows);
+
+        // Dibujar texto blanco nítido
+        offscreenCtx.font = fontSpec;
+        offscreenCtx.fillStyle = '#ffffff';
+        offscreenCtx.textBaseline = 'middle';
+        offscreenCtx.textAlign = 'left';
+        // Desactivar suavizado en lo posible y centrar verticalmente (+0.5px ajuste óptico)
+        offscreenCtx.imageSmoothingEnabled = false;
+        offscreenCtx.fillText(displayText, 1, Math.floor(rows / 2) + 1);
+
+        const imgData = offscreenCtx.getImageData(0, 0, measuredWidth, rows).data;
+        const matrix = new Array(measuredWidth);
+
+        // Umbral de luminancia para decidir si el punto LED se enciende (nitidez máxima)
+        const threshold = 105;
+
+        for (let c = 0; c < measuredWidth; c++) {
+          const colArr = new Uint8Array(rows);
+          for (let r = 0; r < rows; r++) {
+            const idx = (r * measuredWidth + c) * 4;
+            // Canal rojo/verde/azul o alpha
+            const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
+            colArr[r] = brightness >= threshold ? 1 : 0;
+          }
+          matrix[c] = colArr;
+        }
+
+        textBitmap = matrix;
+        textBitmapCols = measuredWidth;
+      }
+
+      // --------------------------------------------------------------------------
+      // 4. UTILIDADES DE COLOR Y PRE-RENDERIZADO DE SPRITES LED (RENDIMIENTO 60 FPS)
+      // --------------------------------------------------------------------------
+      function hexToRgb(hex) {
+        const clean = hex.replace('#', '');
+        const num = parseInt(clean.length === 3
+          ? clean.split('').map(ch => ch + ch).join('')
+          : clean, 16);
+        return {
+          r: (num >> 16) & 255,
+          g: (num >> 8) & 255,
+          b: num & 255
+        };
+      }
+
+      // Sprites cacheados para LED encendido y LED apagado (garantiza 60 FPS fluidos en móviles)
+      const ledOnSprite = document.createElement('canvas');
+      const ledOffSprite = document.createElement('canvas');
+      let currentPitch = 0;
+
+      function rebuildLedSprites(pitch) {
+        if (pitch <= 0) return;
+
+        // El sprite de LED encendido incluye espacio extra para su halo de resplandor (glow)
+        const glowPad = Math.ceil(pitch * 1.4);
+        const spriteSize = Math.ceil(pitch + glowPad * 2);
+        const center = spriteSize / 2;
+        const ledRadius = Math.max(1.5, pitch * 0.37);
+
+        // 1. Construir Sprite de LED APAGADO (sutil rejilla física)
+        ledOffSprite.width = Math.ceil(pitch);
+        ledOffSprite.height = Math.ceil(pitch);
+        const offCtx = ledOffSprite.getContext('2d');
+        const offCenter = ledOffSprite.width / 2;
+
+        offCtx.clearRect(0, 0, ledOffSprite.width, ledOffSprite.height);
+        offCtx.fillStyle = '#141414'; // Gris carbón muy sutil sobre negro #000000
+        offCtx.beginPath();
+        offCtx.arc(offCenter, offCenter, ledRadius * 0.92, 0, Math.PI * 2);
+        offCtx.fill();
+
+        // Borde microscopico del encapsulado del diodo
+        offCtx.strokeStyle = '#1f1f1f';
+        offCtx.lineWidth = Math.max(0.5, pitch * 0.04);
+        offCtx.stroke();
+
+        // 2. Construir Sprite de LED ENCENDIDO con halo e intensidad configurable
+        ledOnSprite.width = spriteSize;
+        ledOnSprite.height = spriteSize;
+        const onCtx = ledOnSprite.getContext('2d');
+        onCtx.clearRect(0, 0, spriteSize, spriteSize);
+
+        const { r, g, b } = hexToRgb(state.color);
+        const intensity = state.brightness; // 0.15 -> 1.0
+
+        // Halo externo (Glow atmosférico)
+        const outerGlowRadius = ledRadius * (1.6 + intensity * 1.8);
+        const glowGrad = onCtx.createRadialGradient(
+          center, center, ledRadius * 0.2,
+          center, center, outerGlowRadius
+        );
+        glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.85 * intensity})`);
+        glowGrad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${0.42 * intensity})`);
+        glowGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+        onCtx.fillStyle = glowGrad;
+        onCtx.beginPath();
+        onCtx.arc(center, center, outerGlowRadius, 0, Math.PI * 2);
+        onCtx.fill();
+
+        // Cuerpo principal del diodo LED
+        const bodyGrad = onCtx.createRadialGradient(
+          center - ledRadius * 0.2,
+          center - ledRadius * 0.2,
+          ledRadius * 0.05,
+          center,
+          center,
+          ledRadius
+        );
+
+        // Mezclar blanco en el núcleo según la intensidad del brillo
+        const coreMix = Math.min(1, intensity * 0.95);
+        const coreR = Math.round(r + (255 - r) * coreMix * 0.75);
+        const coreG = Math.round(g + (255 - g) * coreMix * 0.75);
+        const coreB = Math.round(b + (255 - b) * coreMix * 0.75);
+
+        bodyGrad.addColorStop(0, `rgba(${coreR}, ${coreG}, ${coreB}, ${0.5 + 0.5 * intensity})`);
+        bodyGrad.addColorStop(0.65, `rgba(${r}, ${g}, ${b}, ${0.45 + 0.55 * intensity})`);
+        bodyGrad.addColorStop(1, `rgba(${Math.round(r * 0.7)}, ${Math.round(g * 0.7)}, ${Math.round(b * 0.7)}, ${0.4 + 0.6 * intensity})`);
+
+        onCtx.fillStyle = bodyGrad;
+        onCtx.beginPath();
+        onCtx.arc(center, center, ledRadius, 0, Math.PI * 2);
+        onCtx.fill();
+
+        // Reflejo especular (punto de luz en la lente del LED)
+        if (intensity > 0.35 && ledRadius > 2.5) {
+          onCtx.fillStyle = `rgba(255, 255, 255, ${0.45 * intensity})`;
+          onCtx.beginPath();
+          onCtx.arc(center - ledRadius * 0.28, center - ledRadius * 0.28, ledRadius * 0.25, 0, Math.PI * 2);
+          onCtx.fill();
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      // 5. DIMENSIONAMIENTO RESPONSIVO DEL CANVAS Y BUCLE DE ANIMACIÓN
+      // --------------------------------------------------------------------------
+      let visibleCols = 40;
+      let startX = 0;
+      let startY = 0;
+
+      function resizeCanvas() {
+        const wrapper = document.getElementById('canvas-wrapper');
+        const rect = wrapper.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        const cssWidth = Math.max(200, rect.width);
+        const cssHeight = Math.max(120, rect.height);
+
+        canvas.width = Math.floor(cssWidth * dpr);
+        canvas.height = Math.floor(cssHeight * dpr);
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // Calcular el paso (pitch) de cada celda LED en base al alto disponible y las 16 filas
+        // En pantallas muy altas (móvil vertical), limitamos la altura máxima visual del cartel
+        // para mantener proporciones de letrero panorámico elegante y bien centrado.
+        const maxBoardHeight = Math.min(cssHeight * 0.94, cssWidth * 0.58);
+        const effectiveHeight = Math.max(Math.min(cssHeight * 0.85, 110), maxBoardHeight);
+
+        const newPitch = effectiveHeight / state.rows;
+        visibleCols = Math.max(12, Math.floor((cssWidth * 0.98) / newPitch));
+
+        const totalBoardWidth = visibleCols * newPitch;
+        const totalBoardHeight = state.rows * newPitch;
+
+        startX = (cssWidth - totalBoardWidth) / 2;
+        startY = (cssHeight - totalBoardHeight) / 2;
+
+        if (Math.abs(newPitch - currentPitch) > 0.1) {
+          currentPitch = newPitch;
+          rebuildLedSprites(currentPitch);
+        }
+      }
+
+      let lastTimestamp = performance.now();
+
+      function renderLoop(now) {
+        const dt = Math.min(0.1, (now - lastTimestamp) / 1000); // Delta time en segundos
+        lastTimestamp = now;
+
+        // 1. Actualizar desplazamiento horizontal (scroll de derecha a izquierda)
+        if (state.scrollSpeed > 0 && textBitmapCols > 0) {
+          state.scrollOffset += state.scrollSpeed * dt;
+          if (state.scrollOffset >= textBitmapCols) {
+            state.scrollOffset %= textBitmapCols;
+          }
+        }
+
+        // 2. Actualizar estado de parpadeo
+        if (state.blinkEnabled) {
+          state.blinkTimer += dt * state.blinkSpeed;
+          // Onda cuadrada limpia (50% encendido, 50% apagado)
+          state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
+        } else {
+          state.isBlinkOn = true;
+          state.blinkTimer = 0;
+        }
+
+        // 3. Limpiar fondo en negro puro (#000000)
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const viewW = canvas.width / dpr;
+        const viewH = canvas.height / dpr;
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, viewW, viewH);
+
+        // 4. Dibujar la matriz completa de LEDs (apagados primero, encendidos después para que el glow no quede tapado)
+        if (currentPitch > 0 && textBitmapCols > 0) {
+          const baseColOffset = Math.floor(state.scrollOffset);
+          const subPixelShift = (state.scrollOffset - baseColOffset) * currentPitch;
+
+          const offW = ledOffSprite.width;
+          const offH = ledOffSprite.height;
+          const onW = ledOnSprite.width;
+          const onH = ledOnSprite.height;
+          const onOffset = (onW - currentPitch) / 2;
+
+          // Primera pasada: Rejilla física de LEDs apagados (fija en el chasis del cartel)
+          for (let c = 0; c < visibleCols; c++) {
+            const x = startX + c * currentPitch;
+            for (let r = 0; r < state.rows; r++) {
+              const y = startY + r * currentPitch;
+              ctx.drawImage(ledOffSprite, x, y, offW, offH);
+            }
+          }
+
+          // Segunda pasada: LEDs encendidos (si el parpadeo está en fase ON)
+          if (state.isBlinkOn) {
+            // Para un desplazamiento ultrasuave por columna entera de LEDs (efecto matriz real)
+            // Usamos paso discreto por columna para que cada diodo físico se encienda o apague limpiamente
+            for (let c = 0; c < visibleCols; c++) {
+              const textColIndex = (baseColOffset + c) % textBitmapCols;
+              const colData = textBitmap[textColIndex];
+              if (!colData) continue;
+
+              const x = startX + c * currentPitch - onOffset;
+
+              for (let r = 0; r < state.rows; r++) {
+                if (colData[r] === 1) {
+                  const y = startY + r * currentPitch - onOffset;
+                  ctx.drawImage(ledOnSprite, x, y, onW, onH);
+                }
+              }
+            }
+          }
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      // --------------------------------------------------------------------------
+      // 6. INTERACCIÓN CON LOS CONTROLES DE USUARIO
+      // --------------------------------------------------------------------------
+      function updateAccentColor(hex) {
+        const upperHex = hex.toUpperCase();
+        state.color = hex;
+        colorPicker.value = hex;
+        colorHexLabel.textContent = upperHex;
+
+        // Actualizar variables CSS e indicadores visuales de la UI
+        document.documentElement.style.setProperty('--accent-color', hex);
+        statusDot.style.backgroundColor = hex;
+        statusDot.style.boxShadow = `0 0 12px ${hex}`;
+        brandAccent.style.color = hex;
+        if (state.blinkEnabled) {
+          blinkToggleTrack.style.backgroundColor = hex;
+        }
+
+        // Resaltar preset activo
+        colorPresets.forEach((btn) => {
+          if (btn.dataset.color.toLowerCase() === hex.toLowerCase()) {
+            btn.classList.add('border-2', 'border-white', 'scale-110');
+            btn.classList.remove('border', 'border-neutral-700');
+          } else {
+            btn.classList.remove('border-2', 'border-white', 'scale-110');
+            btn.classList.add('border', 'border-neutral-700');
+          }
+        });
+
+        rebuildLedSprites(currentPitch);
+      }
+
+      // Cambio de texto en tiempo real
+      textInput.addEventListener('input', (e) => {
+        state.text = e.target.value;
+        rasterizeTextToMatrix(state.text);
+      });
+
+      btnClearText.addEventListener('click', () => {
+        textInput.value = '';
+        state.text = '';
+        rasterizeTextToMatrix('');
+        textInput.focus();
+      });
+
+      // Selector de color libre y presets
+      colorPicker.addEventListener('input', (e) => {
+        updateAccentColor(e.target.value);
+      });
+
+      colorPresets.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          updateAccentColor(btn.dataset.color);
+        });
+      });
+
+      // Intensidad de brillo
+      brightnessSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.brightness = val / 100;
+        brightnessValue.textContent = `${val}%`;
+        rebuildLedSprites(currentPitch);
+      });
+
+      // Velocidad de scroll
+      speedSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.scrollSpeed = val;
+        speedValue.textContent = val === 0 ? 'Pausado' : `${val} col/s`;
+      });
+
+      // Activador de parpadeo
+      blinkToggle.addEventListener('change', (e) => {
+        state.blinkEnabled = e.target.checked;
+        blinkSpeedSlider.disabled = !state.blinkEnabled;
+
+        if (state.blinkEnabled) {
+          blinkSpeedSlider.classList.remove('opacity-40');
+          blinkToggleTrack.style.backgroundColor = state.color;
+          blinkSpeedLabel.textContent = `${state.blinkSpeed} Hz`;
+          blinkSpeedLabel.classList.replace('text-neutral-500', 'text-neutral-300');
+        } else {
+          blinkSpeedSlider.classList.add('opacity-40');
+          blinkToggleTrack.style.backgroundColor = '#262626';
+          blinkSpeedLabel.textContent = 'Apagado';
+          blinkSpeedLabel.classList.replace('text-neutral-300', 'text-neutral-500');
+          state.isBlinkOn = true;
+        }
+      });
+
+      // Velocidad de parpadeo
+      blinkSpeedSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.blinkSpeed = val;
+        if (state.blinkEnabled) {
+          blinkSpeedLabel.textContent = `${val} Hz`;
+        }
+      });
+
+      // --------------------------------------------------------------------------
+      // 7. GESTIÓN DE PANTALLA COMPLETA Y AUTO-OCULTACIÓN DE CONTROLES
+      // --------------------------------------------------------------------------
+      function setControlsVisibility(hide) {
+        state.controlsHidden = hide;
+        if (hide) {
+          topBar.classList.add('hidden');
+          controlPanel.classList.add('hidden');
+          floatingExit.classList.remove('opacity-0', 'pointer-events-none');
+          floatingExit.classList.add('opacity-100', 'pointer-events-auto');
+        } else {
+          topBar.classList.remove('hidden');
+          controlPanel.classList.remove('hidden');
+          floatingExit.classList.add('opacity-0', 'pointer-events-none');
+          floatingExit.classList.remove('opacity-100', 'pointer-events-auto');
+        }
+        // Recalcular dimensiones del canvas tras ocultar/mostrar barras
+        requestAnimationFrame(() => resizeCanvas());
+      }
+
+      async function enterFullscreen() {
+        setControlsVisibility(true);
+        try {
+          const docEl = document.documentElement;
+          if (docEl.requestFullscreen) {
+            await docEl.requestFullscreen();
+          } else if (docEl.webkitRequestFullscreen) {
+            await docEl.webkitRequestFullscreen();
+          }
+          // Intentar bloquear orientación horizontal en móviles si el navegador lo permite
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+          }
+        } catch (err) {
+          // Si el iframe o navegador restringe requestFullscreen, mantenemos el modo cine limpio
+        }
+      }
+
+      async function exitFullscreen() {
+        setControlsVisibility(false);
+        try {
+          if (document.fullscreenElement) {
+            await document.exitFullscreen();
+          } else if (document.webkitFullscreenElement) {
+            await document.webkitExitFullscreen();
+          }
+          if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+          }
+        } catch (err) {
+          // Ignorar errores de salida
+        }
+      }
+
+      btnFullscreen.addEventListener('click', enterFullscreen);
+      btnExitFullscreen.addEventListener('click', exitFullscreen);
+
+      // Permitir tocar el cartel LED para alternar visibilidad de controles
+      ledStage.addEventListener('click', () => {
+        if (state.controlsHidden) {
+          exitFullscreen();
+        }
+      });
+
+      // Sincronizar si el usuario sale de pantalla completa con la tecla ESC o gesto del sistema
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && state.controlsHidden) {
+          setControlsVisibility(false);
+        }
+        resizeCanvas();
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(resizeCanvas, 120);
+      });
+
+      // --------------------------------------------------------------------------
+      // 8. INICIALIZACIÓN AL CARGAR LA VENTANA
+      // --------------------------------------------------------------------------
+      window.addEventListener('load', () => {
+        setupPWA();
+        updateAccentColor(state.color);
+        rasterizeTextToMatrix(state.text);
+        resizeCanvas();
+        lastTimestamp = performance.now();
+        requestAnimationFrame(renderLoop);
+      });
+
+    })();
+  </script>
+</body>
+</html>
