@@ -13,17 +13,17 @@
   <meta name="description" content="Cartel luminoso LED de texto deslizante configurable en pantalla completa horizontal">
   <title>LedMsg - Cartel LED</title>
 
-  <!-- Favicon SVG incrustado directamente en el código (diodo LED brillante sobre negro puro) -->
-  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff2a2a'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%23ff1e1e'/%3E%3Ccircle cx='28' cy='28' r='4' fill='%23ffffff' fill-opacity='0.85'/%3E%3C/svg%3E">
+  <!-- Favicon SVG de matriz LED incorporado directamente en el HTML -->
+  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='%23161616'%3E%3Ccircle cx='16' cy='16' r='5'/%3E%3Ccircle cx='32' cy='16' r='5'/%3E%3Ccircle cx='48' cy='16' r='5'/%3E%3Ccircle cx='16' cy='32' r='5'/%3E%3Ccircle cx='48' cy='32' r='5'/%3E%3Ccircle cx='16' cy='48' r='5'/%3E%3Ccircle cx='32' cy='48' r='5'/%3E%3Ccircle cx='48' cy='48' r='5'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='22' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23ff1e1e'/%3E%3Ccircle cx='29.5' cy='29.5' r='2.5' fill='%23ffffff' fill-opacity='0.9'/%3E%3C/svg%3E">
 
-  <!-- Tailwind CSS para diseño moderno, oscuro y responsivo -->
+  <!-- Tailwind CSS para diseño oscuro, moderno y 100% responsivo -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Fondo negro puro permanente y bloqueo estricto de scroll en cualquier dispositivo */
+    /* Fondo negro puro permanente y bloqueo absoluto de scroll en cualquier pantalla */
     html, body {
       background-color: #000000 !important;
       color: #e5e5e5;
@@ -39,7 +39,7 @@
       touch-action: manipulation;
     }
 
-    /* Sliders compactos con color dinámico sincronizado con los LEDs */
+    /* Sliders compactos con color dinámico sincronizado con el color de los LEDs */
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
@@ -88,7 +88,7 @@
       box-shadow: 0 0 8px var(--accent-color, #ff1e1e);
     }
 
-    /* Selector de color nativo limpio */
+    /* Selector de color nativo circular */
     input[type="color"] {
       -webkit-appearance: none;
       border: none;
@@ -103,13 +103,13 @@
       border-radius: 50%;
     }
 
-    /* Modo Pantalla Completa: Ocultar barra superior y panel de controles */
+    /* Modo Pantalla Completa: Ocultar cabecera y panel inferior de controles */
     #app-root.is-fullscreen #top-bar,
     #app-root.is-fullscreen #control-panel {
       display: none !important;
     }
 
-    /* Escenario LED en Pantalla Completa (Horizontal nativo) */
+    /* Escenario LED ocupando toda la pantalla en Modo Pantalla Completa */
     #app-root.is-fullscreen #led-stage {
       position: fixed;
       inset: 0;
@@ -119,7 +119,7 @@
       background-color: #000000;
     }
 
-    /* Rotación automática 90° si el dispositivo permanece en vertical en pantalla completa */
+    /* Rotación automática 90° si el dispositivo permanece en vertical durante pantalla completa */
     #app-root.is-fullscreen.force-landscape #led-stage {
       position: fixed;
       top: 50%;
@@ -130,19 +130,19 @@
       transform-origin: center center;
     }
 
-    /* Escala fluida de tarjetas de control para evitar scroll en pantallas bajas */
+    /* Escala fluida de tarjetas de control para garantizar ajuste en 100dvh sin scroll */
     .compact-card {
-      padding: clamp(0.35rem, 0.95vh, 0.7rem) clamp(0.55rem, 1.4vw, 0.85rem);
-      gap: clamp(0.2rem, 0.6vh, 0.45rem);
+      padding: clamp(0.32rem, 0.9vh, 0.68rem) clamp(0.5rem, 1.35vw, 0.85rem);
+      gap: clamp(0.18rem, 0.55vh, 0.42rem);
     }
 
     .compact-label {
-      font-size: clamp(0.62rem, 1.25vh, 0.74rem);
+      font-size: clamp(0.60rem, 1.2vh, 0.74rem);
     }
 
     .compact-preset {
-      width: clamp(1.2rem, 2.5vh, 1.55rem);
-      height: clamp(1.2rem, 2.5vh, 1.55rem);
+      width: clamp(1.15rem, 2.4vh, 1.5rem);
+      height: clamp(1.15rem, 2.4vh, 1.5rem);
     }
   </style>
 </head>
@@ -150,7 +150,7 @@
 
   <div id="app-root" class="w-full h-[100dvh] flex flex-col justify-between bg-black overflow-hidden">
 
-    <!-- Cabecera compacta con marca y botón PWA para Android Chrome -->
+    <!-- Cabecera compacta con marca y botón PWA para instalar en Android desde Chrome -->
     <header id="top-bar" class="w-full px-3 sm:px-5 py-1.5 flex items-center justify-between border-b border-neutral-900 bg-black shrink-0 z-20">
       <div class="flex items-center gap-2">
         <span id="status-dot" class="w-3 h-3 rounded-full inline-block transition-all duration-300" style="background-color: #ff1e1e; box-shadow: 0 0 10px #ff1e1e;"></span>
@@ -168,19 +168,19 @@
       </div>
     </header>
 
-    <!-- Escenario Central del Cartel LED -->
-    <main id="led-stage" class="relative flex-1 min-h-0 w-full bg-black flex items-center justify-center overflow-hidden cursor-pointer" title="Doble clic o doble toque para pantalla completa horizontal">
+    <!-- Escenario Central del Cartel LED (Doble clic / doble toque alterna pantalla completa horizontal) -->
+    <main id="led-stage" class="relative flex-1 min-h-0 w-full bg-black flex items-center justify-center overflow-hidden cursor-pointer" title="Doble clic / doble toque para pantalla completa horizontal">
       <div id="canvas-wrapper" class="w-full h-full flex items-center justify-center px-1 sm:px-2 py-1 bg-black">
         <canvas id="led-canvas" class="block w-full h-full bg-black"></canvas>
       </div>
 
-      <!-- Aviso flotante temporal (2 segundos, sin botones) -->
+      <!-- Aviso flotante discreto que desaparece solo a los 2.5 segundos -->
       <div id="fs-toast" class="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-neutral-900/90 border border-neutral-800 text-neutral-200 text-[11px] sm:text-xs font-medium tracking-wide opacity-0 transition-opacity duration-500 whitespace-nowrap shadow-2xl">
-        Doble toque para pantalla completa horizontal
+        Doble clic / doble toque para pantalla completa horizontal
       </div>
     </main>
 
-    <!-- Panel Inferior de Controles (100% adaptable sin scroll) -->
+    <!-- Panel Inferior Compacto de Controles sobre negro puro -->
     <section id="control-panel" class="w-full bg-neutral-950/95 border-t border-neutral-900 px-3 sm:px-5 py-2 shrink-0 z-20">
       <div class="max-w-5xl mx-auto flex flex-col gap-1.5 sm:gap-2">
 
@@ -191,7 +191,7 @@
             id="led-text-input"
             type="text"
             maxlength="240"
-            value="BIENVENIDO A LEDMSG ★"
+            value="BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥"
             placeholder="Escribe aquí el mensaje para el cartel LED..."
             class="w-full bg-black text-white placeholder-neutral-600 text-sm sm:text-base font-medium pl-3.5 pr-9 py-1.5 sm:py-2 rounded-xl border border-neutral-800 focus:outline-none focus:border-neutral-600 transition shadow-inner"
             autocomplete="off"
@@ -204,10 +204,10 @@
           </button>
         </div>
 
-        <!-- Rejilla de 5 controles: Color, Tamaño, Brillo, Velocidad y Parpadeo -->
+        <!-- Rejilla de 5 controles: Color, Tamaño/Densidad, Brillo, Velocidad y Parpadeo -->
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-1.5 sm:gap-2">
 
-          <!-- 1. Color de los LEDs -->
+          <!-- 1. Color de los LEDs (Selector libre + paleta rápida) -->
           <div class="compact-card col-span-2 lg:col-span-1 bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <span class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Color LED</span>
@@ -215,16 +215,16 @@
             </div>
             <div class="flex items-center justify-between gap-1">
               <button type="button" data-color="#ff1e1e" class="color-preset compact-preset rounded-full border-2 border-white scale-105 transition-transform shrink-0" style="background-color: #ff1e1e;" title="Rojo"></button>
-              <button type="button" data-color="#ffaa00" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ffaa00;" title="Ámbar"></button>
+              <button type="button" data-color="#ff9900" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ff9900;" title="Ámbar"></button>
               <button type="button" data-color="#00ff41" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00ff41;" title="Verde"></button>
               <button type="button" data-color="#00bfff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00bfff;" title="Azul"></button>
               <button type="button" data-color="#ff00cc" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ff00cc;" title="Magenta"></button>
               <button type="button" data-color="#ffffff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ffffff;" title="Blanco"></button>
-              <input id="led-color-picker" type="color" value="#ff1e1e" class="compact-preset cursor-pointer rounded-full shrink-0" title="Color personalizado">
+              <input id="led-color-picker" type="color" value="#ff1e1e" class="compact-preset cursor-pointer rounded-full shrink-0" title="Selector de color libre">
             </div>
           </div>
 
-          <!-- 2. Tamaño del Texto / Densidad LED -->
+          <!-- 2. Tamaño / Densidad LED (40% a 100%) -->
           <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <label for="led-size" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Tamaño</label>
@@ -256,17 +256,17 @@
           <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <label for="led-speed" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Velocidad</label>
-              <span id="speed-value" class="text-[11px] font-mono text-neutral-300">16 col/s</span>
+              <span id="speed-value" class="text-[11px] font-mono text-neutral-300">18 col/s</span>
             </div>
             <div class="flex items-center gap-2">
               <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
               </svg>
-              <input id="led-speed" type="range" min="0" max="50" value="16" class="w-full">
+              <input id="led-speed" type="range" min="0" max="55" value="18" class="w-full">
             </div>
           </div>
 
-          <!-- 5. Parpadeo del texto y selector de velocidad -->
+          <!-- 5. Parpadeo del texto y selector deslizable de velocidad de parpadeo -->
           <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <label for="led-blink-toggle" class="compact-label font-semibold uppercase tracking-wider text-neutral-400 cursor-pointer">Parpadeo</label>
@@ -292,7 +292,7 @@
 
   </div>
 
-  <!-- Modal informativo para instalar la PWA en Android desde Google Chrome -->
+  <!-- Modal informativo rápido para instalar la PWA en Android desde Google Chrome -->
   <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
     <div class="bg-neutral-950 border border-neutral-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
@@ -307,11 +307,11 @@
         </button>
       </div>
       <p class="text-sm text-neutral-300 leading-relaxed">
-        Puedes instalar <strong>LedMsg</strong> como aplicación nativa en pantalla completa en tu móvil Android desde Google Chrome:
+        Instala <strong>LedMsg</strong> como aplicación en tu dispositivo Android desde Google Chrome (respetando la orientación libre al abrirse):
       </p>
       <ol class="text-xs sm:text-sm text-neutral-400 space-y-2 list-decimal list-inside bg-black p-3.5 rounded-xl border border-neutral-900">
-        <li>Abre esta página en <strong>Google Chrome</strong> en Android.</li>
-        <li>Toca el icono de menú <strong>(⋮)</strong> en la esquina superior derecha.</li>
+        <li>Abre esta aplicación en <strong>Google Chrome</strong> en Android.</li>
+        <li>Toca el menú de opciones <strong>(⋮)</strong> en la esquina superior derecha.</li>
         <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong> o <strong>"Instalar aplicación"</strong>.</li>
       </ol>
       <div class="flex justify-end">
@@ -332,13 +332,13 @@
       'use strict';
 
       // --------------------------------------------------------------------------
-      // 1. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES (100% FIABLE)
-      //    Cada carácter es un array de 16 strings de 10 caracteres ('#' = encendido, '.' = apagado).
-      //    No depende de fuentes externas ni de métricas variables del navegador.
+      // 1. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES
+      //    Definida explícitamente en código para garantizar nitidez absoluta en
+      //    cualquier navegador y dispositivo, sin depender de fuentes del sistema.
       // --------------------------------------------------------------------------
       const GLYPH_HEIGHT = 16;
       const GLYPH_WIDTH = 10;
-      const LETTER_SPACING = 2; // Columnas vacías entre caracteres
+      const LETTER_SPACING = 2; // Columnas vacías de separación entre letras
 
       const BITMAP_FONT_10X16 = {
         ' ': [
@@ -546,7 +546,7 @@
           '###....###','###....###','.########.','..######..',
           '..........','..........','..........','..........'
         ],
-        // Minúsculas (diseño claro y legible a distancia en matriz LED)
+        // Minúsculas (diseño claro y altamente legible en matriz LED)
         'a': [
           '..........','..........','..........','..........',
           '..######..','.########.','.......###','.#########',
@@ -806,7 +806,7 @@
           '.......###','###....###','.########.','..######..',
           '..........','..........','..........','..........'
         ],
-        // Signos de puntuación y símbolos
+        // Signos de puntuación y símbolos completos
         '.': [
           '..........','..........','..........','..........',
           '..........','..........','..........','..........',
@@ -966,18 +966,18 @@
       };
 
       // --------------------------------------------------------------------------
-      // 2. ESTADO DE LA APLICACIÓN Y REFERENCIAS DOM
+      // 2. ESTADO GLOBAL DE LA APLICACIÓN Y REFERENCIAS DOM
       // --------------------------------------------------------------------------
       const state = {
-        text: 'BIENVENIDO A LEDMSG ★ ',
+        text: 'BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ ',
         color: '#ff1e1e',
-        textScale: 1.0,       // 0.40 a 1.00 (escala del punto LED)
-        brightness: 0.85,     // 0.15 a 1.00
-        scrollSpeed: 16,      // Columnas LED por segundo
+        textScale: 1.0,         // 0.40 a 1.00 (escala de tamaño/densidad LED)
+        brightness: 0.85,       // 0.15 a 1.00
+        scrollSpeed: 18,        // Columnas LED por segundo
         blinkEnabled: false,
-        blinkSpeed: 4,        // Ciclos por segundo (Hz)
+        blinkSpeed: 4,          // Ciclos por segundo (Hz)
         textRows: GLYPH_HEIGHT, // 16 filas de altura del mensaje
-        rows: GLYPH_HEIGHT,     // Filas totales visibles de la rejilla
+        rows: GLYPH_HEIGHT,     // Filas totales visibles de la matriz
         scrollOffset: 0,
         blinkTimer: 0,
         isBlinkOn: true,
@@ -1014,6 +1014,8 @@
 
       // --------------------------------------------------------------------------
       // 3. MANIFIESTO PWA DINÁMICO E ICONOS PARA ANDROID CHROME
+      //    IMPORTANTE: "orientation": "any" para que la app instalada NO fuerce
+      //    modo horizontal al abrirse, reservándolo solo para pantalla completa.
       // --------------------------------------------------------------------------
       let deferredInstallPrompt = null;
 
@@ -1026,26 +1028,39 @@
         c.fillStyle = '#000000';
         c.fillRect(0, 0, size, size);
 
+        // Rejilla de diodos de fondo en el icono
+        const step = size / 4;
+        for (let gx = 1; gx <= 3; gx++) {
+          for (let gy = 1; gy <= 3; gy++) {
+            if (gx === 2 && gy === 2) continue;
+            c.fillStyle = '#141414';
+            c.beginPath();
+            c.arc(gx * step, gy * step, size * 0.065, 0, Math.PI * 2);
+            c.fill();
+          }
+        }
+
+        // Diodo LED central encendido con halo luminoso
         const cx = size / 2;
         const cy = size / 2;
-        const glow = c.createRadialGradient(cx, cy, size * 0.05, cx, cy, size * 0.45);
+        const glow = c.createRadialGradient(cx, cy, size * 0.04, cx, cy, size * 0.42);
         glow.addColorStop(0, '#ffffff');
-        glow.addColorStop(0.3, '#ff1e1e');
-        glow.addColorStop(0.7, 'rgba(255, 30, 30, 0.35)');
+        glow.addColorStop(0.28, '#ff1e1e');
+        glow.addColorStop(0.68, 'rgba(255, 30, 30, 0.38)');
         glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
         c.fillStyle = glow;
         c.beginPath();
-        c.arc(cx, cy, size * 0.45, 0, Math.PI * 2);
+        c.arc(cx, cy, size * 0.42, 0, Math.PI * 2);
         c.fill();
 
         c.fillStyle = '#ff1e1e';
         c.beginPath();
-        c.arc(cx, cy, size * 0.22, 0, Math.PI * 2);
+        c.arc(cx, cy, size * 0.16, 0, Math.PI * 2);
         c.fill();
 
-        c.fillStyle = 'rgba(255,255,255,0.85)';
+        c.fillStyle = 'rgba(255, 255, 255, 0.88)';
         c.beginPath();
-        c.arc(cx - size * 0.06, cy - size * 0.06, size * 0.06, 0, Math.PI * 2);
+        c.arc(cx - size * 0.045, cy - size * 0.045, size * 0.045, 0, Math.PI * 2);
         c.fill();
 
         return off.toDataURL('image/png');
@@ -1066,8 +1081,8 @@
             short_name: 'LedMsg',
             description: 'Simulador de cartel luminoso de texto LED con scroll configurable',
             start_url: window.location.href,
-            display: 'fullscreen',
-            orientation: 'landscape',
+            display: 'standalone',
+            orientation: 'any',
             background_color: '#000000',
             theme_color: '#000000',
             icons: [
@@ -1083,7 +1098,7 @@
           linkManifest.href = manifestURL;
           document.head.appendChild(linkManifest);
         } catch (err) {
-          console.warn('No se pudo generar el manifiesto dinámico:', err);
+          console.warn('No se pudo generar el manifiesto PWA dinámico:', err);
         }
       }
 
@@ -1123,15 +1138,11 @@
       });
 
       // --------------------------------------------------------------------------
-      // 4. COMPILADOR MATRICIAL DETERMINISTA DEL MENSAJE (TEXTO -> COLUMNAS DE BITS)
+      // 4. COMPILADOR MATRICIAL DETERMINISTA (TEXTO -> COLUMNAS DE 16 BITS)
       // --------------------------------------------------------------------------
-      let textBitmap = [];      // Array de columnas: textBitmap[col][row] = 0 | 1
+      let textBitmap = [];
       let textBitmapCols = 0;
 
-      /**
-       * Busca el glifo de 10x16 en la tabla determinista. Si no existe el carácter exacto,
-       * intenta convertirlo a mayúscula o eliminar diacríticos para que siempre se dibuje.
-       */
       function resolveGlyph(char) {
         if (BITMAP_FONT_10X16[char]) {
           return BITMAP_FONT_10X16[char];
@@ -1144,7 +1155,6 @@
         if (BITMAP_FONT_10X16[normalized]) {
           return BITMAP_FONT_10X16[normalized];
         }
-        // Glifo de respaldo (cuadro punteado) para símbolos desconocidos
         return [
           '..........','.########.','.########.','.##....##.',
           '.##....##.','.##....##.','.##....##.','.##....##.',
@@ -1153,9 +1163,6 @@
         ];
       }
 
-      /**
-       * Convierte el texto completo en un arreglo continuo de columnas de 16 bits.
-       */
       function buildMessageMatrix(rawText) {
         const displayText = rawText && rawText.length > 0 ? rawText : '   ';
         const matrix = [];
@@ -1164,8 +1171,6 @@
           const ch = displayText[i];
           const glyph = resolveGlyph(ch);
 
-          // Determinar recorte horizontal inteligente para que espacios y signos estrechos
-          // no queden excesivamente separados
           let minX = 0;
           let maxX = GLYPH_WIDTH - 1;
 
@@ -1190,7 +1195,6 @@
             }
           }
 
-          // Añadir las columnas del carácter
           for (let c = minX; c <= maxX; c++) {
             const colBits = new Uint8Array(GLYPH_HEIGHT);
             for (let r = 0; r < GLYPH_HEIGHT; r++) {
@@ -1199,7 +1203,6 @@
             matrix.push(colBits);
           }
 
-          // Añadir separación entre letras
           if (ch !== ' ') {
             for (let s = 0; s < LETTER_SPACING; s++) {
               matrix.push(new Uint8Array(GLYPH_HEIGHT));
@@ -1207,7 +1210,7 @@
           }
         }
 
-        // Asegurar un margen final para que el bucle continuo respire visualmente
+        // Margen final para separación natural en el bucle continuo
         for (let pad = 0; pad < 6; pad++) {
           matrix.push(new Uint8Array(GLYPH_HEIGHT));
         }
@@ -1220,7 +1223,7 @@
       }
 
       // --------------------------------------------------------------------------
-      // 5. PRE-RENDERIZADO DE DIODOS LED (SPRITES OFFSCREEN A 60 FPS)
+      // 5. PRE-RENDERIZADO DE SPRITES OFFSCREEN (LED APAGADO Y LED ENCENDIDO)
       // --------------------------------------------------------------------------
       let ledOffSprite = document.createElement('canvas');
       let ledOnSprite = document.createElement('canvas');
@@ -1241,7 +1244,7 @@
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const radius = Math.max(1.2, pitch * 0.37);
 
-        // Sprite 1: Diodo LED apagado (rejilla oscura realista sobre negro puro)
+        // Sprite 1: Diodo LED apagado (rejilla oscura sutil sobre negro puro)
         const offSize = Math.ceil(pitch * dpr);
         ledOffSprite.width = offSize;
         ledOffSprite.height = offSize;
@@ -1263,7 +1266,7 @@
           offCtx.stroke();
         }
 
-        // Sprite 2: Diodo LED encendido (con halo luminoso según brillo y núcleo brillante)
+        // Sprite 2: Diodo LED encendido (con halo luminoso y brillo especular)
         const padFactor = 2.5;
         const onSize = Math.ceil(pitch * padFactor * dpr);
         ledOnSprite.width = onSize;
@@ -1277,7 +1280,7 @@
         const { r, g, b } = hexToRgb(state.color);
         const br = state.brightness;
 
-        // Halo exterior difuso
+        // Halo luminoso exterior (glow)
         const glowRadius = rOn * (1.55 + br * 1.15);
         const glowGrad = onCtx.createRadialGradient(cxOn, cyOn, rOn * 0.15, cxOn, cyOn, glowRadius);
         glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, br * 0.95)})`);
@@ -1296,7 +1299,7 @@
         onCtx.arc(cxOn, cyOn, rOn, 0, Math.PI * 2);
         onCtx.fill();
 
-        // Núcleo incandescente central
+        // Núcleo incandescente y brillo especular
         if (br > 0.35) {
           const coreAlpha = (br - 0.35) * 1.25;
           const coreGrad = onCtx.createRadialGradient(
@@ -1396,7 +1399,7 @@
           }
         }
 
-        // 2. Actualizar parpadeo
+        // 2. Actualizar estado de parpadeo
         if (state.blinkEnabled) {
           state.blinkTimer += dt * state.blinkSpeed;
           state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
@@ -1413,11 +1416,11 @@
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, viewW, viewH);
 
-        // 4. Dibujar rejilla de LEDs apagados y diodos encendidos
+        // 4. Renderizar rejilla de LEDs apagados y LEDs encendidos
         if (currentPitch > 0 && textBitmapCols > 0) {
           const baseColOffset = Math.floor(state.scrollOffset);
 
-          // Pasada 1: LEDs apagados (fijos en la placa)
+          // Pasada 1: LEDs apagados (fijos en la rejilla)
           for (let c = 0; c < visibleCols; c++) {
             const x = startX + c * currentPitch;
             for (let r = 0; r < state.rows; r++) {
@@ -1452,7 +1455,7 @@
       }
 
       // --------------------------------------------------------------------------
-      // 7. CONTROLADORES DE INTERFAZ Y EVENTOS
+      // 7. CONTROLADORES DE INTERFAZ Y EVENTOS EN TIEMPO REAL
       // --------------------------------------------------------------------------
       function updateAccentColor(newHex) {
         state.color = newHex.toLowerCase();
@@ -1549,7 +1552,7 @@
       });
 
       // --------------------------------------------------------------------------
-      // 8. PANTALLA COMPLETA SIEMPRE HORIZONTAL CON DOBLE CLIC / DOBLE TOQUE
+      // 8. PANTALLA COMPLETA EXCLUSIVAMENTE HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
       // --------------------------------------------------------------------------
       let toastTimeout = null;
 
@@ -1562,7 +1565,7 @@
         toastTimeout = setTimeout(() => {
           fsToast.classList.remove('opacity-100');
           fsToast.classList.add('opacity-0');
-        }, 2000);
+        }, 2500);
       }
 
       async function enterFullscreenLandscape() {
@@ -1577,11 +1580,12 @@
             await screen.orientation.lock('landscape');
           }
         } catch (err) {
-          // Si el navegador no permite lock('landscape'), syncOrientationFallback() rotará 90deg por CSS
+          // Si el navegador bloquea lock('landscape') o en escritorio vertical,
+          // syncOrientationFallback() aplicará rotación CSS de 90° automáticamente.
         }
 
         resizeCanvas();
-        showToast('Doble toque para salir de pantalla completa');
+        showToast('Doble clic / doble toque para salir de pantalla completa');
       }
 
       async function exitFullscreenLandscape() {
@@ -1610,13 +1614,13 @@
         }
       }
 
-      // Doble clic en ordenador
+      // Doble clic en ratón
       ledStage.addEventListener('dblclick', (e) => {
         e.preventDefault();
         toggleFullscreenLandscape();
       });
 
-      // Doble toque táctil fiable en móviles y tablets
+      // Doble toque rápido en pantalla táctil
       let lastTapTime = 0;
       ledStage.addEventListener('touchend', (e) => {
         const now = Date.now();
@@ -1659,7 +1663,7 @@
         buildMessageMatrix(state.text);
         updateAccentColor(state.color);
         resizeCanvas();
-        showToast('Doble toque para pantalla completa horizontal');
+        showToast('Doble clic / doble toque para pantalla completa horizontal');
         requestAnimationFrame(renderLoop);
       };
     })();
