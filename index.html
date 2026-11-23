@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LedMsg">
   <meta name="application-name" content="LedMsg">
-  <meta name="description" content="Cartel luminoso LED de texto deslizante configurable en pantalla completa">
+  <meta name="description" content="Cartel luminoso LED de texto deslizante configurable en pantalla completa horizontal">
   <title>LedMsg - Cartel LED</title>
 
-  <!-- Favicon SVG incrustado directamente en código (LED brillante rojo sobre fondo negro) -->
+  <!-- Favicon SVG incrustado directamente en el código (diodo LED brillante sobre negro puro) -->
   <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff2a2a'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%23ff1e1e'/%3E%3Ccircle cx='28' cy='28' r='4' fill='%23ffffff' fill-opacity='0.85'/%3E%3C/svg%3E">
 
   <!-- Tailwind CSS para diseño moderno, oscuro y responsivo -->
@@ -23,28 +23,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Garantizar fondo negro puro en toda circunstancia */
+    /* Fondo negro puro permanente y bloqueo estricto de scroll en cualquier dispositivo */
     html, body {
       background-color: #000000 !important;
       color: #e5e5e5;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
+      width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden !important;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      touch-action: manipulation;
     }
 
-    /* Personalización de sliders (range inputs) */
+    /* Sliders compactos con color dinámico sincronizado con los LEDs */
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
       background: transparent;
       cursor: pointer;
+      height: 18px;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
-      height: 6px;
+      height: 4px;
       border-radius: 999px;
       background: #262626;
       border: 1px solid #333333;
@@ -53,13 +58,13 @@
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 18px;
-      height: 18px;
+      width: clamp(13px, 2vh, 17px);
+      height: clamp(13px, 2vh, 17px);
       border-radius: 50%;
       background: var(--accent-color, #ff1e1e);
       border: 2px solid #ffffff;
-      margin-top: -7px;
-      box-shadow: 0 0 10px var(--accent-color, #ff1e1e);
+      margin-top: -6px;
+      box-shadow: 0 0 8px var(--accent-color, #ff1e1e);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
@@ -68,22 +73,22 @@
     }
 
     input[type="range"]::-moz-range-track {
-      height: 6px;
+      height: 4px;
       border-radius: 999px;
       background: #262626;
       border: 1px solid #333333;
     }
 
     input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
+      width: clamp(13px, 2vh, 17px);
+      height: clamp(13px, 2vh, 17px);
       border-radius: 50%;
       background: var(--accent-color, #ff1e1e);
       border: 2px solid #ffffff;
-      box-shadow: 0 0 10px var(--accent-color, #ff1e1e);
+      box-shadow: 0 0 8px var(--accent-color, #ff1e1e);
     }
 
-    /* Personalización del selector de color nativo */
+    /* Selector de color nativo limpio */
     input[type="color"] {
       -webkit-appearance: none;
       border: none;
@@ -95,163 +100,199 @@
     }
     input[type="color"]::-webkit-color-swatch {
       border: 2px solid #404040;
-      border-radius: 10px;
+      border-radius: 50%;
     }
 
-    /* Transiciones suaves para ocultar controles en pantalla completa */
-    .controls-transition {
-      transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Modo Pantalla Completa: Ocultar barra superior y panel de controles */
+    #app-root.is-fullscreen #top-bar,
+    #app-root.is-fullscreen #control-panel {
+      display: none !important;
+    }
+
+    /* Escenario LED en Pantalla Completa (Horizontal nativo) */
+    #app-root.is-fullscreen #led-stage {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      z-index: 40;
+      background-color: #000000;
+    }
+
+    /* Rotación automática 90° si el dispositivo permanece en vertical en pantalla completa */
+    #app-root.is-fullscreen.force-landscape #led-stage {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 100dvh;
+      height: 100vw;
+      transform: translate(-50%, -50%) rotate(90deg);
+      transform-origin: center center;
+    }
+
+    /* Escala fluida de tarjetas de control para evitar scroll en pantallas bajas */
+    .compact-card {
+      padding: clamp(0.35rem, 0.95vh, 0.7rem) clamp(0.55rem, 1.4vw, 0.85rem);
+      gap: clamp(0.2rem, 0.6vh, 0.45rem);
+    }
+
+    .compact-label {
+      font-size: clamp(0.62rem, 1.25vh, 0.74rem);
+    }
+
+    .compact-preset {
+      width: clamp(1.2rem, 2.5vh, 1.55rem);
+      height: clamp(1.2rem, 2.5vh, 1.55rem);
     }
   </style>
 </head>
-<body class="bg-black text-neutral-200 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white">
+<body class="bg-black text-neutral-200 selection:bg-red-500 selection:text-white">
 
-  <!-- Barra superior minimalista (se oculta en modo pantalla completa / cine) -->
-  <header id="top-bar" class="controls-transition w-full px-4 py-3 sm:px-6 flex items-center justify-between border-b border-neutral-900 bg-black z-20">
-    <div class="flex items-center gap-2.5">
-      <span id="status-dot" class="w-3.5 h-3.5 rounded-full inline-block transition-all duration-300" style="background-color: #ff1e1e; box-shadow: 0 0 12px #ff1e1e;"></span>
-      <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">Led<span id="brand-accent" style="color: #ff1e1e;">Msg</span></h1>
-    </div>
+  <div id="app-root" class="w-full h-[100dvh] flex flex-col justify-between bg-black overflow-hidden">
 
-    <div class="flex items-center gap-2 sm:gap-3">
-      <!-- Botón de Instalación PWA (visible cuando Chrome dispara beforeinstallprompt o como guía) -->
-      <button id="btn-install" type="button" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition active:scale-95" title="Instalar aplicación en Android / Chrome">
-        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-        </svg>
-        <span id="btn-install-text">Instalar App</span>
-      </button>
+    <!-- Cabecera compacta con marca y botón PWA para Android Chrome -->
+    <header id="top-bar" class="w-full px-3 sm:px-5 py-1.5 flex items-center justify-between border-b border-neutral-900 bg-black shrink-0 z-20">
+      <div class="flex items-center gap-2">
+        <span id="status-dot" class="w-3 h-3 rounded-full inline-block transition-all duration-300" style="background-color: #ff1e1e; box-shadow: 0 0 10px #ff1e1e;"></span>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Led<span id="brand-accent" style="color: #ff1e1e;">Msg</span></h1>
+        <span class="hidden md:inline text-[11px] text-neutral-500 ml-2">Doble clic en el cartel para pantalla completa horizontal</span>
+      </div>
 
-      <!-- Botón de Pantalla Completa -->
-      <button id="btn-fullscreen" type="button" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-700 transition active:scale-95 shadow-lg" title="Activar pantalla completa">
-        <svg id="icon-fs-enter" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-        </svg>
-        <span class="hidden xs:inline sm:inline">Pantalla Completa</span>
-      </button>
-    </div>
-  </header>
+      <div class="flex items-center gap-2">
+        <button id="btn-install" type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition active:scale-95" title="Instalar LedMsg en Android desde Chrome">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span id="btn-install-text">Instalar App</span>
+        </button>
+      </div>
+    </header>
 
-  <!-- Contenedor Central del Cartel LED (Protagonista) -->
-  <main id="led-stage" class="relative flex-1 w-full bg-black flex flex-col items-center justify-center overflow-hidden cursor-pointer" title="Toca la pantalla para mostrar u ocultar los controles">
-    <!-- Marco sutil del panel LED -->
-    <div id="canvas-wrapper" class="w-full h-full flex items-center justify-center px-1 sm:px-3 py-2 bg-black">
-      <canvas id="led-canvas" class="block w-full h-full bg-black"></canvas>
-    </div>
+    <!-- Escenario Central del Cartel LED -->
+    <main id="led-stage" class="relative flex-1 min-h-0 w-full bg-black flex items-center justify-center overflow-hidden cursor-pointer" title="Doble clic o doble toque para pantalla completa horizontal">
+      <div id="canvas-wrapper" class="w-full h-full flex items-center justify-center px-1 sm:px-2 py-1 bg-black">
+        <canvas id="led-canvas" class="block w-full h-full bg-black"></canvas>
+      </div>
 
-    <!-- Botón flotante discreto para salir de pantalla completa / mostrar controles -->
-    <div id="floating-exit" class="fixed bottom-4 right-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center gap-2">
-      <button id="btn-exit-fullscreen" type="button" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-neutral-900/90 hover:bg-neutral-800 text-neutral-200 border border-neutral-700/80 backdrop-blur-md text-xs font-medium shadow-2xl active:scale-95">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"/>
-        </svg>
-        <span>Mostrar Controles</span>
-      </button>
-    </div>
-  </main>
+      <!-- Aviso flotante temporal (2 segundos, sin botones) -->
+      <div id="fs-toast" class="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-neutral-900/90 border border-neutral-800 text-neutral-200 text-[11px] sm:text-xs font-medium tracking-wide opacity-0 transition-opacity duration-500 whitespace-nowrap shadow-2xl">
+        Doble toque para pantalla completa horizontal
+      </div>
+    </main>
 
-  <!-- Panel de Controles Inferior (Colapsable / Auto-ocultable en pantalla completa) -->
-  <section id="control-panel" class="controls-transition w-full bg-neutral-950/95 border-t border-neutral-900 px-4 py-4 sm:px-6 sm:py-5 z-20">
-    <div class="max-w-5xl mx-auto space-y-4">
+    <!-- Panel Inferior de Controles (100% adaptable sin scroll) -->
+    <section id="control-panel" class="w-full bg-neutral-950/95 border-t border-neutral-900 px-3 sm:px-5 py-2 shrink-0 z-20">
+      <div class="max-w-5xl mx-auto flex flex-col gap-1.5 sm:gap-2">
 
-      <!-- Fila 1: Caja de texto del mensaje -->
-      <div class="flex flex-col sm:flex-row gap-2.5">
-        <div class="relative flex-1">
+        <!-- Caja de texto del mensaje en tiempo real -->
+        <div class="relative w-full">
           <label for="led-text-input" class="sr-only">Mensaje del cartel LED</label>
           <input
             id="led-text-input"
             type="text"
-            maxlength="200"
-            value="BIENVENIDO A LEDMSG • HOLA MUNDO • "
-            placeholder="Escribe tu mensaje aquí..."
+            maxlength="240"
+            value="BIENVENIDO A LEDMSG ★"
+            placeholder="Escribe aquí el mensaje para el cartel LED..."
+            class="w-full bg-black text-white placeholder-neutral-600 text-sm sm:text-base font-medium pl-3.5 pr-9 py-1.5 sm:py-2 rounded-xl border border-neutral-800 focus:outline-none focus:border-neutral-600 transition shadow-inner"
             autocomplete="off"
             spellcheck="false"
-            class="w-full bg-black text-white placeholder-neutral-600 border border-neutral-800 focus:border-neutral-600 rounded-xl px-4 py-3 text-base sm:text-lg font-medium tracking-wide outline-none transition"
           >
-          <button id="btn-clear-text" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 p-1.5 rounded-lg" title="Limpiar texto">
+          <button id="btn-clear-text" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 p-1 rounded-lg transition" title="Borrar mensaje">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
-      </div>
 
-      <!-- Fila 2: Grid de Ajustes (Color, Brillo, Velocidad de Scroll, Parpadeo) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <!-- Rejilla de 5 controles: Color, Tamaño, Brillo, Velocidad y Parpadeo -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-1.5 sm:gap-2">
 
-        <!-- Tarjeta 1: Color de los LEDs -->
-        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Color LED</span>
-            <span id="color-hex-label" class="text-xs font-mono text-neutral-400">#FF1E1E</span>
-          </div>
-          <div class="flex items-center justify-between gap-1.5">
-            <!-- Botones rápidos de colores clásicos -->
-            <button type="button" data-color="#ff1e1e" class="color-preset w-7 h-7 rounded-full border-2 border-white scale-110 transition-transform" style="background-color: #ff1e1e;" title="Rojo Clásico"></button>
-            <button type="button" data-color="#ffaa00" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ffaa00;" title="Ámbar / Naranja"></button>
-            <button type="button" data-color="#00ff41" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #00ff41;" title="Verde Matriz"></button>
-            <button type="button" data-color="#00bfff" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #00bfff;" title="Azul Eléctrico"></button>
-            <button type="button" data-color="#ff00cc" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ff00cc;" title="Rosa Neón"></button>
-            <button type="button" data-color="#ffffff" class="color-preset w-7 h-7 rounded-full border border-neutral-700 transition-transform hover:scale-110" style="background-color: #ffffff;" title="Blanco Puro"></button>
-            <!-- Selector libre de color -->
-            <input id="led-color-picker" type="color" value="#ff1e1e" class="w-8 h-7 cursor-pointer rounded-lg" title="Elegir cualquier color">
-          </div>
-        </div>
-
-        <!-- Tarjeta 2: Intensidad de Brillo -->
-        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
-          <div class="flex items-center justify-between">
-            <label for="led-brightness" class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Intensidad Brillo</label>
-            <span id="brightness-value" class="text-xs font-mono text-neutral-300">85%</span>
-          </div>
-          <div class="flex items-center gap-2.5 py-1">
-            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <input id="led-brightness" type="range" min="15" max="100" value="85" class="w-full">
-          </div>
-        </div>
-
-        <!-- Tarjeta 3: Velocidad de Scroll -->
-        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
-          <div class="flex items-center justify-between">
-            <label for="led-speed" class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Velocidad Scroll</label>
-            <span id="speed-value" class="text-xs font-mono text-neutral-300">12 col/s</span>
-          </div>
-          <div class="flex items-center gap-2.5 py-1">
-            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-            </svg>
-            <input id="led-speed" type="range" min="0" max="45" value="14" class="w-full">
-          </div>
-        </div>
-
-        <!-- Tarjeta 4: Parpadeo y Velocidad de Parpadeo -->
-        <div class="bg-black border border-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
-          <div class="flex items-center justify-between">
-            <label for="led-blink-toggle" class="text-xs font-semibold uppercase tracking-wider text-neutral-400 cursor-pointer">Parpadeo</label>
-            <div class="flex items-center gap-2">
-              <span id="blink-speed-label" class="text-xs font-mono text-neutral-500">Apagado</span>
-              <!-- Interruptor Toggle -->
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input id="led-blink-toggle" type="checkbox" class="sr-only peer">
-                <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600" id="blink-toggle-track"></div>
-              </label>
+          <!-- 1. Color de los LEDs -->
+          <div class="compact-card col-span-2 lg:col-span-1 bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Color LED</span>
+              <span id="color-hex-label" class="text-[11px] font-mono text-neutral-400">#FF1E1E</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <button type="button" data-color="#ff1e1e" class="color-preset compact-preset rounded-full border-2 border-white scale-105 transition-transform shrink-0" style="background-color: #ff1e1e;" title="Rojo"></button>
+              <button type="button" data-color="#ffaa00" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ffaa00;" title="Ámbar"></button>
+              <button type="button" data-color="#00ff41" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00ff41;" title="Verde"></button>
+              <button type="button" data-color="#00bfff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00bfff;" title="Azul"></button>
+              <button type="button" data-color="#ff00cc" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ff00cc;" title="Magenta"></button>
+              <button type="button" data-color="#ffffff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ffffff;" title="Blanco"></button>
+              <input id="led-color-picker" type="color" value="#ff1e1e" class="compact-preset cursor-pointer rounded-full shrink-0" title="Color personalizado">
             </div>
           </div>
-          <div class="flex items-center gap-2.5 py-1">
-            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            <input id="led-blink-speed" type="range" min="1" max="15" value="4" disabled class="w-full opacity-40 transition-opacity">
+
+          <!-- 2. Tamaño del Texto / Densidad LED -->
+          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <label for="led-size" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Tamaño</label>
+              <span id="size-value" class="text-[11px] font-mono text-neutral-300">100%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+              <input id="led-size" type="range" min="40" max="100" value="100" class="w-full">
+            </div>
           </div>
+
+          <!-- 3. Intensidad de Brillo -->
+          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <label for="led-brightness" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Brillo</label>
+              <span id="brightness-value" class="text-[11px] font-mono text-neutral-300">85%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+              <input id="led-brightness" type="range" min="15" max="100" value="85" class="w-full">
+            </div>
+          </div>
+
+          <!-- 4. Velocidad de Scroll -->
+          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <label for="led-speed" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Velocidad</label>
+              <span id="speed-value" class="text-[11px] font-mono text-neutral-300">16 col/s</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+              </svg>
+              <input id="led-speed" type="range" min="0" max="50" value="16" class="w-full">
+            </div>
+          </div>
+
+          <!-- 5. Parpadeo del texto y selector de velocidad -->
+          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <label for="led-blink-toggle" class="compact-label font-semibold uppercase tracking-wider text-neutral-400 cursor-pointer">Parpadeo</label>
+              <div class="flex items-center gap-1.5">
+                <span id="blink-speed-label" class="text-[11px] font-mono text-neutral-500">Off</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input id="led-blink-toggle" type="checkbox" class="sr-only peer">
+                  <div id="blink-toggle-track" class="w-8 h-4 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <input id="led-blink-speed" type="range" min="1" max="15" value="4" disabled class="w-full opacity-40 transition-opacity">
+            </div>
+          </div>
+
         </div>
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Modal / Toast informativo para instalación PWA en Android / Chrome -->
+  </div>
+
+  <!-- Modal informativo para instalar la PWA en Android desde Google Chrome -->
   <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
     <div class="bg-neutral-950 border border-neutral-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
@@ -266,11 +307,11 @@
         </button>
       </div>
       <p class="text-sm text-neutral-300 leading-relaxed">
-        Puedes instalar <strong>LedMsg</strong> como una aplicación independiente en pantalla completa en tu dispositivo Android desde Google Chrome:
+        Puedes instalar <strong>LedMsg</strong> como aplicación nativa en pantalla completa en tu móvil Android desde Google Chrome:
       </p>
       <ol class="text-xs sm:text-sm text-neutral-400 space-y-2 list-decimal list-inside bg-black p-3.5 rounded-xl border border-neutral-900">
-        <li>Abre esta página directamente en <strong>Google Chrome</strong> (asegúrate de servirla por HTTPS o localhost, o alojada en la web).</li>
-        <li>Toca el menú de <strong>tres puntos (⋮)</strong> en la esquina superior derecha de Chrome.</li>
+        <li>Abre esta página en <strong>Google Chrome</strong> en Android.</li>
+        <li>Toca el icono de menú <strong>(⋮)</strong> en la esquina superior derecha.</li>
         <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong> o <strong>"Instalar aplicación"</strong>.</li>
       </ol>
       <div class="flex justify-end">
@@ -284,32 +325,666 @@
   <script>
     /**
      * ============================================================================
-     * LEDMSG - SIMULADOR DE CARTEL LUMINOSO LED EN CANVAS (UNA SOLA LÍNEA)
+     * LEDMSG - MOTOR MATRICIAL DETERMINISTA 10x16 Y RENDERIZADOR LED DE 60 FPS
      * ============================================================================
      */
-
     (function () {
       'use strict';
 
       // --------------------------------------------------------------------------
-      // 1. CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN
+      // 1. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES (100% FIABLE)
+      //    Cada carácter es un array de 16 strings de 10 caracteres ('#' = encendido, '.' = apagado).
+      //    No depende de fuentes externas ni de métricas variables del navegador.
       // --------------------------------------------------------------------------
-      const state = {
-        text: 'BIENVENIDO A LEDMSG • HOLA MUNDO • ',
-        color: '#ff1e1e',
-        brightness: 0.85,     // 0.15 a 1.0
-        scrollSpeed: 14,      // Columnas LED por segundo
-        blinkEnabled: false,
-        blinkSpeed: 4,        // Ciclos por segundo (Hz)
-        rows: 16,             // Altura fija de la matriz en filas de LEDs (16px de alto = alta legibilidad con tildes y ñ)
-        scrollOffset: 0,      // Desplazamiento actual en columnas (float para movimiento ultrasuave)
-        blinkTimer: 0,        // Acumulador de tiempo para parpadeo
-        isBlinkOn: true,      // Estado actual del parpadeo
-        isFullscreenMode: false,
-        controlsHidden: false
+      const GLYPH_HEIGHT = 16;
+      const GLYPH_WIDTH = 10;
+      const LETTER_SPACING = 2; // Columnas vacías entre caracteres
+
+      const BITMAP_FONT_10X16 = {
+        ' ': [
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        'A': [
+          '..........','...####...','..######..','.###..###.',
+          '###....###','###....###','###....###','##########',
+          '##########','###....###','###....###','###....###',
+          '###....###','###....###','..........','..........'
+        ],
+        'B': [
+          '..........','#########.', '##########','###....###',
+          '###....###','###....###','#########.', '#########.',
+          '###....###','###....###','###....###','###....###',
+          '##########','#########.', '..........','..........'
+        ],
+        'C': [
+          '..........','..######..','.########.','###....###',
+          '###.......','###.......','###.......','###.......',
+          '###.......','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'D': [
+          '..........','########..','#########.', '###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','#########.',
+          '########..','..........','..........','..........'
+        ],
+        'E': [
+          '..........','##########','##########','###.......',
+          '###.......','###.......','########..','########..',
+          '###.......','###.......','###.......','##########',
+          '##########','..........','..........','..........'
+        ],
+        'F': [
+          '..........','##########','##########','###.......',
+          '###.......','###.......','########..','########..',
+          '###.......','###.......','###.......','###.......',
+          '###.......','..........','..........','..........'
+        ],
+        'G': [
+          '..........','..######..','.########.','###....###',
+          '###.......','###.......','###..#####','###..#####',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'H': [
+          '..........','###....###','###....###','###....###',
+          '###....###','###....###','##########','##########',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'I': [
+          '..........','.########.','.########.','....##....',
+          '....##....','....##....','....##....','....##....',
+          '....##....','....##....','....##....','.########.',
+          '.########.','..........','..........','..........'
+        ],
+        'J': [
+          '..........','...#######','...#######','.......###',
+          '.......###','.......###','.......###','.......###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'K': [
+          '..........','###....###','###...###.','###..###..',
+          '###.###...','######....','#####.....','######....',
+          '###.###...','###..###..','###...###.','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'L': [
+          '..........','###.......','###.......','###.......',
+          '###.......','###.......','###.......','###.......',
+          '###.......','###.......','###.......','##########',
+          '##########','..........','..........','..........'
+        ],
+        'M': [
+          '..........','###....###','####..####','##########',
+          '##########','###.##.###','###.##.###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'N': [
+          '..........','###....###','####...###','#####..###',
+          '######.###','###.######','###..#####','###...####',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'Ñ': [
+          '.###..###.','.########.','..........','###....###',
+          '####...###','#####..###','######.###','###.######',
+          '###..#####','###...####','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'O': [
+          '..........','..######..','.########.','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'P': [
+          '..........','#########.', '##########','###....###',
+          '###....###','###....###','##########','#########.',
+          '###.......','###.......','###.......','###.......',
+          '###.......','..........','..........','..........'
+        ],
+        'Q': [
+          '..........','..######..','.########.','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###.##.###','###..#####','.########.','..######..',
+          '......####','..........','..........','..........'
+        ],
+        'R': [
+          '..........','#########.', '##########','###....###',
+          '###....###','###....###','##########','#########.',
+          '###..###..','###...###.','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'S': [
+          '..........','..######..','.########.','###....###',
+          '###.......','.#######..','..#######.','.......###',
+          '.......###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        'T': [
+          '..........','##########','##########','....##....',
+          '....##....','....##....','....##....','....##....',
+          '....##....','....##....','....##....','....##....',
+          '....##....','..........','..........','..........'
+        ],
+        'U': [
+          '..........','###....###','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'V': [
+          '..........','###....###','###....###','###....###',
+          '###....###','###....###','###....###','.###..###.',
+          '.###..###.','..######..','..######..','...####...',
+          '....##....','..........','..........','..........'
+        ],
+        'W': [
+          '..........','###....###','###....###','###....###',
+          '###....###','###....###','###.##.###','###.##.###',
+          '##########','##########','####..####','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'X': [
+          '..........','###....###','.###..###.','..######..',
+          '...####...','....##....','...####...','..######..',
+          '.###..###.','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'Y': [
+          '..........','###....###','###....###','.###..###.',
+          '..######..','...####...','....##....','....##....',
+          '....##....','....##....','....##....','....##....',
+          '....##....','..........','..........','..........'
+        ],
+        'Z': [
+          '..........','##########','##########','......###.',
+          '.....###..','....###...','...###....','..###.....',
+          '.###......','###.......','##########','##########',
+          '..........','..........','..........','..........'
+        ],
+        // Vocales acentuadas y diéresis en mayúscula
+        'Á': [
+          '.....###..','....###...','...####...','..######..',
+          '.###..###.','###....###','##########','##########',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'É': [
+          '.....###..','....###...','##########','##########',
+          '###.......','###.......','########..','########..',
+          '###.......','###.......','##########','##########',
+          '..........','..........','..........','..........'
+        ],
+        'Í': [
+          '.....###..','....###...','.########.','.########.',
+          '....##....','....##....','....##....','....##....',
+          '....##....','....##....','.########.','.########.',
+          '..........','..........','..........','..........'
+        ],
+        'Ó': [
+          '.....###..','....###...','..######..','.########.',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        'Ú': [
+          '.....###..','....###...','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        'Ü': [
+          '..##..##..','..##..##..','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        // Minúsculas (diseño claro y legible a distancia en matriz LED)
+        'a': [
+          '..........','..........','..........','..........',
+          '..######..','.########.','.......###','.#########',
+          '##########','###....###','###....###','.#########',
+          '..#####.##','..........','..........','..........'
+        ],
+        'b': [
+          '..........','###.......','###.......','###.......',
+          '#########.', '##########','###....###','###....###',
+          '###....###','###....###','###....###','##########',
+          '#########.', '..........','..........','..........'
+        ],
+        'c': [
+          '..........','..........','..........','..........',
+          '..######..','.########.','###....###','###.......',
+          '###.......','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'd': [
+          '..........','.......###','.......###','.......###',
+          '.#########','##########','###....###','###....###',
+          '###....###','###....###','###....###','##########',
+          '.#########','..........','..........','..........'
+        ],
+        'e': [
+          '..........','..........','..........','..........',
+          '..######..','.########.','###....###','##########',
+          '##########','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'f': [
+          '..........','...#####..','..#######.','..##...##.',
+          '..##......','.######...','.######...','..##......',
+          '..##......','..##......','..##......','..##......',
+          '..##......','..........','..........','..........'
+        ],
+        'g': [
+          '..........','..........','..........','..........',
+          '..######..','.#########','###....###','###....###',
+          '###....###','.#########','..#######.','.......###',
+          '.########.','..######..','..........','..........'
+        ],
+        'h': [
+          '..........','###.......','###.......','###.......',
+          '#########.', '##########','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'i': [
+          '..........','....##....','....##....','..........',
+          '...###....','...###....','....##....','....##....',
+          '....##....','....##....','....##....','..######..',
+          '..######..','..........','..........','..........'
+        ],
+        'j': [
+          '..........','.....##...','.....##...','..........',
+          '....###...','....###...','.....##...','.....##...',
+          '.....##...','.....##...','##...##...','.######...',
+          '..####....','..........','..........','..........'
+        ],
+        'k': [
+          '..........','###.......','###.......','###.......',
+          '###...###.','###..###..','###.###...','######....',
+          '######....','###.###...','###..###..','###...###.',
+          '###....###','..........','..........','..........'
+        ],
+        'l': [
+          '..........','..###.....','..###.....','...##.....',
+          '...##.....','...##.....','...##.....','...##.....',
+          '...##.....','...##.....','...##.....','..#####...',
+          '...####...','..........','..........','..........'
+        ],
+        'm': [
+          '..........','..........','..........','..........',
+          '####..###.','##########','###.##.###','###.##.###',
+          '###.##.###','###.##.###','###.##.###','###.##.###',
+          '###.##.###','..........','..........','..........'
+        ],
+        'n': [
+          '..........','..........','..........','..........',
+          '#########.', '##########','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'ñ': [
+          '..........','.###..###.','.########.','..........',
+          '#########.', '##########','###....###','###....###',
+          '###....###','###....###','###....###','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'o': [
+          '..........','..........','..........','..........',
+          '..######..','.########.','###....###','###....###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'p': [
+          '..........','..........','..........','..........',
+          '#########.', '##########','###....###','###....###',
+          '###....###','##########','#########.', '###.......',
+          '###.......','###.......','..........','..........'
+        ],
+        'q': [
+          '..........','..........','..........','..........',
+          '.#########','##########','###....###','###....###',
+          '###....###','##########','.#########','.......###',
+          '.......###','.......###','..........','..........'
+        ],
+        'r': [
+          '..........','..........','..........','..........',
+          '###.#####.','##########','####...###','###.......',
+          '###.......','###.......','###.......','###.......',
+          '###.......','..........','..........','..........'
+        ],
+        's': [
+          '..........','..........','..........','..........',
+          '..######..','.########.','###....###','.######...',
+          '..######..','.......###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        't': [
+          '..........','...##.....','...##.....','...##.....',
+          '.#######..','.#######..','...##.....','...##.....',
+          '...##.....','...##.....','...##..##.','....#####.',
+          '.....###..','..........','..........','..........'
+        ],
+        'u': [
+          '..........','..........','..........','..........',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','##########',
+          '.#########','..........','..........','..........'
+        ],
+        'v': [
+          '..........','..........','..........','..........',
+          '###....###','###....###','###....###','###....###',
+          '.###..###.','.###..###.','..######..','...####...',
+          '....##....','..........','..........','..........'
+        ],
+        'w': [
+          '..........','..........','..........','..........',
+          '###....###','###....###','###.##.###','###.##.###',
+          '###.##.###','##########','##########','.###..###.',
+          '.###..###.','..........','..........','..........'
+        ],
+        'x': [
+          '..........','..........','..........','..........',
+          '###....###','.###..###.','..######..','...####...',
+          '...####...','..######..','.###..###.','###....###',
+          '###....###','..........','..........','..........'
+        ],
+        'y': [
+          '..........','..........','..........','..........',
+          '###....###','###....###','###....###','###....###',
+          '.#########','..#######.','.......###','###....###',
+          '.########.','..######..','..........','..........'
+        ],
+        'z': [
+          '..........','..........','..........','..........',
+          '##########','##########','......###.','.....###..',
+          '....###...','...###....','..###.....','##########',
+          '##########','..........','..........','..........'
+        ],
+        'á': [
+          '..........','.....###..','....###...','..........',
+          '..######..','.########.','.......###','.#########',
+          '##########','###....###','###....###','.#########',
+          '..#####.##','..........','..........','..........'
+        ],
+        'é': [
+          '..........','.....###..','....###...','..........',
+          '..######..','.########.','###....###','##########',
+          '##########','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'í': [
+          '..........','.....###..','....###...','..........',
+          '...###....','...###....','....##....','....##....',
+          '....##....','....##....','....##....','..######..',
+          '..######..','..........','..........','..........'
+        ],
+        'ó': [
+          '..........','.....###..','....###...','..........',
+          '..######..','.########.','###....###','###....###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        'ú': [
+          '..........','.....###..','....###...','..........',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','##########',
+          '.#########','..........','..........','..........'
+        ],
+        'ü': [
+          '..........','..##..##..','..##..##..','..........',
+          '###....###','###....###','###....###','###....###',
+          '###....###','###....###','###....###','##########',
+          '.#########','..........','..........','..........'
+        ],
+        // Números 0-9
+        '0': [
+          '..........','..######..','.########.','###...####',
+          '###..#####','###.##.###','#####..###','####...###',
+          '###....###','###....###','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        '1': [
+          '..........','....###...','...####...','..#####...',
+          '.######...','....###...','....###...','....###...',
+          '....###...','....###...','....###...','.#########',
+          '.#########','..........','..........','..........'
+        ],
+        '2': [
+          '..........','..######..','.########.','###....###',
+          '.......###','......###.','....####..','..#####...',
+          '.####.....','###.......','##########','##########',
+          '..........','..........','..........','..........'
+        ],
+        '3': [
+          '..........','..######..','.########.','###....###',
+          '.......###','....#####.','....#####.','.......###',
+          '.......###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        '4': [
+          '..........','.....####.','....#####.','...######.',
+          '..###.###.','.###..###.','###...###.','##########',
+          '##########','......###.','......###.','......###.',
+          '......###.','..........','..........','..........'
+        ],
+        '5': [
+          '..........','##########','##########','###.......',
+          '###.......','#########.', '##########','.......###',
+          '.......###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        '6': [
+          '..........','..######..','.########.','###....###',
+          '###.......','#########.', '##########','###....###',
+          '###....###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        '7': [
+          '..........','##########','##########','.......###',
+          '......###.','.....###..','....###...','...###....',
+          '...###....','...###....','...###....','...###....',
+          '...###....','..........','..........','..........'
+        ],
+        '8': [
+          '..........','..######..','.########.','###....###',
+          '###....###','.########.','.########.','###....###',
+          '###....###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        '9': [
+          '..........','..######..','.########.','###....###',
+          '###....###','###....###','.#########','..########',
+          '.......###','###....###','.########.','..######..',
+          '..........','..........','..........','..........'
+        ],
+        // Signos de puntuación y símbolos
+        '.': [
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','...###....','...###....',
+          '...###....','..........','..........','..........'
+        ],
+        ',': [
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','...###....','...###....','....##....',
+          '...##.....','..........','..........','..........'
+        ],
+        ':': [
+          '..........','..........','..........','...###....',
+          '...###....','...###....','..........','..........',
+          '..........','...###....','...###....','...###....',
+          '..........','..........','..........','..........'
+        ],
+        ';': [
+          '..........','..........','..........','...###....',
+          '...###....','..........','..........','..........',
+          '..........','...###....','...###....','....##....',
+          '...##.....','..........','..........','..........'
+        ],
+        '!': [
+          '..........','...####...','...####...','...####...',
+          '...####...','...####...','...####...','....##....',
+          '....##....','..........','...####...','...####...',
+          '...####...','..........','..........','..........'
+        ],
+        '¡': [
+          '..........','...####...','...####...','...####...',
+          '..........','....##....','....##....','...####...',
+          '...####...','...####...','...####...','...####...',
+          '...####...','..........','..........','..........'
+        ],
+        '?': [
+          '..........','..######..','.########.','###....###',
+          '.......###','.....####.','....####..','....###...',
+          '....###...','..........','....###...','....###...',
+          '....###...','..........','..........','..........'
+        ],
+        '¿': [
+          '..........','....###...','....###...','....###...',
+          '..........','....###...','....###...','...####...',
+          '..####....','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        '-': [
+          '..........','..........','..........','..........',
+          '..........','..........','.########.','.########.',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '_': [
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '##########','##########','..........','..........'
+        ],
+        '+': [
+          '..........','..........','..........','....##....',
+          '....##....','....##....','.########.','.########.',
+          '....##....','....##....','....##....','..........',
+          '..........','..........','..........','..........'
+        ],
+        '=': [
+          '..........','..........','..........','..........',
+          '.########.','.########.','..........','.########.',
+          '.########.','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '*': [
+          '..........','..........','....##....','.##.##.##.',
+          '..######..','.########.','..######..','.##.##.##.',
+          '....##....','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '/': [
+          '..........','.......###','......###.','......###.',
+          '.....###..','....###...','....###...','...###....',
+          '..###.....','..###.....','.###......','###.......',
+          '..........','..........','..........','..........'
+        ],
+        '(': [
+          '..........','.....###..','....###...','...###....',
+          '..###.....','..###.....','..###.....','..###.....',
+          '..###.....','...###....','....###...','.....###..',
+          '..........','..........','..........','..........'
+        ],
+        ')': [
+          '..........','..###.....','...###....','....###...',
+          '.....###..','.....###..','.....###..','.....###..',
+          '.....###..','....###...','...###....','..###.....',
+          '..........','..........','..........','..........'
+        ],
+        '@': [
+          '..........','..######..','.########.','###....###',
+          '###..#####','###.##.###','###.##.###','###.######',
+          '###..####.','###.......','###....###','.########.',
+          '..######..','..........','..........','..........'
+        ],
+        '#': [
+          '..........','..##..##..','..##..##..','.########.',
+          '.########.','..##..##..','..##..##..','.########.',
+          '.########.','..##..##..','..##..##..','..........',
+          '..........','..........','..........','..........'
+        ],
+        '$': [
+          '..........','....##....','..######..','.########.',
+          '###.##....','.#######..','..#######.','....##.###',
+          '.########.','..######..','....##....','..........',
+          '..........','..........','..........','..........'
+        ],
+        '%': [
+          '..........','.###...###','.###..###.','.....###..',
+          '....###...','...###....','..###.....','.###..###.',
+          '###...###.','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '&': [
+          '..........','..####....','.######...','###..###..',
+          '.######...','..#####...','.#######..','###..####.',
+          '###...###.','.########.','..#####.##','..........',
+          '..........','..........','..........','..........'
+        ],
+        '"': [
+          '..........','..##..##..','..##..##..','..##..##..',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        "'": [
+          '..........','....##....','....##....','....##....',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '•': [
+          '..........','..........','..........','..........',
+          '...####...','..######..','..######..','..######..',
+          '...####...','..........','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '★': [
+          '..........','....##....','....##....','...####...',
+          '##########','.########.','..######..','.########.',
+          '.###..###.','###....###','..........','..........',
+          '..........','..........','..........','..........'
+        ],
+        '♥': [
+          '..........','..........','.###..###.','##########',
+          '##########','##########','.########.','..######..',
+          '...####...','....##....','..........','..........',
+          '..........','..........','..........','..........'
+        ]
       };
 
-      // Referencias al DOM
+      // --------------------------------------------------------------------------
+      // 2. ESTADO DE LA APLICACIÓN Y REFERENCIAS DOM
+      // --------------------------------------------------------------------------
+      const state = {
+        text: 'BIENVENIDO A LEDMSG ★ ',
+        color: '#ff1e1e',
+        textScale: 1.0,       // 0.40 a 1.00 (escala del punto LED)
+        brightness: 0.85,     // 0.15 a 1.00
+        scrollSpeed: 16,      // Columnas LED por segundo
+        blinkEnabled: false,
+        blinkSpeed: 4,        // Ciclos por segundo (Hz)
+        textRows: GLYPH_HEIGHT, // 16 filas de altura del mensaje
+        rows: GLYPH_HEIGHT,     // Filas totales visibles de la rejilla
+        scrollOffset: 0,
+        blinkTimer: 0,
+        isBlinkOn: true,
+        isFullscreenMode: false
+      };
+
+      const appRoot = document.getElementById('app-root');
       const canvas = document.getElementById('led-canvas');
       const ctx = canvas.getContext('2d', { alpha: false });
       const textInput = document.getElementById('led-text-input');
@@ -317,6 +992,8 @@
       const colorPicker = document.getElementById('led-color-picker');
       const colorHexLabel = document.getElementById('color-hex-label');
       const colorPresets = document.querySelectorAll('.color-preset');
+      const sizeSlider = document.getElementById('led-size');
+      const sizeValue = document.getElementById('size-value');
       const brightnessSlider = document.getElementById('led-brightness');
       const brightnessValue = document.getElementById('brightness-value');
       const speedSlider = document.getElementById('led-speed');
@@ -325,11 +1002,7 @@
       const blinkToggleTrack = document.getElementById('blink-toggle-track');
       const blinkSpeedSlider = document.getElementById('led-blink-speed');
       const blinkSpeedLabel = document.getElementById('blink-speed-label');
-      const btnFullscreen = document.getElementById('btn-fullscreen');
-      const btnExitFullscreen = document.getElementById('btn-exit-fullscreen');
-      const floatingExit = document.getElementById('floating-exit');
-      const topBar = document.getElementById('top-bar');
-      const controlPanel = document.getElementById('control-panel');
+      const fsToast = document.getElementById('fs-toast');
       const ledStage = document.getElementById('led-stage');
       const statusDot = document.getElementById('status-dot');
       const brandAccent = document.getElementById('brand-accent');
@@ -340,136 +1013,85 @@
       const okInstallModal = document.getElementById('ok-install-modal');
 
       // --------------------------------------------------------------------------
-      // 2. GENERACIÓN DINÁMICA DE PWA (MANIFEST + ICONOS CANVAS + SERVICE WORKER)
+      // 3. MANIFIESTO PWA DINÁMICO E ICONOS PARA ANDROID CHROME
       // --------------------------------------------------------------------------
       let deferredInstallPrompt = null;
 
       function generateLedIconDataURL(size) {
-        const iconCanvas = document.createElement('canvas');
-        iconCanvas.width = size;
-        iconCanvas.height = size;
-        const ictx = iconCanvas.getContext('2d');
+        const off = document.createElement('canvas');
+        off.width = size;
+        off.height = size;
+        const c = off.getContext('2d');
 
-        // Fondo negro puro
-        ictx.fillStyle = '#000000';
-        ictx.fillRect(0, 0, size, size);
+        c.fillStyle = '#000000';
+        c.fillRect(0, 0, size, size);
 
-        // Dibujar una mini-matriz de 5x5 LEDs rojos brillantes
-        const grid = 5;
-        const cell = size / (grid + 1);
-        const radius = cell * 0.34;
-        // Patrón de letra "L" o pulso LED
-        const pattern = [
-          [0, 1, 0, 0, 0],
-          [0, 1, 0, 0, 0],
-          [0, 1, 0, 1, 0],
-          [0, 1, 1, 1, 0],
-          [0, 0, 0, 0, 0]
-        ];
+        const cx = size / 2;
+        const cy = size / 2;
+        const glow = c.createRadialGradient(cx, cy, size * 0.05, cx, cy, size * 0.45);
+        glow.addColorStop(0, '#ffffff');
+        glow.addColorStop(0.3, '#ff1e1e');
+        glow.addColorStop(0.7, 'rgba(255, 30, 30, 0.35)');
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        c.fillStyle = glow;
+        c.beginPath();
+        c.arc(cx, cy, size * 0.45, 0, Math.PI * 2);
+        c.fill();
 
-        for (let r = 0; r < grid; r++) {
-          for (let c = 0; c < grid; c++) {
-            const cx = cell * (c + 1);
-            const cy = cell * (r + 1);
-            const active = pattern[r][c] === 1;
+        c.fillStyle = '#ff1e1e';
+        c.beginPath();
+        c.arc(cx, cy, size * 0.22, 0, Math.PI * 2);
+        c.fill();
 
-            if (active) {
-              const grad = ictx.createRadialGradient(cx, cy, radius * 0.1, cx, cy, radius * 2.1);
-              grad.addColorStop(0, '#ffffff');
-              grad.addColorStop(0.3, '#ff1e1e');
-              grad.addColorStop(0.7, 'rgba(255, 30, 30, 0.35)');
-              grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-              ictx.fillStyle = grad;
-              ictx.beginPath();
-              ictx.arc(cx, cy, radius * 2.1, 0, Math.PI * 2);
-              ictx.fill();
+        c.fillStyle = 'rgba(255,255,255,0.85)';
+        c.beginPath();
+        c.arc(cx - size * 0.06, cy - size * 0.06, size * 0.06, 0, Math.PI * 2);
+        c.fill();
 
-              ictx.fillStyle = '#ff2a2a';
-              ictx.beginPath();
-              ictx.arc(cx, cy, radius, 0, Math.PI * 2);
-              ictx.fill();
-            } else {
-              ictx.fillStyle = '#181818';
-              ictx.beginPath();
-              ictx.arc(cx, cy, radius * 0.85, 0, Math.PI * 2);
-              ictx.fill();
-            }
-          }
-        }
-        return iconCanvas.toDataURL('image/png');
+        return off.toDataURL('image/png');
       }
 
-      function setupPWA() {
+      function setupDynamicPWA() {
         try {
           const icon192 = generateLedIconDataURL(192);
           const icon512 = generateLedIconDataURL(512);
 
-          // Añadir apple-touch-icon dinámico
-          const appleIcon = document.createElement('link');
-          appleIcon.rel = 'apple-touch-icon';
-          appleIcon.href = icon192;
-          document.head.appendChild(appleIcon);
+          const appleTouch = document.createElement('link');
+          appleTouch.rel = 'apple-touch-icon';
+          appleTouch.href = icon192;
+          document.head.appendChild(appleTouch);
 
-          // Crear manifiesto PWA en Blob URL
-          const manifestObj = {
-            name: 'LedMsg - Cartel Luminoso LED',
+          const manifest = {
+            name: 'LedMsg - Cartel LED Deslizante',
             short_name: 'LedMsg',
-            description: 'Simulador de cartel luminoso de texto deslizante hecho con matriz LED.',
-            start_url: location.href,
-            scope: './',
+            description: 'Simulador de cartel luminoso de texto LED con scroll configurable',
+            start_url: window.location.href,
             display: 'fullscreen',
             orientation: 'landscape',
             background_color: '#000000',
             theme_color: '#000000',
             icons: [
-              {
-                src: icon192,
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'any maskable'
-              },
-              {
-                src: icon512,
-                sizes: '512x512',
-                type: 'image/png',
-                purpose: 'any maskable'
-              }
+              { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+              { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
             ]
           };
 
-          const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-          const manifestURL = URL.createObjectURL(manifestBlob);
-          const manifestLink = document.createElement('link');
-          manifestLink.rel = 'manifest';
-          manifestLink.href = manifestURL;
-          document.head.appendChild(manifestLink);
-
-          // Registrar Service Worker mínimo mediante Blob URL (cuando el protocolo es http/https)
-          if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-            const swCode = `
-              self.addEventListener('install', (e) => self.skipWaiting());
-              self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-              self.addEventListener('fetch', (e) => {
-                e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
-              });
-            `;
-            const swBlob = new Blob([swCode], { type: 'application/javascript' });
-            const swURL = URL.createObjectURL(swBlob);
-            navigator.serviceWorker.register(swURL).catch(() => {
-              // Ignorar silenciosamente si el sandbox bloquea SW en Blob URL
-            });
-          }
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+          const manifestURL = URL.createObjectURL(blob);
+          const linkManifest = document.createElement('link');
+          linkManifest.rel = 'manifest';
+          linkManifest.href = manifestURL;
+          document.head.appendChild(linkManifest);
         } catch (err) {
-          console.warn('No se pudo inicializar completamente el manifiesto PWA:', err);
+          console.warn('No se pudo generar el manifiesto dinámico:', err);
         }
       }
 
-      // Escuchar evento nativo de instalación en Chrome / Android
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
         btnInstallText.textContent = 'Instalar App';
-        btnInstall.classList.add('border-emerald-500/50', 'bg-emerald-950/30');
+        btnInstall.classList.add('border-emerald-700/70');
       });
 
       window.addEventListener('appinstalled', () => {
@@ -485,7 +1107,6 @@
             deferredInstallPrompt = null;
           }
         } else {
-          // Mostrar instrucciones claras para Android Chrome si el prompt automático no está disponible
           installModal.classList.remove('hidden');
           installModal.classList.add('flex');
         }
@@ -502,77 +1123,112 @@
       });
 
       // --------------------------------------------------------------------------
-      // 3. RASTERIZADOR DE TEXTO A MATRIZ BINARIA DE PUNTOS LED (OFFSCREEN CANVAS)
+      // 4. COMPILADOR MATRICIAL DETERMINISTA DEL MENSAJE (TEXTO -> COLUMNAS DE BITS)
       // --------------------------------------------------------------------------
-      const offscreenCanvas = document.createElement('canvas');
-      const offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-
-      let textBitmap = []; // Array 2D [col][row] de booleanos (true = LED encendido)
+      let textBitmap = [];      // Array de columnas: textBitmap[col][row] = 0 | 1
       let textBitmapCols = 0;
 
       /**
-       * Convierte el texto actual en una rejilla binaria nítida de altura `state.rows` (16 filas).
-       * Soporta cualquier carácter Unicode (tildes, ñ, signos, números y emojis básicos).
+       * Busca el glifo de 10x16 en la tabla determinista. Si no existe el carácter exacto,
+       * intenta convertirlo a mayúscula o eliminar diacríticos para que siempre se dibuje.
        */
-      function rasterizeTextToMatrix(rawText) {
-        const rows = state.rows;
-        // Asegurar un espacio final para que el bucle continuo no pegue el final con el principio
-        const displayText = rawText.length > 0 ? rawText : '   ';
+      function resolveGlyph(char) {
+        if (BITMAP_FONT_10X16[char]) {
+          return BITMAP_FONT_10X16[char];
+        }
+        const upper = char.toUpperCase();
+        if (BITMAP_FONT_10X16[upper]) {
+          return BITMAP_FONT_10X16[upper];
+        }
+        const normalized = upper.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (BITMAP_FONT_10X16[normalized]) {
+          return BITMAP_FONT_10X16[normalized];
+        }
+        // Glifo de respaldo (cuadro punteado) para símbolos desconocidos
+        return [
+          '..........','.########.','.########.','.##....##.',
+          '.##....##.','.##....##.','.##....##.','.##....##.',
+          '.##....##.','.##....##.','.########.','.########.',
+          '..........','..........','..........','..........'
+        ];
+      }
 
-        // Configurar fuente pixel-friendly en el canvas oculto
-        const fontSize = 13; // Tamaño óptimo para matriz de 16 filas incluyendo tildes superiores
-        const fontSpec = `700 ${fontSize}px "Inter", "Arial", sans-serif`;
-        offscreenCtx.font = fontSpec;
+      /**
+       * Convierte el texto completo en un arreglo continuo de columnas de 16 bits.
+       */
+      function buildMessageMatrix(rawText) {
+        const displayText = rawText && rawText.length > 0 ? rawText : '   ';
+        const matrix = [];
 
-        const metrics = offscreenCtx.measureText(displayText);
-        // Añadir pequeño margen horizontal para evitar recortes en letras inclinadas
-        const measuredWidth = Math.max(1, Math.ceil(metrics.width) + 4);
+        for (let i = 0; i < displayText.length; i++) {
+          const ch = displayText[i];
+          const glyph = resolveGlyph(ch);
 
-        offscreenCanvas.width = measuredWidth;
-        offscreenCanvas.height = rows;
+          // Determinar recorte horizontal inteligente para que espacios y signos estrechos
+          // no queden excesivamente separados
+          let minX = 0;
+          let maxX = GLYPH_WIDTH - 1;
 
-        // Limpiar en negro puro
-        offscreenCtx.fillStyle = '#000000';
-        offscreenCtx.fillRect(0, 0, measuredWidth, rows);
-
-        // Dibujar texto blanco nítido
-        offscreenCtx.font = fontSpec;
-        offscreenCtx.fillStyle = '#ffffff';
-        offscreenCtx.textBaseline = 'middle';
-        offscreenCtx.textAlign = 'left';
-        // Desactivar suavizado en lo posible y centrar verticalmente (+0.5px ajuste óptico)
-        offscreenCtx.imageSmoothingEnabled = false;
-        offscreenCtx.fillText(displayText, 1, Math.floor(rows / 2) + 1);
-
-        const imgData = offscreenCtx.getImageData(0, 0, measuredWidth, rows).data;
-        const matrix = new Array(measuredWidth);
-
-        // Umbral de luminancia para decidir si el punto LED se enciende (nitidez máxima)
-        const threshold = 105;
-
-        for (let c = 0; c < measuredWidth; c++) {
-          const colArr = new Uint8Array(rows);
-          for (let r = 0; r < rows; r++) {
-            const idx = (r * measuredWidth + c) * 4;
-            // Canal rojo/verde/azul o alpha
-            const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
-            colArr[r] = brightness >= threshold ? 1 : 0;
+          if (ch === ' ') {
+            minX = 0;
+            maxX = 4; // Espacio de 5 columnas
+          } else {
+            let foundMin = GLYPH_WIDTH;
+            let foundMax = -1;
+            for (let r = 0; r < GLYPH_HEIGHT; r++) {
+              const rowStr = glyph[r];
+              for (let c = 0; c < GLYPH_WIDTH; c++) {
+                if (rowStr[c] === '#') {
+                  if (c < foundMin) foundMin = c;
+                  if (c > foundMax) foundMax = c;
+                }
+              }
+            }
+            if (foundMax >= foundMin) {
+              minX = foundMin;
+              maxX = foundMax;
+            }
           }
-          matrix[c] = colArr;
+
+          // Añadir las columnas del carácter
+          for (let c = minX; c <= maxX; c++) {
+            const colBits = new Uint8Array(GLYPH_HEIGHT);
+            for (let r = 0; r < GLYPH_HEIGHT; r++) {
+              colBits[r] = glyph[r][c] === '#' ? 1 : 0;
+            }
+            matrix.push(colBits);
+          }
+
+          // Añadir separación entre letras
+          if (ch !== ' ') {
+            for (let s = 0; s < LETTER_SPACING; s++) {
+              matrix.push(new Uint8Array(GLYPH_HEIGHT));
+            }
+          }
+        }
+
+        // Asegurar un margen final para que el bucle continuo respire visualmente
+        for (let pad = 0; pad < 6; pad++) {
+          matrix.push(new Uint8Array(GLYPH_HEIGHT));
         }
 
         textBitmap = matrix;
-        textBitmapCols = measuredWidth;
+        textBitmapCols = matrix.length;
+        if (state.scrollOffset >= textBitmapCols) {
+          state.scrollOffset = 0;
+        }
       }
 
       // --------------------------------------------------------------------------
-      // 4. UTILIDADES DE COLOR Y PRE-RENDERIZADO DE SPRITES LED (RENDIMIENTO 60 FPS)
+      // 5. PRE-RENDERIZADO DE DIODOS LED (SPRITES OFFSCREEN A 60 FPS)
       // --------------------------------------------------------------------------
+      let ledOffSprite = document.createElement('canvas');
+      let ledOnSprite = document.createElement('canvas');
+      let currentPitch = 0;
+
       function hexToRgb(hex) {
         const clean = hex.replace('#', '');
-        const num = parseInt(clean.length === 3
-          ? clean.split('').map(ch => ch + ch).join('')
-          : clean, 16);
+        const num = parseInt(clean, 16);
         return {
           r: (num >> 16) & 255,
           g: (num >> 8) & 255,
@@ -580,122 +1236,138 @@
         };
       }
 
-      // Sprites cacheados para LED encendido y LED apagado (garantiza 60 FPS fluidos en móviles)
-      const ledOnSprite = document.createElement('canvas');
-      const ledOffSprite = document.createElement('canvas');
-      let currentPitch = 0;
-
       function rebuildLedSprites(pitch) {
         if (pitch <= 0) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const radius = Math.max(1.2, pitch * 0.37);
 
-        // El sprite de LED encendido incluye espacio extra para su halo de resplandor (glow)
-        const glowPad = Math.ceil(pitch * 1.4);
-        const spriteSize = Math.ceil(pitch + glowPad * 2);
-        const center = spriteSize / 2;
-        const ledRadius = Math.max(1.5, pitch * 0.37);
-
-        // 1. Construir Sprite de LED APAGADO (sutil rejilla física)
-        ledOffSprite.width = Math.ceil(pitch);
-        ledOffSprite.height = Math.ceil(pitch);
+        // Sprite 1: Diodo LED apagado (rejilla oscura realista sobre negro puro)
+        const offSize = Math.ceil(pitch * dpr);
+        ledOffSprite.width = offSize;
+        ledOffSprite.height = offSize;
         const offCtx = ledOffSprite.getContext('2d');
-        const offCenter = ledOffSprite.width / 2;
+        offCtx.clearRect(0, 0, offSize, offSize);
 
-        offCtx.clearRect(0, 0, ledOffSprite.width, ledOffSprite.height);
-        offCtx.fillStyle = '#141414'; // Gris carbón muy sutil sobre negro #000000
+        const cxOff = offSize / 2;
+        const cyOff = offSize / 2;
+        const rOff = radius * dpr;
+
+        offCtx.fillStyle = '#0e0e0e';
         offCtx.beginPath();
-        offCtx.arc(offCenter, offCenter, ledRadius * 0.92, 0, Math.PI * 2);
+        offCtx.arc(cxOff, cyOff, rOff, 0, Math.PI * 2);
         offCtx.fill();
 
-        // Borde microscopico del encapsulado del diodo
-        offCtx.strokeStyle = '#1f1f1f';
-        offCtx.lineWidth = Math.max(0.5, pitch * 0.04);
-        offCtx.stroke();
+        if (rOff >= 2.2) {
+          offCtx.strokeStyle = '#181818';
+          offCtx.lineWidth = Math.max(0.75, 0.5 * dpr);
+          offCtx.stroke();
+        }
 
-        // 2. Construir Sprite de LED ENCENDIDO con halo e intensidad configurable
-        ledOnSprite.width = spriteSize;
-        ledOnSprite.height = spriteSize;
+        // Sprite 2: Diodo LED encendido (con halo luminoso según brillo y núcleo brillante)
+        const padFactor = 2.5;
+        const onSize = Math.ceil(pitch * padFactor * dpr);
+        ledOnSprite.width = onSize;
+        ledOnSprite.height = onSize;
         const onCtx = ledOnSprite.getContext('2d');
-        onCtx.clearRect(0, 0, spriteSize, spriteSize);
+        onCtx.clearRect(0, 0, onSize, onSize);
 
+        const cxOn = onSize / 2;
+        const cyOn = onSize / 2;
+        const rOn = radius * dpr;
         const { r, g, b } = hexToRgb(state.color);
-        const intensity = state.brightness; // 0.15 -> 1.0
+        const br = state.brightness;
 
-        // Halo externo (Glow atmosférico)
-        const outerGlowRadius = ledRadius * (1.6 + intensity * 1.8);
-        const glowGrad = onCtx.createRadialGradient(
-          center, center, ledRadius * 0.2,
-          center, center, outerGlowRadius
-        );
-        glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.85 * intensity})`);
-        glowGrad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${0.42 * intensity})`);
+        // Halo exterior difuso
+        const glowRadius = rOn * (1.55 + br * 1.15);
+        const glowGrad = onCtx.createRadialGradient(cxOn, cyOn, rOn * 0.15, cxOn, cyOn, glowRadius);
+        glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, br * 0.95)})`);
+        glowGrad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${br * 0.42})`);
         glowGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
 
         onCtx.fillStyle = glowGrad;
         onCtx.beginPath();
-        onCtx.arc(center, center, outerGlowRadius, 0, Math.PI * 2);
+        onCtx.arc(cxOn, cyOn, glowRadius, 0, Math.PI * 2);
         onCtx.fill();
 
-        // Cuerpo principal del diodo LED
-        const bodyGrad = onCtx.createRadialGradient(
-          center - ledRadius * 0.2,
-          center - ledRadius * 0.2,
-          ledRadius * 0.05,
-          center,
-          center,
-          ledRadius
-        );
-
-        // Mezclar blanco en el núcleo según la intensidad del brillo
-        const coreMix = Math.min(1, intensity * 0.95);
-        const coreR = Math.round(r + (255 - r) * coreMix * 0.75);
-        const coreG = Math.round(g + (255 - g) * coreMix * 0.75);
-        const coreB = Math.round(b + (255 - b) * coreMix * 0.75);
-
-        bodyGrad.addColorStop(0, `rgba(${coreR}, ${coreG}, ${coreB}, ${0.5 + 0.5 * intensity})`);
-        bodyGrad.addColorStop(0.65, `rgba(${r}, ${g}, ${b}, ${0.45 + 0.55 * intensity})`);
-        bodyGrad.addColorStop(1, `rgba(${Math.round(r * 0.7)}, ${Math.round(g * 0.7)}, ${Math.round(b * 0.7)}, ${0.4 + 0.6 * intensity})`);
-
-        onCtx.fillStyle = bodyGrad;
+        // Cuerpo principal del LED
+        const bodyAlpha = 0.25 + br * 0.75;
+        onCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${bodyAlpha})`;
         onCtx.beginPath();
-        onCtx.arc(center, center, ledRadius, 0, Math.PI * 2);
+        onCtx.arc(cxOn, cyOn, rOn, 0, Math.PI * 2);
         onCtx.fill();
 
-        // Reflejo especular (punto de luz en la lente del LED)
-        if (intensity > 0.35 && ledRadius > 2.5) {
-          onCtx.fillStyle = `rgba(255, 255, 255, ${0.45 * intensity})`;
+        // Núcleo incandescente central
+        if (br > 0.35) {
+          const coreAlpha = (br - 0.35) * 1.25;
+          const coreGrad = onCtx.createRadialGradient(
+            cxOn - rOn * 0.16,
+            cyOn - rOn * 0.16,
+            0,
+            cxOn,
+            cyOn,
+            rOn * 0.78
+          );
+          coreGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.min(0.95, coreAlpha)})`);
+          coreGrad.addColorStop(0.55, `rgba(${Math.min(255, r + 65)}, ${Math.min(255, g + 65)}, ${Math.min(255, b + 65)}, ${coreAlpha * 0.6})`);
+          coreGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+          onCtx.fillStyle = coreGrad;
           onCtx.beginPath();
-          onCtx.arc(center - ledRadius * 0.28, center - ledRadius * 0.28, ledRadius * 0.25, 0, Math.PI * 2);
+          onCtx.arc(cxOn, cyOn, rOn * 0.85, 0, Math.PI * 2);
           onCtx.fill();
         }
       }
 
       // --------------------------------------------------------------------------
-      // 5. DIMENSIONAMIENTO RESPONSIVO DEL CANVAS Y BUCLE DE ANIMACIÓN
+      // 6. DIMENSIONAMIENTO RESPONSIVO Y BUCLE DE RENDERIZADO A 60 FPS
       // --------------------------------------------------------------------------
       let visibleCols = 40;
       let startX = 0;
       let startY = 0;
+      let textStartRow = 0;
+
+      function syncOrientationFallback() {
+        if (!state.isFullscreenMode) {
+          appRoot.classList.remove('force-landscape');
+          return;
+        }
+        const isPortrait = window.innerHeight > window.innerWidth;
+        if (isPortrait) {
+          appRoot.classList.add('force-landscape');
+        } else {
+          appRoot.classList.remove('force-landscape');
+        }
+      }
 
       function resizeCanvas() {
+        syncOrientationFallback();
+
+        const isForcedLandscape = appRoot.classList.contains('force-landscape');
         const wrapper = document.getElementById('canvas-wrapper');
         const rect = wrapper.getBoundingClientRect();
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        const cssWidth = Math.max(200, rect.width);
-        const cssHeight = Math.max(120, rect.height);
+        const cssWidth = isForcedLandscape
+          ? Math.max(200, window.innerHeight)
+          : Math.max(200, rect.width);
+        const cssHeight = isForcedLandscape
+          ? Math.max(120, window.innerWidth)
+          : Math.max(100, rect.height);
 
         canvas.width = Math.floor(cssWidth * dpr);
         canvas.height = Math.floor(cssHeight * dpr);
-
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        // Calcular el paso (pitch) de cada celda LED en base al alto disponible y las 16 filas
-        // En pantallas muy altas (móvil vertical), limitamos la altura máxima visual del cartel
-        // para mantener proporciones de letrero panorámico elegante y bien centrado.
-        const maxBoardHeight = Math.min(cssHeight * 0.94, cssWidth * 0.58);
-        const effectiveHeight = Math.max(Math.min(cssHeight * 0.85, 110), maxBoardHeight);
+        const maxBoardHeight = state.isFullscreenMode
+          ? cssHeight * 0.94
+          : Math.min(cssHeight * 0.94, cssWidth * 0.56);
+        const effectiveHeight = Math.max(Math.min(cssHeight * 0.88, 96), maxBoardHeight);
 
-        const newPitch = effectiveHeight / state.rows;
+        const basePitch = effectiveHeight / state.textRows;
+        const newPitch = Math.max(3, basePitch * state.textScale);
+
+        state.rows = Math.max(state.textRows, Math.floor((cssHeight * 0.96) / newPitch));
+        textStartRow = Math.floor((state.rows - state.textRows) / 2);
         visibleCols = Math.max(12, Math.floor((cssWidth * 0.98) / newPitch));
 
         const totalBoardWidth = visibleCols * newPitch;
@@ -704,7 +1376,7 @@
         startX = (cssWidth - totalBoardWidth) / 2;
         startY = (cssHeight - totalBoardHeight) / 2;
 
-        if (Math.abs(newPitch - currentPitch) > 0.1) {
+        if (Math.abs(newPitch - currentPitch) > 0.05) {
           currentPitch = newPitch;
           rebuildLedSprites(currentPitch);
         }
@@ -713,10 +1385,10 @@
       let lastTimestamp = performance.now();
 
       function renderLoop(now) {
-        const dt = Math.min(0.1, (now - lastTimestamp) / 1000); // Delta time en segundos
+        const dt = Math.min(0.1, (now - lastTimestamp) / 1000);
         lastTimestamp = now;
 
-        // 1. Actualizar desplazamiento horizontal (scroll de derecha a izquierda)
+        // 1. Actualizar scroll continuo
         if (state.scrollSpeed > 0 && textBitmapCols > 0) {
           state.scrollOffset += state.scrollSpeed * dt;
           if (state.scrollOffset >= textBitmapCols) {
@@ -724,10 +1396,9 @@
           }
         }
 
-        // 2. Actualizar estado de parpadeo
+        // 2. Actualizar parpadeo
         if (state.blinkEnabled) {
           state.blinkTimer += dt * state.blinkSpeed;
-          // Onda cuadrada limpia (50% encendido, 50% apagado)
           state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
         } else {
           state.isBlinkOn = true;
@@ -742,30 +1413,24 @@
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, viewW, viewH);
 
-        // 4. Dibujar la matriz completa de LEDs (apagados primero, encendidos después para que el glow no quede tapado)
+        // 4. Dibujar rejilla de LEDs apagados y diodos encendidos
         if (currentPitch > 0 && textBitmapCols > 0) {
           const baseColOffset = Math.floor(state.scrollOffset);
-          const subPixelShift = (state.scrollOffset - baseColOffset) * currentPitch;
 
-          const offW = ledOffSprite.width;
-          const offH = ledOffSprite.height;
-          const onW = ledOnSprite.width;
-          const onH = ledOnSprite.height;
-          const onOffset = (onW - currentPitch) / 2;
-
-          // Primera pasada: Rejilla física de LEDs apagados (fija en el chasis del cartel)
+          // Pasada 1: LEDs apagados (fijos en la placa)
           for (let c = 0; c < visibleCols; c++) {
             const x = startX + c * currentPitch;
             for (let r = 0; r < state.rows; r++) {
               const y = startY + r * currentPitch;
-              ctx.drawImage(ledOffSprite, x, y, offW, offH);
+              ctx.drawImage(ledOffSprite, x, y, currentPitch, currentPitch);
             }
           }
 
-          // Segunda pasada: LEDs encendidos (si el parpadeo está en fase ON)
+          // Pasada 2: LEDs encendidos (centrados verticalmente)
           if (state.isBlinkOn) {
-            // Para un desplazamiento ultrasuave por columna entera de LEDs (efecto matriz real)
-            // Usamos paso discreto por columna para que cada diodo físico se encienda o apague limpiamente
+            const onDrawSize = currentPitch * 2.5;
+            const onOffset = (onDrawSize - currentPitch) / 2;
+
             for (let c = 0; c < visibleCols; c++) {
               const textColIndex = (baseColOffset + c) % textBitmapCols;
               const colData = textBitmap[textColIndex];
@@ -773,10 +1438,10 @@
 
               const x = startX + c * currentPitch - onOffset;
 
-              for (let r = 0; r < state.rows; r++) {
+              for (let r = 0; r < state.textRows; r++) {
                 if (colData[r] === 1) {
-                  const y = startY + r * currentPitch - onOffset;
-                  ctx.drawImage(ledOnSprite, x, y, onW, onH);
+                  const y = startY + (textStartRow + r) * currentPitch - onOffset;
+                  ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
                 }
               }
             }
@@ -787,30 +1452,28 @@
       }
 
       // --------------------------------------------------------------------------
-      // 6. INTERACCIÓN CON LOS CONTROLES DE USUARIO
+      // 7. CONTROLADORES DE INTERFAZ Y EVENTOS
       // --------------------------------------------------------------------------
-      function updateAccentColor(hex) {
-        const upperHex = hex.toUpperCase();
-        state.color = hex;
-        colorPicker.value = hex;
-        colorHexLabel.textContent = upperHex;
+      function updateAccentColor(newHex) {
+        state.color = newHex.toLowerCase();
+        colorPicker.value = state.color;
+        colorHexLabel.textContent = state.color.toUpperCase();
 
-        // Actualizar variables CSS e indicadores visuales de la UI
-        document.documentElement.style.setProperty('--accent-color', hex);
-        statusDot.style.backgroundColor = hex;
-        statusDot.style.boxShadow = `0 0 12px ${hex}`;
-        brandAccent.style.color = hex;
+        document.documentElement.style.setProperty('--accent-color', state.color);
+        statusDot.style.backgroundColor = state.color;
+        statusDot.style.boxShadow = `0 0 10px ${state.color}`;
+        brandAccent.style.color = state.color;
+
         if (state.blinkEnabled) {
-          blinkToggleTrack.style.backgroundColor = hex;
+          blinkToggleTrack.style.backgroundColor = state.color;
         }
 
-        // Resaltar preset activo
         colorPresets.forEach((btn) => {
-          if (btn.dataset.color.toLowerCase() === hex.toLowerCase()) {
-            btn.classList.add('border-2', 'border-white', 'scale-110');
+          if (btn.dataset.color.toLowerCase() === state.color) {
+            btn.classList.add('border-2', 'border-white', 'scale-105');
             btn.classList.remove('border', 'border-neutral-700');
           } else {
-            btn.classList.remove('border-2', 'border-white', 'scale-110');
+            btn.classList.remove('border-2', 'border-white', 'scale-105');
             btn.classList.add('border', 'border-neutral-700');
           }
         });
@@ -818,20 +1481,18 @@
         rebuildLedSprites(currentPitch);
       }
 
-      // Cambio de texto en tiempo real
       textInput.addEventListener('input', (e) => {
         state.text = e.target.value;
-        rasterizeTextToMatrix(state.text);
+        buildMessageMatrix(state.text);
       });
 
       btnClearText.addEventListener('click', () => {
         textInput.value = '';
         state.text = '';
-        rasterizeTextToMatrix('');
+        buildMessageMatrix('');
         textInput.focus();
       });
 
-      // Selector de color libre y presets
       colorPicker.addEventListener('input', (e) => {
         updateAccentColor(e.target.value);
       });
@@ -842,7 +1503,13 @@
         });
       });
 
-      // Intensidad de brillo
+      sizeSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.textScale = val / 100;
+        sizeValue.textContent = `${val}%`;
+        resizeCanvas();
+      });
+
       brightnessSlider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value, 10);
         state.brightness = val / 100;
@@ -850,33 +1517,29 @@
         rebuildLedSprites(currentPitch);
       });
 
-      // Velocidad de scroll
       speedSlider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value, 10);
         state.scrollSpeed = val;
-        speedValue.textContent = val === 0 ? 'Pausado' : `${val} col/s`;
+        speedValue.textContent = val === 0 ? 'Pausa' : `${val} col/s`;
       });
 
-      // Activador de parpadeo
       blinkToggle.addEventListener('change', (e) => {
         state.blinkEnabled = e.target.checked;
-        blinkSpeedSlider.disabled = !state.blinkEnabled;
-
         if (state.blinkEnabled) {
+          blinkSpeedSlider.disabled = false;
           blinkSpeedSlider.classList.remove('opacity-40');
-          blinkToggleTrack.style.backgroundColor = state.color;
           blinkSpeedLabel.textContent = `${state.blinkSpeed} Hz`;
           blinkSpeedLabel.classList.replace('text-neutral-500', 'text-neutral-300');
+          blinkToggleTrack.style.backgroundColor = state.color;
         } else {
+          blinkSpeedSlider.disabled = true;
           blinkSpeedSlider.classList.add('opacity-40');
-          blinkToggleTrack.style.backgroundColor = '#262626';
-          blinkSpeedLabel.textContent = 'Apagado';
+          blinkSpeedLabel.textContent = 'Off';
           blinkSpeedLabel.classList.replace('text-neutral-300', 'text-neutral-500');
-          state.isBlinkOn = true;
+          blinkToggleTrack.style.backgroundColor = '';
         }
       });
 
-      // Velocidad de parpadeo
       blinkSpeedSlider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value, 10);
         state.blinkSpeed = val;
@@ -886,94 +1549,119 @@
       });
 
       // --------------------------------------------------------------------------
-      // 7. GESTIÓN DE PANTALLA COMPLETA Y AUTO-OCULTACIÓN DE CONTROLES
+      // 8. PANTALLA COMPLETA SIEMPRE HORIZONTAL CON DOBLE CLIC / DOBLE TOQUE
       // --------------------------------------------------------------------------
-      function setControlsVisibility(hide) {
-        state.controlsHidden = hide;
-        if (hide) {
-          topBar.classList.add('hidden');
-          controlPanel.classList.add('hidden');
-          floatingExit.classList.remove('opacity-0', 'pointer-events-none');
-          floatingExit.classList.add('opacity-100', 'pointer-events-auto');
-        } else {
-          topBar.classList.remove('hidden');
-          controlPanel.classList.remove('hidden');
-          floatingExit.classList.add('opacity-0', 'pointer-events-none');
-          floatingExit.classList.remove('opacity-100', 'pointer-events-auto');
-        }
-        // Recalcular dimensiones del canvas tras ocultar/mostrar barras
-        requestAnimationFrame(() => resizeCanvas());
+      let toastTimeout = null;
+
+      function showToast(msg) {
+        if (!fsToast) return;
+        fsToast.textContent = msg;
+        fsToast.classList.remove('opacity-0');
+        fsToast.classList.add('opacity-100');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          fsToast.classList.remove('opacity-100');
+          fsToast.classList.add('opacity-0');
+        }, 2000);
       }
 
-      async function enterFullscreen() {
-        setControlsVisibility(true);
+      async function enterFullscreenLandscape() {
+        state.isFullscreenMode = true;
+        appRoot.classList.add('is-fullscreen');
+
         try {
-          const docEl = document.documentElement;
-          if (docEl.requestFullscreen) {
-            await docEl.requestFullscreen();
-          } else if (docEl.webkitRequestFullscreen) {
-            await docEl.webkitRequestFullscreen();
+          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
           }
-          // Intentar bloquear orientación horizontal en móviles si el navegador lo permite
           if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(() => {});
+            await screen.orientation.lock('landscape');
           }
         } catch (err) {
-          // Si el iframe o navegador restringe requestFullscreen, mantenemos el modo cine limpio
+          // Si el navegador no permite lock('landscape'), syncOrientationFallback() rotará 90deg por CSS
         }
+
+        resizeCanvas();
+        showToast('Doble toque para salir de pantalla completa');
       }
 
-      async function exitFullscreen() {
-        setControlsVisibility(false);
+      async function exitFullscreenLandscape() {
+        state.isFullscreenMode = false;
+        appRoot.classList.remove('is-fullscreen', 'force-landscape');
+
         try {
-          if (document.fullscreenElement) {
-            await document.exitFullscreen();
-          } else if (document.webkitFullscreenElement) {
-            await document.webkitExitFullscreen();
-          }
           if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
           }
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen();
+          }
         } catch (err) {
-          // Ignorar errores de salida
+          // Ignorar si ya salió de pantalla completa
+        }
+
+        resizeCanvas();
+      }
+
+      function toggleFullscreenLandscape() {
+        if (state.isFullscreenMode) {
+          exitFullscreenLandscape();
+        } else {
+          enterFullscreenLandscape();
         }
       }
 
-      btnFullscreen.addEventListener('click', enterFullscreen);
-      btnExitFullscreen.addEventListener('click', exitFullscreen);
+      // Doble clic en ordenador
+      ledStage.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        toggleFullscreenLandscape();
+      });
 
-      // Permitir tocar el cartel LED para alternar visibilidad de controles
-      ledStage.addEventListener('click', () => {
-        if (state.controlsHidden) {
-          exitFullscreen();
+      // Doble toque táctil fiable en móviles y tablets
+      let lastTapTime = 0;
+      ledStage.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        const delta = now - lastTapTime;
+        if (delta > 0 && delta < 320) {
+          e.preventDefault();
+          toggleFullscreenLandscape();
+          lastTapTime = 0;
+        } else {
+          lastTapTime = now;
+        }
+      }, { passive: false });
+
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && state.isFullscreenMode) {
+          state.isFullscreenMode = false;
+          appRoot.classList.remove('is-fullscreen', 'force-landscape');
+          resizeCanvas();
+        } else {
+          setTimeout(resizeCanvas, 60);
         }
       });
 
-      // Sincronizar si el usuario sale de pantalla completa con la tecla ESC o gesto del sistema
-      document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement && state.controlsHidden) {
-          setControlsVisibility(false);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && state.isFullscreenMode) {
+          exitFullscreenLandscape();
         }
-        resizeCanvas();
       });
 
       window.addEventListener('resize', resizeCanvas);
       window.addEventListener('orientationchange', () => {
-        setTimeout(resizeCanvas, 120);
+        setTimeout(resizeCanvas, 100);
       });
 
       // --------------------------------------------------------------------------
-      // 8. INICIALIZACIÓN AL CARGAR LA VENTANA
+      // 9. INICIALIZACIÓN AL CARGAR LA VENTANA
       // --------------------------------------------------------------------------
-      window.addEventListener('load', () => {
-        setupPWA();
+      window.onload = function () {
+        setupDynamicPWA();
+        buildMessageMatrix(state.text);
         updateAccentColor(state.color);
-        rasterizeTextToMatrix(state.text);
         resizeCanvas();
-        lastTimestamp = performance.now();
+        showToast('Doble toque para pantalla completa horizontal');
         requestAnimationFrame(renderLoop);
-      });
-
+      };
     })();
   </script>
 </body>
