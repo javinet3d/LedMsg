@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,26 +10,35 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LedMsg">
   <meta name="application-name" content="LedMsg">
-  <meta name="description" content="Cartel luminoso LED de texto deslizante configurable en pantalla completa horizontal">
+  <meta name="description" content="Cartel luminoso LED de una línea con scroll configurable en pantalla completa horizontal">
   <title>LedMsg - Cartel LED</title>
 
-  <!-- Favicon SVG de matriz LED incorporado directamente en el HTML -->
-  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='%23161616'%3E%3Ccircle cx='16' cy='16' r='5'/%3E%3Ccircle cx='32' cy='16' r='5'/%3E%3Ccircle cx='48' cy='16' r='5'/%3E%3Ccircle cx='16' cy='32' r='5'/%3E%3Ccircle cx='48' cy='32' r='5'/%3E%3Ccircle cx='16' cy='48' r='5'/%3E%3Ccircle cx='32' cy='48' r='5'/%3E%3Ccircle cx='48' cy='48' r='5'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='22' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23ff1e1e'/%3E%3Ccircle cx='29.5' cy='29.5' r='2.5' fill='%23ffffff' fill-opacity='0.9'/%3E%3C/svg%3E">
-
-  <!-- Tailwind CSS para diseño oscuro, moderno y 100% responsivo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Favicon SVG matricial incorporado en código -->
+  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='%23181818'%3E%3Ccircle cx='16' cy='16' r='5'/%3E%3Ccircle cx='32' cy='16' r='5'/%3E%3Ccircle cx='48' cy='16' r='5'/%3E%3Ccircle cx='16' cy='32' r='5'/%3E%3Ccircle cx='48' cy='32' r='5'/%3E%3Ccircle cx='16' cy='48' r='5'/%3E%3Ccircle cx='32' cy='48' r='5'/%3E%3Ccircle cx='48' cy='48' r='5'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='22' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23ff1e1e'/%3E%3Ccircle cx='29.5' cy='29.5' r='2.5' fill='%23ffffff' fill-opacity='0.9'/%3E%3C/svg%3E">
 
   <style>
-    /* Fondo negro puro permanente y bloqueo absoluto de scroll en cualquier pantalla */
-    html, body {
-      background-color: #000000 !important;
-      color: #e5e5e5;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* ========================================================================
+       ESTILOS AUTOCONTENIDOS (SIN DEPENDENCIAS EXTERNAS PARA FUNCIONAR OFFLINE)
+       ======================================================================== */
+    :root {
+      --accent-color: #ff1e1e;
+      --bg-pure: #000000;
+      --card-bg: #0a0a0a;
+      --card-border: #1f1f1f;
+      --text-main: #f5f5f5;
+      --text-muted: #9ca3af;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html, body {
+      background-color: #000000 !important;
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       width: 100%;
       height: 100dvh;
       max-height: 100dvh;
@@ -39,77 +48,185 @@
       touch-action: manipulation;
     }
 
-    /* Sliders compactos con color dinámico sincronizado con el color de los LEDs */
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      background: transparent;
+    /* Contenedor principal sin scroll */
+    #app-root {
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-color: #000000;
+      overflow: hidden;
+    }
+
+    /* Cabecera compacta */
+    #top-bar {
+      width: 100%;
+      padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #161616;
+      background-color: #000000;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #btn-logo-help {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      background-color: #0d0d0d;
+      border: 1px solid #262626;
+      color: #ffffff;
       cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    #btn-logo-help:hover {
+      background-color: #171717;
+      border-color: #404040;
+    }
+
+    #btn-logo-help:active {
+      transform: scale(0.96);
+    }
+
+    #status-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      box-shadow: 0 0 10px var(--accent-color);
+      display: inline-block;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .brand-title {
+      font-size: clamp(1rem, 2vh, 1.15rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    #brand-accent {
+      color: var(--accent-color);
+      transition: color 0.2s ease;
+    }
+
+    .help-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
       height: 18px;
+      border-radius: 50%;
+      background-color: #262626;
+      color: #e5e5e5;
+      font-size: 11px;
+      font-weight: 700;
     }
 
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 4px;
+    .header-hint {
+      font-size: 11px;
+      color: #737373;
+      display: none;
+    }
+
+    @media (min-width: 680px) {
+      .header-hint {
+        display: inline;
+      }
+    }
+
+    .offline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: #262626;
-      border: 1px solid #333333;
+      background-color: #0a0a0a;
+      border: 1px solid #222222;
+      font-size: 11px;
+      color: #a3a3a3;
     }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: clamp(13px, 2vh, 17px);
-      height: clamp(13px, 2vh, 17px);
+    .offline-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--accent-color, #ff1e1e);
-      border: 2px solid #ffffff;
-      margin-top: -6px;
-      box-shadow: 0 0 8px var(--accent-color, #ff1e1e);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background-color: #10b981;
+      box-shadow: 0 0 6px #10b981;
     }
 
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
+    /* Escenario Central del Cartel LED */
+    #led-stage {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      background-color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
     }
 
-    input[type="range"]::-moz-range-track {
-      height: 4px;
+    #canvas-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      background-color: #000000;
+    }
+
+    #led-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+    }
+
+    /* Aviso flotante temporal */
+    #fs-toast {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
       border-radius: 999px;
-      background: #262626;
+      background-color: rgba(15, 15, 15, 0.9);
       border: 1px solid #333333;
+      color: #e5e5e5;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 30;
     }
 
-    input[type="range"]::-moz-range-thumb {
-      width: clamp(13px, 2vh, 17px);
-      height: clamp(13px, 2vh, 17px);
-      border-radius: 50%;
-      background: var(--accent-color, #ff1e1e);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 8px var(--accent-color, #ff1e1e);
+    #fs-toast.visible {
+      opacity: 1;
     }
 
-    /* Selector de color nativo circular */
-    input[type="color"] {
-      -webkit-appearance: none;
-      border: none;
-      padding: 0;
-      background: none;
-    }
-    input[type="color"]::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-    input[type="color"]::-webkit-color-swatch {
-      border: 2px solid #404040;
-      border-radius: 50%;
-    }
-
-    /* Modo Pantalla Completa: Ocultar cabecera y panel inferior de controles */
+    /* Modo Pantalla Completa: Ocultar cabecera y controles */
     #app-root.is-fullscreen #top-bar,
     #app-root.is-fullscreen #control-panel {
       display: none !important;
     }
 
-    /* Escenario LED ocupando toda la pantalla en Modo Pantalla Completa */
     #app-root.is-fullscreen #led-stage {
       position: fixed;
       inset: 0;
@@ -119,226 +236,605 @@
       background-color: #000000;
     }
 
-    /* Rotación automática 90° si el dispositivo permanece en vertical durante pantalla completa */
+    /* Rotación forzada 90° si el dispositivo sigue en vertical durante pantalla completa */
     #app-root.is-fullscreen.force-landscape #led-stage {
       position: fixed;
       top: 50%;
       left: 50%;
-      width: 100dvh;
+      width: 100vh;
       height: 100vw;
       transform: translate(-50%, -50%) rotate(90deg);
       transform-origin: center center;
     }
 
-    /* Escala fluida de tarjetas de control para garantizar ajuste en 100dvh sin scroll */
-    .compact-card {
-      padding: clamp(0.32rem, 0.9vh, 0.68rem) clamp(0.5rem, 1.35vw, 0.85rem);
-      gap: clamp(0.18rem, 0.55vh, 0.42rem);
+    /* Panel Inferior de Controles Compactos sin Scroll */
+    #control-panel {
+      width: 100%;
+      background-color: #000000;
+      border-top: 1px solid #161616;
+      padding: clamp(6px, 1vh, 10px) clamp(10px, 2vw, 18px) clamp(8px, 1.3vh, 12px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 0.9vh, 10px);
+      flex-shrink: 0;
+      z-index: 20;
     }
 
-    .compact-label {
-      font-size: clamp(0.60rem, 1.2vh, 0.74rem);
+    /* Caja de texto del mensaje */
+    .message-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: clamp(5px, 0.8vh, 8px) 12px;
     }
 
-    .compact-preset {
-      width: clamp(1.15rem, 2.4vh, 1.5rem);
-      height: clamp(1.15rem, 2.4vh, 1.5rem);
+    .message-bar label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #led-text-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: clamp(0.88rem, 1.8vh, 1rem);
+      font-weight: 600;
+      user-select: text;
+    }
+
+    #led-text-input::placeholder {
+      color: #525252;
+    }
+
+    #btn-clear-text {
+      background-color: #171717;
+      border: 1px solid #2e2e2e;
+      color: #a3a3a3;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    #btn-clear-text:hover {
+      background-color: #262626;
+      color: #ffffff;
+    }
+
+    /* Rejilla responsiva de tarjetas de control */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(6px, 0.9vh, 10px);
+    }
+
+    @media (min-width: 768px) {
+      .controls-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    .control-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: clamp(6px, 0.9vh, 9px) clamp(8px, 1.2vw, 12px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(4px, 0.6vh, 6px);
+    }
+
+    .control-card.span-2-mobile {
+      grid-column: span 2;
+    }
+
+    @media (min-width: 768px) {
+      .control-card.span-2-mobile {
+        grid-column: span 1;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .card-label {
+      font-size: clamp(0.65rem, 1.25vh, 0.75rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .card-value {
+      font-size: clamp(0.68rem, 1.3vh, 0.78rem);
+      font-weight: 700;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Selector de color y presets */
+    .color-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .presets-group {
+      display: flex;
+      align-items: center;
+      gap: clamp(4px, 0.6vw, 6px);
+    }
+
+    .color-preset {
+      width: clamp(19px, 2.5vh, 23px);
+      height: clamp(19px, 2.5vh, 23px);
+      border-radius: 50%;
+      border: 1px solid #404040;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+      padding: 0;
+    }
+
+    .color-preset.active {
+      border: 2px solid #ffffff;
+      transform: scale(1.12);
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: clamp(22px, 2.8vh, 26px);
+      height: clamp(22px, 2.8vh, 26px);
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: 2px solid #525252;
+      border-radius: 50%;
+    }
+
+    /* Sliders personalizados */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+      cursor: pointer;
+      height: 18px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 5px;
+      border-radius: 999px;
+      background: #222222;
+      border: 1px solid #333333;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: clamp(14px, 2vh, 17px);
+      height: clamp(14px, 2vh, 17px);
+      border-radius: 50%;
+      background: var(--accent-color);
+      border: 2px solid #ffffff;
+      margin-top: -7px;
+      box-shadow: 0 0 8px var(--accent-color);
+      transition: transform 0.12s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 5px;
+      border-radius: 999px;
+      background: #222222;
+      border: 1px solid #333333;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: clamp(14px, 2vh, 17px);
+      height: clamp(14px, 2vh, 17px);
+      border-radius: 50%;
+      background: var(--accent-color);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 8px var(--accent-color);
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Switch de Parpadeo */
+    .blink-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-switch {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #262626;
+      border: 1px solid #404040;
+      border-radius: 999px;
+      transition: background-color 0.2s ease;
+    }
+
+    .slider-switch::before {
+      content: "";
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .switch input:checked + .slider-switch {
+      background-color: var(--accent-color);
+      border-color: #ffffff;
+    }
+
+    .switch input:checked + .slider-switch::before {
+      transform: translateX(16px);
+    }
+
+    /* Modal de Instrucciones Generales */
+    #help-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.88);
+      padding: 16px;
+    }
+
+    #help-modal.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background-color: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-radius: 18px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 88dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
+    }
+
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #1c1c1c;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #050505;
+    }
+
+    .modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    #close-help-modal {
+      background: #171717;
+      border: 1px solid #2e2e2e;
+      color: #d4d4d4;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #close-help-modal:hover {
+      background: #262626;
+      color: #ffffff;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d4d4d4;
+    }
+
+    .guide-item {
+      background-color: #000000;
+      border: 1px solid #1c1c1c;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .guide-item h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .guide-item p, .guide-item li {
+      color: #a3a3a3;
+      font-size: 12.5px;
+    }
+
+    .guide-item ul {
+      padding-left: 18px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .guide-item strong {
+      color: #f5f5f5;
+    }
+
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid #1c1c1c;
+      display: flex;
+      justify-content: flex-end;
+      background-color: #050505;
+    }
+
+    #ok-help-modal {
+      background-color: #262626;
+      border: 1px solid #404040;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #ok-help-modal:hover {
+      background-color: #363636;
     }
   </style>
 </head>
-<body class="bg-black text-neutral-200 selection:bg-red-500 selection:text-white">
+<body>
 
-  <div id="app-root" class="w-full h-[100dvh] flex flex-col justify-between bg-black overflow-hidden">
+  <div id="app-root">
 
-    <!-- Cabecera compacta con marca y botón PWA para instalar en Android desde Chrome -->
-    <header id="top-bar" class="w-full px-3 sm:px-5 py-1.5 flex items-center justify-between border-b border-neutral-900 bg-black shrink-0 z-20">
-      <div class="flex items-center gap-2">
-        <span id="status-dot" class="w-3 h-3 rounded-full inline-block transition-all duration-300" style="background-color: #ff1e1e; box-shadow: 0 0 10px #ff1e1e;"></span>
-        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Led<span id="brand-accent" style="color: #ff1e1e;">Msg</span></h1>
-        <span class="hidden md:inline text-[11px] text-neutral-500 ml-2">Doble clic en el cartel para pantalla completa horizontal</span>
+    <!-- Cabecera superior con logotipo interactivo -->
+    <header id="top-bar">
+      <div class="brand-group">
+        <button id="btn-logo-help" type="button" title="Pulsa para ver las instrucciones generales">
+          <span id="status-dot"></span>
+          <span class="brand-title">Led<span id="brand-accent">Msg</span></span>
+          <span class="help-badge" aria-hidden="true">?</span>
+        </button>
+        <span class="header-hint">Pulsa el logo para ayuda • Doble clic en el cartel para pantalla completa</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button id="btn-install" type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition active:scale-95" title="Instalar LedMsg en Android desde Chrome">
-          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-          </svg>
-          <span id="btn-install-text">Instalar App</span>
-        </button>
+      <div class="offline-pill" title="100% autocontenido y operativo sin conexión">
+        <span class="offline-dot"></span>
+        <span>Offline Listo</span>
       </div>
     </header>
 
-    <!-- Escenario Central del Cartel LED (Doble clic / doble toque alterna pantalla completa horizontal) -->
-    <main id="led-stage" class="relative flex-1 min-h-0 w-full bg-black flex items-center justify-center overflow-hidden cursor-pointer" title="Doble clic / doble toque para pantalla completa horizontal">
-      <div id="canvas-wrapper" class="w-full h-full flex items-center justify-center px-1 sm:px-2 py-1 bg-black">
-        <canvas id="led-canvas" class="block w-full h-full bg-black"></canvas>
+    <!-- Escenario Central del Cartel LED -->
+    <main id="led-stage" title="Doble clic o doble toque para alternar pantalla completa horizontal">
+      <div id="canvas-wrapper">
+        <canvas id="led-canvas"></canvas>
       </div>
-
-      <!-- Aviso flotante discreto que desaparece solo a los 2.5 segundos -->
-      <div id="fs-toast" class="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-neutral-900/90 border border-neutral-800 text-neutral-200 text-[11px] sm:text-xs font-medium tracking-wide opacity-0 transition-opacity duration-500 whitespace-nowrap shadow-2xl">
-        Doble clic / doble toque para pantalla completa horizontal
-      </div>
+      <div id="fs-toast" role="status" aria-live="polite"></div>
     </main>
 
-    <!-- Panel Inferior Compacto de Controles sobre negro puro -->
-    <section id="control-panel" class="w-full bg-neutral-950/95 border-t border-neutral-900 px-3 sm:px-5 py-2 shrink-0 z-20">
-      <div class="max-w-5xl mx-auto flex flex-col gap-1.5 sm:gap-2">
+    <!-- Panel Inferior de Controles Compactos -->
+    <section id="control-panel" aria-label="Controles del cartel LED">
+      <!-- Fila 1: Caja de mensaje -->
+      <div class="message-bar">
+        <label for="led-text-input">Mensaje</label>
+        <input
+          id="led-text-input"
+          type="text"
+          maxlength="240"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Escribe aquí tu mensaje LED..."
+          value="BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ "
+        >
+        <button id="btn-clear-text" type="button" title="Borrar mensaje">Limpiar</button>
+      </div>
 
-        <!-- Caja de texto del mensaje en tiempo real -->
-        <div class="relative w-full">
-          <label for="led-text-input" class="sr-only">Mensaje del cartel LED</label>
-          <input
-            id="led-text-input"
-            type="text"
-            maxlength="240"
-            value="BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥"
-            placeholder="Escribe aquí el mensaje para el cartel LED..."
-            class="w-full bg-black text-white placeholder-neutral-600 text-sm sm:text-base font-medium pl-3.5 pr-9 py-1.5 sm:py-2 rounded-xl border border-neutral-800 focus:outline-none focus:border-neutral-600 transition shadow-inner"
-            autocomplete="off"
-            spellcheck="false"
-          >
-          <button id="btn-clear-text" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 p-1 rounded-lg transition" title="Borrar mensaje">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
+      <!-- Fila 2: 5 controles compactos -->
+      <div class="controls-grid">
+        <!-- Control 1: Color de los LEDs -->
+        <div class="control-card span-2-mobile">
+          <div class="card-header">
+            <span class="card-label">Color LED</span>
+            <span id="color-hex-label" class="card-value">#FF1E1E</span>
+          </div>
+          <div class="color-row">
+            <div class="presets-group">
+              <button type="button" class="color-preset active" data-color="#ff1e1e" style="background-color:#ff1e1e;" title="Rojo LED"></button>
+              <button type="button" class="color-preset" data-color="#ffaa00" style="background-color:#ffaa00;" title="Ámbar LED"></button>
+              <button type="button" class="color-preset" data-color="#00e640" style="background-color:#00e640;" title="Verde LED"></button>
+              <button type="button" class="color-preset" data-color="#1e90ff" style="background-color:#1e90ff;" title="Azul LED"></button>
+              <button type="button" class="color-preset" data-color="#00f0ff" style="background-color:#00f0ff;" title="Cian LED"></button>
+              <button type="button" class="color-preset" data-color="#ffffff" style="background-color:#ffffff;" title="Blanco LED"></button>
+            </div>
+            <input id="led-color-picker" type="color" value="#ff1e1e" title="Selector de color libre">
+          </div>
         </div>
 
-        <!-- Rejilla de 5 controles: Color, Tamaño/Densidad, Brillo, Velocidad y Parpadeo -->
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-1.5 sm:gap-2">
-
-          <!-- 1. Color de los LEDs (Selector libre + paleta rápida) -->
-          <div class="compact-card col-span-2 lg:col-span-1 bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <span class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Color LED</span>
-              <span id="color-hex-label" class="text-[11px] font-mono text-neutral-400">#FF1E1E</span>
-            </div>
-            <div class="flex items-center justify-between gap-1">
-              <button type="button" data-color="#ff1e1e" class="color-preset compact-preset rounded-full border-2 border-white scale-105 transition-transform shrink-0" style="background-color: #ff1e1e;" title="Rojo"></button>
-              <button type="button" data-color="#ff9900" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ff9900;" title="Ámbar"></button>
-              <button type="button" data-color="#00ff41" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00ff41;" title="Verde"></button>
-              <button type="button" data-color="#00bfff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #00bfff;" title="Azul"></button>
-              <button type="button" data-color="#ff00cc" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ff00cc;" title="Magenta"></button>
-              <button type="button" data-color="#ffffff" class="color-preset compact-preset rounded-full border border-neutral-700 transition-transform hover:scale-105 shrink-0" style="background-color: #ffffff;" title="Blanco"></button>
-              <input id="led-color-picker" type="color" value="#ff1e1e" class="compact-preset cursor-pointer rounded-full shrink-0" title="Selector de color libre">
-            </div>
+        <!-- Control 2: Tamaño de los LEDs -->
+        <div class="control-card">
+          <div class="card-header">
+            <span class="card-label">Tamaño</span>
+            <span id="size-value" class="card-value">100%</span>
           </div>
+          <input id="led-size" type="range" min="40" max="100" step="5" value="100" aria-label="Tamaño de los puntos LED">
+        </div>
 
-          <!-- 2. Tamaño / Densidad LED (40% a 100%) -->
-          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <label for="led-size" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Tamaño</label>
-              <span id="size-value" class="text-[11px] font-mono text-neutral-300">100%</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-              </svg>
-              <input id="led-size" type="range" min="40" max="100" value="100" class="w-full">
-            </div>
+        <!-- Control 3: Intensidad de Brillo -->
+        <div class="control-card">
+          <div class="card-header">
+            <span class="card-label">Brillo</span>
+            <span id="brightness-value" class="card-value">85%</span>
           </div>
+          <input id="led-brightness" type="range" min="20" max="100" step="5" value="85" aria-label="Intensidad de brillo LED">
+        </div>
 
-          <!-- 3. Intensidad de Brillo -->
-          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <label for="led-brightness" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Brillo</label>
-              <span id="brightness-value" class="text-[11px] font-mono text-neutral-300">85%</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
-              <input id="led-brightness" type="range" min="15" max="100" value="85" class="w-full">
-            </div>
+        <!-- Control 4: Velocidad de Scroll -->
+        <div class="control-card">
+          <div class="card-header">
+            <span class="card-label">Velocidad</span>
+            <span id="speed-value" class="card-value">20 col/s</span>
           </div>
+          <input id="led-speed" type="range" min="0" max="100" step="2" value="20" aria-label="Velocidad de desplazamiento">
+        </div>
 
-          <!-- 4. Velocidad de Scroll -->
-          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <label for="led-speed" class="compact-label font-semibold uppercase tracking-wider text-neutral-400">Velocidad</label>
-              <span id="speed-value" class="text-[11px] font-mono text-neutral-300">18 col/s</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-              </svg>
-              <input id="led-speed" type="range" min="0" max="55" value="18" class="w-full">
-            </div>
+        <!-- Control 5: Parpadeo y Frecuencia -->
+        <div class="control-card">
+          <div class="card-header">
+            <span class="card-label">Parpadeo</span>
+            <span id="blink-speed-label" class="card-value">Off</span>
           </div>
-
-          <!-- 5. Parpadeo del texto y selector deslizable de velocidad de parpadeo -->
-          <div class="compact-card bg-black border border-neutral-900 rounded-xl flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <label for="led-blink-toggle" class="compact-label font-semibold uppercase tracking-wider text-neutral-400 cursor-pointer">Parpadeo</label>
-              <div class="flex items-center gap-1.5">
-                <span id="blink-speed-label" class="text-[11px] font-mono text-neutral-500">Off</span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input id="led-blink-toggle" type="checkbox" class="sr-only peer">
-                  <div id="blink-toggle-track" class="w-8 h-4 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600"></div>
-                </label>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-neutral-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-              <input id="led-blink-speed" type="range" min="1" max="15" value="4" disabled class="w-full opacity-40 transition-opacity">
-            </div>
+          <div class="blink-controls">
+            <label class="switch" title="Activar o desactivar parpadeo">
+              <input id="led-blink-toggle" type="checkbox">
+              <span class="slider-switch"></span>
+            </label>
+            <input id="led-blink-speed" type="range" min="1" max="10" step="1" value="4" disabled aria-label="Velocidad de parpadeo en Hz">
           </div>
-
         </div>
       </div>
     </section>
 
   </div>
 
-  <!-- Modal informativo rápido para instalar la PWA en Android desde Google Chrome -->
-  <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-    <div class="bg-neutral-950 border border-neutral-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-          Instalar LedMsg en Android
-        </h2>
-        <button id="close-install-modal" type="button" class="text-neutral-400 hover:text-white p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+  <!-- Modal de Instrucciones Generales de Uso -->
+  <div id="help-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ff1e1e;box-shadow:0 0 8px #ff1e1e;display:inline-block;"></span>
+          <h2 id="modal-heading" class="modal-title">Instrucciones de Uso — LedMsg</h2>
+        </div>
+        <button id="close-help-modal" type="button" aria-label="Cerrar instrucciones">✕</button>
       </div>
-      <p class="text-sm text-neutral-300 leading-relaxed">
-        Instala <strong>LedMsg</strong> como aplicación en tu dispositivo Android desde Google Chrome (respetando la orientación libre al abrirse):
-      </p>
-      <ol class="text-xs sm:text-sm text-neutral-400 space-y-2 list-decimal list-inside bg-black p-3.5 rounded-xl border border-neutral-900">
-        <li>Abre esta aplicación en <strong>Google Chrome</strong> en Android.</li>
-        <li>Toca el menú de opciones <strong>(⋮)</strong> en la esquina superior derecha.</li>
-        <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong> o <strong>"Instalar aplicación"</strong>.</li>
-      </ol>
-      <div class="flex justify-end">
-        <button id="ok-install-modal" type="button" class="px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium transition">
-          Entendido
-        </button>
+
+      <div class="modal-body">
+        <div class="guide-item">
+          <h3>1. Texto del Cartel LED</h3>
+          <p>
+            Escribe cualquier mensaje en la barra inferior. Admite mayúsculas, minúsculas, tildes (<strong>ÁÉÍÓÚÜ</strong>), <strong>Ñ</strong>, números y símbolos especiales como <strong>★ ♥ • ¿? ¡!</strong>. Todos tus ajustes se guardan automáticamente.
+          </p>
+        </div>
+
+        <div class="guide-item">
+          <h3>2. Personalización Visual</h3>
+          <ul>
+            <li><strong>Color LED:</strong> Elige uno de los 6 colores clásicos o pulsa el círculo multicolor para seleccionar cualquier tono.</li>
+            <li><strong>Tamaño (40%–100%):</strong> Reduce el diámetro de los diodos para mostrar muchas más letras a la vez en pantalla.</li>
+            <li><strong>Brillo y Velocidad:</strong> Ajusta la potencia luminosa y la rapidez del desplazamiento (en <strong>0</strong> el texto queda fijo centrado).</li>
+            <li><strong>Parpadeo:</strong> Activa el interruptor y regula la frecuencia entre <strong>1 Hz</strong> y <strong>10 Hz</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h3>3. Pantalla Completa Horizontal</h3>
+          <p>
+            Haz <strong>doble clic</strong> (o <strong>doble toque</strong> en móvil) sobre el panel LED para ocultar los controles y activar la pantalla completa bloqueada en horizontal. Repite el gesto o pulsa <strong>Esc</strong> para volver.
+          </p>
+        </div>
+
+        <div class="guide-item">
+          <h3>4. Instalación en Android (Chrome) y Uso Offline</h3>
+          <p>
+            Esta aplicación es 100% autocontenida y funciona sin conexión a Internet. Para instalarla en Android desde <strong>Google Chrome</strong>, pulsa el menú superior derecho <strong>(⋮)</strong> y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="ok-help-modal" type="button">Entendido</button>
       </div>
     </div>
   </div>
 
   <script>
-    /**
-     * ============================================================================
-     * LEDMSG - MOTOR MATRICIAL DETERMINISTA 10x16 Y RENDERIZADOR LED DE 60 FPS
-     * ============================================================================
-     */
     (function () {
       'use strict';
 
-      // --------------------------------------------------------------------------
-      // 1. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES
-      //    Definida explícitamente en código para garantizar nitidez absoluta en
-      //    cualquier navegador y dispositivo, sin depender de fuentes del sistema.
-      // --------------------------------------------------------------------------
+      // ========================================================================
+      // 1. FUENTE MATRICIAL BITMAP 10x16 DETERMINISTA
+      // ========================================================================
       const GLYPH_HEIGHT = 16;
       const GLYPH_WIDTH = 10;
-      const LETTER_SPACING = 2; // Columnas vacías de separación entre letras
+      const LETTER_SPACING = 2;
 
       const BITMAP_FONT_10X16 = {
         ' ': [
@@ -509,7 +1005,6 @@
           '.###......','###.......','##########','##########',
           '..........','..........','..........','..........'
         ],
-        // Vocales acentuadas y diéresis en mayúscula
         'Á': [
           '.....###..','....###...','...####...','..######..',
           '.###..###.','###....###','##########','##########',
@@ -546,7 +1041,6 @@
           '###....###','###....###','.########.','..######..',
           '..........','..........','..........','..........'
         ],
-        // Minúsculas (diseño claro y altamente legible en matriz LED)
         'a': [
           '..........','..........','..........','..........',
           '..######..','.########.','.......###','.#########',
@@ -745,7 +1239,6 @@
           '###....###','###....###','###....###','##########',
           '.#########','..........','..........','..........'
         ],
-        // Números 0-9
         '0': [
           '..........','..######..','.########.','###...####',
           '###..#####','###.##.###','#####..###','####...###',
@@ -806,7 +1299,6 @@
           '.......###','###....###','.########.','..######..',
           '..........','..........','..........','..........'
         ],
-        // Signos de puntuación y símbolos completos
         '.': [
           '..........','..........','..........','..........',
           '..........','..........','..........','..........',
@@ -965,28 +1457,77 @@
         ]
       };
 
-      // --------------------------------------------------------------------------
-      // 2. ESTADO GLOBAL DE LA APLICACIÓN Y REFERENCIAS DOM
-      // --------------------------------------------------------------------------
-      const state = {
+      // ========================================================================
+      // 2. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
+      // ========================================================================
+      const STORAGE_KEY = 'ledmsg_settings_v1';
+
+      const defaultSettings = {
         text: 'BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ ',
         color: '#ff1e1e',
-        textScale: 1.0,         // 0.40 a 1.00 (escala de tamaño/densidad LED)
-        brightness: 0.85,       // 0.15 a 1.00
-        scrollSpeed: 18,        // Columnas LED por segundo
+        textScale: 1.0,
+        brightness: 0.85,
+        scrollSpeed: 20,
         blinkEnabled: false,
-        blinkSpeed: 4,          // Ciclos por segundo (Hz)
-        textRows: GLYPH_HEIGHT, // 16 filas de altura del mensaje
-        rows: GLYPH_HEIGHT,     // Filas totales visibles de la matriz
+        blinkSpeed: 4
+      };
+
+      function loadSettings() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return { ...defaultSettings };
+          const parsed = JSON.parse(raw);
+          return {
+            text: typeof parsed.text === 'string' ? parsed.text : defaultSettings.text,
+            color: typeof parsed.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(parsed.color) ? parsed.color : defaultSettings.color,
+            textScale: typeof parsed.textScale === 'number' ? Math.min(1, Math.max(0.4, parsed.textScale)) : defaultSettings.textScale,
+            brightness: typeof parsed.brightness === 'number' ? Math.min(1, Math.max(0.2, parsed.brightness)) : defaultSettings.brightness,
+            scrollSpeed: typeof parsed.scrollSpeed === 'number' ? Math.min(100, Math.max(0, parsed.scrollSpeed)) : defaultSettings.scrollSpeed,
+            blinkEnabled: Boolean(parsed.blinkEnabled),
+            blinkSpeed: typeof parsed.blinkSpeed === 'number' ? Math.min(10, Math.max(1, parsed.blinkSpeed)) : defaultSettings.blinkSpeed
+          };
+        } catch (err) {
+          return { ...defaultSettings };
+        }
+      }
+
+      function saveSettings() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            text: state.text,
+            color: state.color,
+            textScale: state.textScale,
+            brightness: state.brightness,
+            scrollSpeed: state.scrollSpeed,
+            blinkEnabled: state.blinkEnabled,
+            blinkSpeed: state.blinkSpeed
+          }));
+        } catch (err) {
+          // Ignorar errores de cuota de almacenamiento
+        }
+      }
+
+      const saved = loadSettings();
+      const state = {
+        ...saved,
+        textRows: GLYPH_HEIGHT,
+        rows: GLYPH_HEIGHT,
         scrollOffset: 0,
         blinkTimer: 0,
         isBlinkOn: true,
         isFullscreenMode: false
       };
 
+      // ========================================================================
+      // 3. REFERENCIAS AL DOM
+      // ========================================================================
       const appRoot = document.getElementById('app-root');
       const canvas = document.getElementById('led-canvas');
       const ctx = canvas.getContext('2d', { alpha: false });
+      const canvasWrapper = document.getElementById('canvas-wrapper');
+      const ledStage = document.getElementById('led-stage');
+      const fsToast = document.getElementById('fs-toast');
+
       const textInput = document.getElementById('led-text-input');
       const btnClearText = document.getElementById('btn-clear-text');
       const colorPicker = document.getElementById('led-color-picker');
@@ -999,26 +1540,17 @@
       const speedSlider = document.getElementById('led-speed');
       const speedValue = document.getElementById('speed-value');
       const blinkToggle = document.getElementById('led-blink-toggle');
-      const blinkToggleTrack = document.getElementById('blink-toggle-track');
       const blinkSpeedSlider = document.getElementById('led-blink-speed');
       const blinkSpeedLabel = document.getElementById('blink-speed-label');
-      const fsToast = document.getElementById('fs-toast');
-      const ledStage = document.getElementById('led-stage');
-      const statusDot = document.getElementById('status-dot');
-      const brandAccent = document.getElementById('brand-accent');
-      const btnInstall = document.getElementById('btn-install');
-      const btnInstallText = document.getElementById('btn-install-text');
-      const installModal = document.getElementById('install-modal');
-      const closeInstallModal = document.getElementById('close-install-modal');
-      const okInstallModal = document.getElementById('ok-install-modal');
 
-      // --------------------------------------------------------------------------
-      // 3. MANIFIESTO PWA DINÁMICO E ICONOS PARA ANDROID CHROME
-      //    IMPORTANTE: "orientation": "any" para que la app instalada NO fuerce
-      //    modo horizontal al abrirse, reservándolo solo para pantalla completa.
-      // --------------------------------------------------------------------------
-      let deferredInstallPrompt = null;
+      const btnLogoHelp = document.getElementById('btn-logo-help');
+      const helpModal = document.getElementById('help-modal');
+      const closeHelpModal = document.getElementById('close-help-modal');
+      const okHelpModal = document.getElementById('ok-help-modal');
 
+      // ========================================================================
+      // 4. MANIFIESTO PWA EN DATA URI (INSTALABLE EN CHROME ANDROID SIN SW BLOB)
+      // ========================================================================
       function generateLedIconDataURL(size) {
         const off = document.createElement('canvas');
         off.width = size;
@@ -1028,19 +1560,17 @@
         c.fillStyle = '#000000';
         c.fillRect(0, 0, size, size);
 
-        // Rejilla de diodos de fondo en el icono
         const step = size / 4;
         for (let gx = 1; gx <= 3; gx++) {
           for (let gy = 1; gy <= 3; gy++) {
             if (gx === 2 && gy === 2) continue;
-            c.fillStyle = '#141414';
+            c.fillStyle = '#181818';
             c.beginPath();
             c.arc(gx * step, gy * step, size * 0.065, 0, Math.PI * 2);
             c.fill();
           }
         }
 
-        // Diodo LED central encendido con halo luminoso
         const cx = size / 2;
         const cy = size / 2;
         const glow = c.createRadialGradient(cx, cy, size * 0.04, cx, cy, size * 0.42);
@@ -1066,7 +1596,7 @@
         return off.toDataURL('image/png');
       }
 
-      function setupDynamicPWA() {
+      function setupManifestPWA() {
         try {
           const icon192 = generateLedIconDataURL(192);
           const icon512 = generateLedIconDataURL(512);
@@ -1077,10 +1607,11 @@
           document.head.appendChild(appleTouch);
 
           const manifest = {
-            name: 'LedMsg - Cartel LED Deslizante',
+            name: 'LedMsg - Cartel LED',
             short_name: 'LedMsg',
             description: 'Simulador de cartel luminoso de texto LED con scroll configurable',
             start_url: window.location.href,
+            scope: './',
             display: 'standalone',
             orientation: 'any',
             background_color: '#000000',
@@ -1091,57 +1622,22 @@
             ]
           };
 
-          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-          const manifestURL = URL.createObjectURL(blob);
+          const manifestDataURI = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
           const linkManifest = document.createElement('link');
           linkManifest.rel = 'manifest';
-          linkManifest.href = manifestURL;
+          linkManifest.href = manifestDataURI;
           document.head.appendChild(linkManifest);
         } catch (err) {
-          console.warn('No se pudo generar el manifiesto PWA dinámico:', err);
+          // Continuar sin interrupción
         }
       }
 
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        btnInstallText.textContent = 'Instalar App';
-        btnInstall.classList.add('border-emerald-700/70');
-      });
-
-      window.addEventListener('appinstalled', () => {
-        deferredInstallPrompt = null;
-        btnInstallText.textContent = 'Instalada';
-      });
-
-      btnInstall.addEventListener('click', async () => {
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          const { outcome } = await deferredInstallPrompt.userChoice;
-          if (outcome === 'accepted') {
-            deferredInstallPrompt = null;
-          }
-        } else {
-          installModal.classList.remove('hidden');
-          installModal.classList.add('flex');
-        }
-      });
-
-      closeInstallModal.addEventListener('click', () => {
-        installModal.classList.add('hidden');
-        installModal.classList.remove('flex');
-      });
-
-      okInstallModal.addEventListener('click', () => {
-        installModal.classList.add('hidden');
-        installModal.classList.remove('flex');
-      });
-
-      // --------------------------------------------------------------------------
-      // 4. COMPILADOR MATRICIAL DETERMINISTA (TEXTO -> COLUMNAS DE 16 BITS)
-      // --------------------------------------------------------------------------
+      // ========================================================================
+      // 5. COMPILADOR MATRICIAL DETERMINISTA (TEXTO -> COLUMNAS DE 16 BITS)
+      // ========================================================================
       let textBitmap = [];
       let textBitmapCols = 0;
+      let textWithoutTrailingPadCols = 0;
 
       function resolveGlyph(char) {
         if (BITMAP_FONT_10X16[char]) {
@@ -1164,7 +1660,7 @@
       }
 
       function buildMessageMatrix(rawText) {
-        const displayText = rawText && rawText.length > 0 ? rawText : '   ';
+        const displayText = rawText && rawText.length > 0 ? rawText : ' ';
         const matrix = [];
 
         for (let i = 0; i < displayText.length; i++) {
@@ -1176,7 +1672,7 @@
 
           if (ch === ' ') {
             minX = 0;
-            maxX = 4; // Espacio de 5 columnas
+            maxX = 4;
           } else {
             let foundMin = GLYPH_WIDTH;
             let foundMax = -1;
@@ -1203,15 +1699,17 @@
             matrix.push(colBits);
           }
 
-          if (ch !== ' ') {
+          if (ch !== ' ' && i < displayText.length - 1) {
             for (let s = 0; s < LETTER_SPACING; s++) {
               matrix.push(new Uint8Array(GLYPH_HEIGHT));
             }
           }
         }
 
-        // Margen final para separación natural en el bucle continuo
-        for (let pad = 0; pad < 6; pad++) {
+        textWithoutTrailingPadCols = matrix.length;
+
+        // Separación visual de 8 columnas al final del mensaje para el bucle continuo
+        for (let pad = 0; pad < 8; pad++) {
           matrix.push(new Uint8Array(GLYPH_HEIGHT));
         }
 
@@ -1222,11 +1720,11 @@
         }
       }
 
-      // --------------------------------------------------------------------------
-      // 5. PRE-RENDERIZADO DE SPRITES OFFSCREEN (LED APAGADO Y LED ENCENDIDO)
-      // --------------------------------------------------------------------------
-      let ledOffSprite = document.createElement('canvas');
-      let ledOnSprite = document.createElement('canvas');
+      // ========================================================================
+      // 6. PRE-RENDERIZADO DE SPRITES LED OFFSCREEN (APAGADO Y ENCENDIDO)
+      // ========================================================================
+      const ledOffSprite = document.createElement('canvas');
+      const ledOnSprite = document.createElement('canvas');
       let currentPitch = 0;
 
       function hexToRgb(hex) {
@@ -1244,8 +1742,8 @@
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const radius = Math.max(1.2, pitch * 0.37);
 
-        // Sprite 1: Diodo LED apagado (rejilla oscura sutil sobre negro puro)
-        const offSize = Math.ceil(pitch * dpr);
+        // Sprite LED Apagado
+        const offSize = Math.max(4, Math.ceil(pitch * dpr));
         ledOffSprite.width = offSize;
         ledOffSprite.height = offSize;
         const offCtx = ledOffSprite.getContext('2d');
@@ -1255,20 +1753,20 @@
         const cyOff = offSize / 2;
         const rOff = radius * dpr;
 
-        offCtx.fillStyle = '#0e0e0e';
+        offCtx.fillStyle = '#0f0f0f';
         offCtx.beginPath();
         offCtx.arc(cxOff, cyOff, rOff, 0, Math.PI * 2);
         offCtx.fill();
 
         if (rOff >= 2.2) {
-          offCtx.strokeStyle = '#181818';
+          offCtx.strokeStyle = '#1b1b1b';
           offCtx.lineWidth = Math.max(0.75, 0.5 * dpr);
           offCtx.stroke();
         }
 
-        // Sprite 2: Diodo LED encendido (con halo luminoso y brillo especular)
+        // Sprite LED Encendido
         const padFactor = 2.5;
-        const onSize = Math.ceil(pitch * padFactor * dpr);
+        const onSize = Math.max(8, Math.ceil(pitch * padFactor * dpr));
         ledOnSprite.width = onSize;
         ledOnSprite.height = onSize;
         const onCtx = ledOnSprite.getContext('2d');
@@ -1280,7 +1778,6 @@
         const { r, g, b } = hexToRgb(state.color);
         const br = state.brightness;
 
-        // Halo luminoso exterior (glow)
         const glowRadius = rOn * (1.55 + br * 1.15);
         const glowGrad = onCtx.createRadialGradient(cxOn, cyOn, rOn * 0.15, cxOn, cyOn, glowRadius);
         glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, br * 0.95)})`);
@@ -1292,14 +1789,12 @@
         onCtx.arc(cxOn, cyOn, glowRadius, 0, Math.PI * 2);
         onCtx.fill();
 
-        // Cuerpo principal del LED
         const bodyAlpha = 0.25 + br * 0.75;
         onCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${bodyAlpha})`;
         onCtx.beginPath();
         onCtx.arc(cxOn, cyOn, rOn, 0, Math.PI * 2);
         onCtx.fill();
 
-        // Núcleo incandescente y brillo especular
         if (br > 0.35) {
           const coreAlpha = (br - 0.35) * 1.25;
           const coreGrad = onCtx.createRadialGradient(
@@ -1321,9 +1816,9 @@
         }
       }
 
-      // --------------------------------------------------------------------------
-      // 6. DIMENSIONAMIENTO RESPONSIVO Y BUCLE DE RENDERIZADO A 60 FPS
-      // --------------------------------------------------------------------------
+      // ========================================================================
+      // 7. DIMENSIONAMIENTO RESPONSIVO Y BUCLE DE RENDERIZADO A 60 FPS
+      // ========================================================================
       let visibleCols = 40;
       let startX = 0;
       let startY = 0;
@@ -1346,16 +1841,15 @@
         syncOrientationFallback();
 
         const isForcedLandscape = appRoot.classList.contains('force-landscape');
-        const wrapper = document.getElementById('canvas-wrapper');
-        const rect = wrapper.getBoundingClientRect();
+        const rect = canvasWrapper.getBoundingClientRect();
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         const cssWidth = isForcedLandscape
           ? Math.max(200, window.innerHeight)
-          : Math.max(200, rect.width);
+          : Math.max(200, rect.width || window.innerWidth);
         const cssHeight = isForcedLandscape
           ? Math.max(120, window.innerWidth)
-          : Math.max(100, rect.height);
+          : Math.max(96, rect.height || (window.innerHeight * 0.55));
 
         canvas.width = Math.floor(cssWidth * dpr);
         canvas.height = Math.floor(cssHeight * dpr);
@@ -1363,8 +1857,8 @@
 
         const maxBoardHeight = state.isFullscreenMode
           ? cssHeight * 0.94
-          : Math.min(cssHeight * 0.94, cssWidth * 0.56);
-        const effectiveHeight = Math.max(Math.min(cssHeight * 0.88, 96), maxBoardHeight);
+          : Math.min(cssHeight * 0.94, cssWidth * 0.58);
+        const effectiveHeight = Math.max(Math.min(cssHeight * 0.88, 92), maxBoardHeight);
 
         const basePitch = effectiveHeight / state.textRows;
         const newPitch = Math.max(3, basePitch * state.textScale);
@@ -1388,7 +1882,7 @@
       let lastTimestamp = performance.now();
 
       function renderLoop(now) {
-        const dt = Math.min(0.1, (now - lastTimestamp) / 1000);
+        const dt = Math.min(0.1, Math.max(0, (now - lastTimestamp) / 1000));
         lastTimestamp = now;
 
         // 1. Actualizar scroll continuo
@@ -1399,7 +1893,7 @@
           }
         }
 
-        // 2. Actualizar estado de parpadeo
+        // 2. Actualizar parpadeo
         if (state.blinkEnabled) {
           state.blinkTimer += dt * state.blinkSpeed;
           state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
@@ -1408,7 +1902,7 @@
           state.blinkTimer = 0;
         }
 
-        // 3. Limpiar fondo en negro puro (#000000)
+        // 3. Fondo negro puro #000000
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const viewW = canvas.width / dpr;
         const viewH = canvas.height / dpr;
@@ -1416,11 +1910,9 @@
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, viewW, viewH);
 
-        // 4. Renderizar rejilla de LEDs apagados y LEDs encendidos
+        // 4. Dibujar rejilla LED
         if (currentPitch > 0 && textBitmapCols > 0) {
-          const baseColOffset = Math.floor(state.scrollOffset);
-
-          // Pasada 1: LEDs apagados (fijos en la rejilla)
+          // Pasada 1: LEDs apagados
           for (let c = 0; c < visibleCols; c++) {
             const x = startX + c * currentPitch;
             for (let r = 0; r < state.rows; r++) {
@@ -1429,22 +1921,37 @@
             }
           }
 
-          // Pasada 2: LEDs encendidos (centrados verticalmente)
+          // Pasada 2: LEDs encendidos
           if (state.isBlinkOn) {
             const onDrawSize = currentPitch * 2.5;
             const onOffset = (onDrawSize - currentPitch) / 2;
 
-            for (let c = 0; c < visibleCols; c++) {
-              const textColIndex = (baseColOffset + c) % textBitmapCols;
-              const colData = textBitmap[textColIndex];
-              if (!colData) continue;
-
-              const x = startX + c * currentPitch - onOffset;
-
-              for (let r = 0; r < state.textRows; r++) {
-                if (colData[r] === 1) {
-                  const y = startY + (textStartRow + r) * currentPitch - onOffset;
-                  ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
+            if (state.scrollSpeed === 0 && textWithoutTrailingPadCols <= visibleCols) {
+              // Si velocidad = 0 y el mensaje cabe completo, centrarlo en el cartel
+              const centerPad = Math.floor((visibleCols - textWithoutTrailingPadCols) / 2);
+              for (let c = 0; c < textWithoutTrailingPadCols; c++) {
+                const colData = textBitmap[c];
+                if (!colData) continue;
+                const x = startX + (centerPad + c) * currentPitch - onOffset;
+                for (let r = 0; r < state.textRows; r++) {
+                  if (colData[r] === 1) {
+                    const y = startY + (textStartRow + r) * currentPitch - onOffset;
+                    ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
+                  }
+                }
+              }
+            } else {
+              const baseColOffset = Math.floor(state.scrollOffset);
+              for (let c = 0; c < visibleCols; c++) {
+                const textColIndex = (baseColOffset + c) % textBitmapCols;
+                const colData = textBitmap[textColIndex];
+                if (!colData) continue;
+                const x = startX + c * currentPitch - onOffset;
+                for (let r = 0; r < state.textRows; r++) {
+                  if (colData[r] === 1) {
+                    const y = startY + (textStartRow + r) * currentPitch - onOffset;
+                    ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
+                  }
                 }
               }
             }
@@ -1454,55 +1961,67 @@
         requestAnimationFrame(renderLoop);
       }
 
-      // --------------------------------------------------------------------------
-      // 7. CONTROLADORES DE INTERFAZ Y EVENTOS EN TIEMPO REAL
-      // --------------------------------------------------------------------------
-      function updateAccentColor(newHex) {
+      // ========================================================================
+      // 8. SINCRONIZACIÓN DE CONTROLES Y EVENTOS
+      // ========================================================================
+      function applyAccentColor(newHex) {
         state.color = newHex.toLowerCase();
         colorPicker.value = state.color;
         colorHexLabel.textContent = state.color.toUpperCase();
-
         document.documentElement.style.setProperty('--accent-color', state.color);
-        statusDot.style.backgroundColor = state.color;
-        statusDot.style.boxShadow = `0 0 10px ${state.color}`;
-        brandAccent.style.color = state.color;
-
-        if (state.blinkEnabled) {
-          blinkToggleTrack.style.backgroundColor = state.color;
-        }
 
         colorPresets.forEach((btn) => {
           if (btn.dataset.color.toLowerCase() === state.color) {
-            btn.classList.add('border-2', 'border-white', 'scale-105');
-            btn.classList.remove('border', 'border-neutral-700');
+            btn.classList.add('active');
           } else {
-            btn.classList.remove('border-2', 'border-white', 'scale-105');
-            btn.classList.add('border', 'border-neutral-700');
+            btn.classList.remove('active');
           }
         });
 
         rebuildLedSprites(currentPitch);
+        saveSettings();
+      }
+
+      function syncUIWithState() {
+        textInput.value = state.text;
+        const pctSize = Math.round(state.textScale * 100);
+        sizeSlider.value = String(pctSize);
+        sizeValue.textContent = `${pctSize}%`;
+
+        const pctBright = Math.round(state.brightness * 100);
+        brightnessSlider.value = String(pctBright);
+        brightnessValue.textContent = `${pctBright}%`;
+
+        speedSlider.value = String(state.scrollSpeed);
+        speedValue.textContent = state.scrollSpeed === 0 ? 'Fijo' : `${state.scrollSpeed} col/s`;
+
+        blinkToggle.checked = state.blinkEnabled;
+        blinkSpeedSlider.value = String(state.blinkSpeed);
+        blinkSpeedSlider.disabled = !state.blinkEnabled;
+        blinkSpeedLabel.textContent = state.blinkEnabled ? `${state.blinkSpeed} Hz` : 'Off';
       }
 
       textInput.addEventListener('input', (e) => {
         state.text = e.target.value;
         buildMessageMatrix(state.text);
+        saveSettings();
       });
 
       btnClearText.addEventListener('click', () => {
-        textInput.value = '';
         state.text = '';
+        textInput.value = '';
         buildMessageMatrix('');
+        saveSettings();
         textInput.focus();
       });
 
       colorPicker.addEventListener('input', (e) => {
-        updateAccentColor(e.target.value);
+        applyAccentColor(e.target.value);
       });
 
       colorPresets.forEach((btn) => {
         btn.addEventListener('click', () => {
-          updateAccentColor(btn.dataset.color);
+          applyAccentColor(btn.dataset.color);
         });
       });
 
@@ -1511,6 +2030,7 @@
         state.textScale = val / 100;
         sizeValue.textContent = `${val}%`;
         resizeCanvas();
+        saveSettings();
       });
 
       brightnessSlider.addEventListener('input', (e) => {
@@ -1518,29 +2038,21 @@
         state.brightness = val / 100;
         brightnessValue.textContent = `${val}%`;
         rebuildLedSprites(currentPitch);
+        saveSettings();
       });
 
       speedSlider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value, 10);
         state.scrollSpeed = val;
-        speedValue.textContent = val === 0 ? 'Pausa' : `${val} col/s`;
+        speedValue.textContent = val === 0 ? 'Fijo' : `${val} col/s`;
+        saveSettings();
       });
 
       blinkToggle.addEventListener('change', (e) => {
         state.blinkEnabled = e.target.checked;
-        if (state.blinkEnabled) {
-          blinkSpeedSlider.disabled = false;
-          blinkSpeedSlider.classList.remove('opacity-40');
-          blinkSpeedLabel.textContent = `${state.blinkSpeed} Hz`;
-          blinkSpeedLabel.classList.replace('text-neutral-500', 'text-neutral-300');
-          blinkToggleTrack.style.backgroundColor = state.color;
-        } else {
-          blinkSpeedSlider.disabled = true;
-          blinkSpeedSlider.classList.add('opacity-40');
-          blinkSpeedLabel.textContent = 'Off';
-          blinkSpeedLabel.classList.replace('text-neutral-300', 'text-neutral-500');
-          blinkToggleTrack.style.backgroundColor = '';
-        }
+        blinkSpeedSlider.disabled = !state.blinkEnabled;
+        blinkSpeedLabel.textContent = state.blinkEnabled ? `${state.blinkSpeed} Hz` : 'Off';
+        saveSettings();
       });
 
       blinkSpeedSlider.addEventListener('input', (e) => {
@@ -1549,23 +2061,39 @@
         if (state.blinkEnabled) {
           blinkSpeedLabel.textContent = `${val} Hz`;
         }
+        saveSettings();
       });
 
-      // --------------------------------------------------------------------------
-      // 8. PANTALLA COMPLETA EXCLUSIVAMENTE HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
-      // --------------------------------------------------------------------------
-      let toastTimeout = null;
+      // Modal de Instrucciones Generales
+      function openHelpModal() {
+        helpModal.classList.add('open');
+      }
+
+      function closeHelpDialog() {
+        helpModal.classList.remove('open');
+      }
+
+      btnLogoHelp.addEventListener('click', openHelpModal);
+      closeHelpModal.addEventListener('click', closeHelpDialog);
+      okHelpModal.addEventListener('click', closeHelpDialog);
+      helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+          closeHelpDialog();
+        }
+      });
+
+      // ========================================================================
+      // 9. PANTALLA COMPLETA HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
+      // ========================================================================
+      let toastTimer = null;
 
       function showToast(msg) {
-        if (!fsToast) return;
         fsToast.textContent = msg;
-        fsToast.classList.remove('opacity-0');
-        fsToast.classList.add('opacity-100');
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-          fsToast.classList.remove('opacity-100');
-          fsToast.classList.add('opacity-0');
-        }, 2500);
+        fsToast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          fsToast.classList.remove('visible');
+        }, 2400);
       }
 
       async function enterFullscreenLandscape() {
@@ -1580,8 +2108,7 @@
             await screen.orientation.lock('landscape');
           }
         } catch (err) {
-          // Si el navegador bloquea lock('landscape') o en escritorio vertical,
-          // syncOrientationFallback() aplicará rotación CSS de 90° automáticamente.
+          // Si el navegador no bloquea orientación nativa, syncOrientationFallback rotará 90deg por CSS
         }
 
         resizeCanvas();
@@ -1600,7 +2127,7 @@
             await document.exitFullscreen();
           }
         } catch (err) {
-          // Ignorar si ya salió de pantalla completa
+          // Ignorar
         }
 
         resizeCanvas();
@@ -1614,13 +2141,11 @@
         }
       }
 
-      // Doble clic en ratón
       ledStage.addEventListener('dblclick', (e) => {
         e.preventDefault();
         toggleFullscreenLandscape();
       });
 
-      // Doble toque rápido en pantalla táctil
       let lastTapTime = 0;
       ledStage.addEventListener('touchend', (e) => {
         const now = Date.now();
@@ -1645,27 +2170,43 @@
       });
 
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && state.isFullscreenMode) {
-          exitFullscreenLandscape();
+        if (e.key === 'Escape') {
+          if (helpModal.classList.contains('open')) {
+            closeHelpDialog();
+          } else if (state.isFullscreenMode) {
+            exitFullscreenLandscape();
+          }
         }
       });
+
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => resizeCanvas());
+        ro.observe(canvasWrapper);
+      }
 
       window.addEventListener('resize', resizeCanvas);
       window.addEventListener('orientationchange', () => {
         setTimeout(resizeCanvas, 100);
       });
 
-      // --------------------------------------------------------------------------
-      // 9. INICIALIZACIÓN AL CARGAR LA VENTANA
-      // --------------------------------------------------------------------------
-      window.onload = function () {
-        setupDynamicPWA();
+      // ========================================================================
+      // 10. ARRANQUE INMEDIATO AL CARGAR EL DOCUMENTO
+      // ========================================================================
+      function init() {
+        setupManifestPWA();
+        syncUIWithState();
         buildMessageMatrix(state.text);
-        updateAccentColor(state.color);
+        applyAccentColor(state.color);
         resizeCanvas();
-        showToast('Doble clic / doble toque para pantalla completa horizontal');
+        showToast('Doble clic / doble toque en el cartel para pantalla completa');
         requestAnimationFrame(renderLoop);
-      };
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>
