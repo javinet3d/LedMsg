@@ -10,21 +10,22 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LedMsg">
   <meta name="application-name" content="LedMsg">
-  <meta name="description" content="Cartel luminoso LED de una línea con scroll configurable en pantalla completa horizontal">
+  <meta name="description" content="Simulador de cartel luminoso LED de una línea con scroll configurable en pantalla completa horizontal">
   <title>LedMsg - Cartel LED</title>
 
-  <!-- Favicon SVG matricial incorporado en código -->
-  <link id="app-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='35%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='75%25' stop-color='%23b30000' stop-opacity='0.6'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='%23181818'%3E%3Ccircle cx='16' cy='16' r='5'/%3E%3Ccircle cx='32' cy='16' r='5'/%3E%3Ccircle cx='48' cy='16' r='5'/%3E%3Ccircle cx='16' cy='32' r='5'/%3E%3Ccircle cx='48' cy='32' r='5'/%3E%3Ccircle cx='16' cy='48' r='5'/%3E%3Ccircle cx='32' cy='48' r='5'/%3E%3Ccircle cx='48' cy='48' r='5'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='22' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23ff1e1e'/%3E%3Ccircle cx='29.5' cy='29.5' r='2.5' fill='%23ffffff' fill-opacity='0.9'/%3E%3C/svg%3E">
+  <!-- Favicon SVG directo con matriz LED y puntos luminosos sobre fondo negro puro #000000 -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000000'/%3E%3Crect x='3' y='3' width='58' height='58' rx='12' fill='%23050505' stroke='%23222222' stroke-width='2'/%3E%3Cg fill='%231a1a1a'%3E%3Ccircle cx='14' cy='16' r='3.5'/%3E%3Ccircle cx='26' cy='16' r='3.5'/%3E%3Ccircle cx='38' cy='16' r='3.5'/%3E%3Ccircle cx='50' cy='16' r='3.5'/%3E%3Ccircle cx='14' cy='48' r='3.5'/%3E%3Ccircle cx='26' cy='48' r='3.5'/%3E%3Ccircle cx='38' cy='48' r='3.5'/%3E%3Ccircle cx='50' cy='48' r='3.5'/%3E%3C/g%3E%3Cdefs%3E%3CradialGradient id='ledGlow' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='40%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='100%25' stop-color='%23ff1e1e' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='url(%23ledGlow)'%3E%3Ccircle cx='14' cy='27' r='6'/%3E%3Ccircle cx='14' cy='37' r='6'/%3E%3Ccircle cx='26' cy='27' r='6'/%3E%3Ccircle cx='26' cy='37' r='6'/%3E%3Ccircle cx='38' cy='27' r='6'/%3E%3Ccircle cx='38' cy='37' r='6'/%3E%3Ccircle cx='50' cy='27' r='6'/%3E%3Ccircle cx='50' cy='37' r='6'/%3E%3C/g%3E%3Cg fill='%23ff1e1e'%3E%3Ccircle cx='14' cy='27' r='3.6'/%3E%3Ccircle cx='14' cy='37' r='3.6'/%3E%3Ccircle cx='26' cy='27' r='3.6'/%3E%3Ccircle cx='26' cy='37' r='3.6'/%3E%3Ccircle cx='38' cy='27' r='3.6'/%3E%3Ccircle cx='38' cy='37' r='3.6'/%3E%3Ccircle cx='50' cy='27' r='3.6'/%3E%3Ccircle cx='50' cy='37' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link id="pwa-manifest-link" rel="manifest" href="">
 
   <style>
     /* ========================================================================
-       ESTILOS AUTOCONTENIDOS (SIN DEPENDENCIAS EXTERNAS PARA FUNCIONAR OFFLINE)
+       ESTILOS 100% AUTOCONTENIDOS (SIN CDNs EXTERNOS, SIN SCROLL, NEGRO PURO)
        ======================================================================== */
     :root {
       --accent-color: #ff1e1e;
       --bg-pure: #000000;
-      --card-bg: #0a0a0a;
-      --card-border: #1f1f1f;
+      --card-bg: #090909;
+      --card-border: #1e1e1e;
       --text-main: #f5f5f5;
       --text-muted: #9ca3af;
     }
@@ -33,22 +34,23 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     html, body {
-      background-color: #000000 !important;
-      color: var(--text-main);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       width: 100%;
       height: 100dvh;
+      min-height: 100dvh;
       max-height: 100dvh;
+      background-color: #000000 !important;
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden !important;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
       touch-action: manipulation;
     }
 
-    /* Contenedor principal sin scroll */
+    /* Contenedor raíz sin barras de desplazamiento */
     #app-root {
       width: 100%;
       height: 100dvh;
@@ -59,10 +61,10 @@
       overflow: hidden;
     }
 
-    /* Cabecera compacta */
+    /* Cabecera superior compacta */
     #top-bar {
       width: 100%;
-      padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 20px);
+      padding: clamp(6px, 0.95vh, 10px) clamp(12px, 2vw, 20px);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -76,15 +78,16 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      min-width: 0;
     }
 
     #btn-logo-help {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 10px;
+      padding: 5px 11px;
       border-radius: 12px;
-      background-color: #0d0d0d;
+      background-color: #0c0c0c;
       border: 1px solid #262626;
       color: #ffffff;
       cursor: pointer;
@@ -92,8 +95,8 @@
     }
 
     #btn-logo-help:hover {
-      background-color: #171717;
-      border-color: #404040;
+      background-color: #161616;
+      border-color: #3f3f46;
     }
 
     #btn-logo-help:active {
@@ -101,17 +104,18 @@
     }
 
     #status-dot {
-      width: 11px;
-      height: 11px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background-color: var(--accent-color);
       box-shadow: 0 0 10px var(--accent-color);
       display: inline-block;
+      flex-shrink: 0;
       transition: background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .brand-title {
-      font-size: clamp(1rem, 2vh, 1.15rem);
+      font-size: clamp(0.98rem, 2vh, 1.15rem);
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #ffffff;
@@ -129,37 +133,43 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background-color: #262626;
-      color: #e5e5e5;
+      background-color: #242424;
+      border: 1px solid #383838;
+      color: #f4f4f5;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .header-hint {
       font-size: 11px;
-      color: #737373;
+      color: #71717a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       display: none;
     }
 
-    @media (min-width: 680px) {
+    @media (min-width: 660px) {
       .header-hint {
         display: inline;
       }
     }
 
-    .offline-pill {
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
       background-color: #0a0a0a;
-      border: 1px solid #222222;
+      border: 1px solid #1f1f1f;
       font-size: 11px;
-      color: #a3a3a3;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #a1a1aa;
+      flex-shrink: 0;
     }
 
-    .offline-dot {
+    .status-pill-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -206,14 +216,14 @@
       transform: translateX(-50%);
       padding: 6px 14px;
       border-radius: 999px;
-      background-color: rgba(15, 15, 15, 0.9);
-      border: 1px solid #333333;
-      color: #e5e5e5;
-      font-size: 12px;
+      background-color: rgba(14, 14, 16, 0.92);
+      border: 1px solid #2e2e32;
+      color: #e4e4e7;
+      font-size: 11.5px;
       white-space: nowrap;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.25s ease;
       z-index: 30;
     }
 
@@ -236,7 +246,7 @@
       background-color: #000000;
     }
 
-    /* Rotación forzada 90° si el dispositivo sigue en vertical durante pantalla completa */
+    /* Rotación automática a 90° si el dispositivo sigue en vertical durante pantalla completa */
     #app-root.is-fullscreen.force-landscape #led-stage {
       position: fixed;
       top: 50%;
@@ -247,20 +257,20 @@
       transform-origin: center center;
     }
 
-    /* Panel Inferior de Controles Compactos sin Scroll */
+    /* Panel Inferior de Controles Compactos */
     #control-panel {
       width: 100%;
       background-color: #000000;
       border-top: 1px solid #161616;
-      padding: clamp(6px, 1vh, 10px) clamp(10px, 2vw, 18px) clamp(8px, 1.3vh, 12px);
+      padding: clamp(6px, 0.95vh, 10px) clamp(10px, 2vw, 18px) clamp(8px, 1.2vh, 12px);
       display: flex;
       flex-direction: column;
-      gap: clamp(6px, 0.9vh, 10px);
+      gap: clamp(6px, 0.85vh, 10px);
       flex-shrink: 0;
       z-index: 20;
     }
 
-    /* Caja de texto del mensaje */
+    /* Caja de texto para incorporar el mensaje */
     .message-bar {
       display: flex;
       align-items: center;
@@ -268,7 +278,7 @@
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: clamp(5px, 0.8vh, 8px) 12px;
+      padding: clamp(5px, 0.75vh, 8px) 12px;
     }
 
     .message-bar label {
@@ -293,23 +303,24 @@
     }
 
     #led-text-input::placeholder {
-      color: #525252;
+      color: #52525b;
     }
 
     #btn-clear-text {
-      background-color: #171717;
-      border: 1px solid #2e2e2e;
-      color: #a3a3a3;
+      background-color: #161618;
+      border: 1px solid #2c2c30;
+      color: #a1a1aa;
       border-radius: 8px;
-      padding: 4px 8px;
+      padding: 4px 9px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
     }
 
     #btn-clear-text:hover {
-      background-color: #262626;
+      background-color: #242428;
       color: #ffffff;
     }
 
@@ -317,12 +328,12 @@
     .controls-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: clamp(6px, 0.9vh, 10px);
+      gap: clamp(6px, 0.85vh, 10px);
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 820px) {
       .controls-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: 1.45fr 1fr 1fr 1fr 1fr;
       }
     }
 
@@ -330,18 +341,19 @@
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: clamp(6px, 0.9vh, 9px) clamp(8px, 1.2vw, 12px);
+      padding: clamp(6px, 0.85vh, 9px) clamp(8px, 1.1vw, 12px);
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: clamp(4px, 0.6vh, 6px);
+      gap: clamp(4px, 0.55vh, 6px);
+      min-width: 0;
     }
 
     .control-card.span-2-mobile {
       grid-column: span 2;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 820px) {
       .control-card.span-2-mobile {
         grid-column: span 1;
       }
@@ -355,21 +367,23 @@
     }
 
     .card-label {
-      font-size: clamp(0.65rem, 1.25vh, 0.75rem);
+      font-size: clamp(0.65rem, 1.2vh, 0.74rem);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .card-value {
-      font-size: clamp(0.68rem, 1.3vh, 0.78rem);
+      font-size: clamp(0.68rem, 1.25vh, 0.76rem);
       font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       color: #ffffff;
-      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
-    /* Selector de color y presets */
+    /* Selector de color libre + 7 colores clásicos LED */
     .color-row {
       display: flex;
       align-items: center;
@@ -380,34 +394,37 @@
     .presets-group {
       display: flex;
       align-items: center;
-      gap: clamp(4px, 0.6vw, 6px);
+      gap: clamp(4px, 0.55vw, 6px);
+      flex-wrap: nowrap;
     }
 
     .color-preset {
-      width: clamp(19px, 2.5vh, 23px);
-      height: clamp(19px, 2.5vh, 23px);
+      width: clamp(18px, 2.4vh, 22px);
+      height: clamp(18px, 2.4vh, 22px);
       border-radius: 50%;
-      border: 1px solid #404040;
+      border: 1px solid #3f3f46;
       cursor: pointer;
       transition: transform 0.12s ease, border-color 0.12s ease;
       padding: 0;
+      flex-shrink: 0;
     }
 
     .color-preset.active {
       border: 2px solid #ffffff;
-      transform: scale(1.12);
+      transform: scale(1.13);
     }
 
     input[type="color"] {
       -webkit-appearance: none;
       appearance: none;
-      width: clamp(22px, 2.8vh, 26px);
-      height: clamp(22px, 2.8vh, 26px);
+      width: clamp(21px, 2.7vh, 25px);
+      height: clamp(21px, 2.7vh, 25px);
       border: none;
       background: none;
       cursor: pointer;
       padding: 0;
       border-radius: 50%;
+      flex-shrink: 0;
     }
 
     input[type="color"]::-webkit-color-swatch-wrapper {
@@ -415,7 +432,7 @@
     }
 
     input[type="color"]::-webkit-color-swatch {
-      border: 2px solid #525252;
+      border: 2px solid #52525b;
       border-radius: 50%;
     }
 
@@ -432,15 +449,15 @@
     input[type="range"]::-webkit-slider-runnable-track {
       height: 5px;
       border-radius: 999px;
-      background: #222222;
-      border: 1px solid #333333;
+      background: #1f1f23;
+      border: 1px solid #323238;
     }
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: clamp(14px, 2vh, 17px);
-      height: clamp(14px, 2vh, 17px);
+      width: clamp(14px, 1.9vh, 17px);
+      height: clamp(14px, 1.9vh, 17px);
       border-radius: 50%;
       background: var(--accent-color);
       border: 2px solid #ffffff;
@@ -456,13 +473,13 @@
     input[type="range"]::-moz-range-track {
       height: 5px;
       border-radius: 999px;
-      background: #222222;
-      border: 1px solid #333333;
+      background: #1f1f23;
+      border: 1px solid #323238;
     }
 
     input[type="range"]::-moz-range-thumb {
-      width: clamp(14px, 2vh, 17px);
-      height: clamp(14px, 2vh, 17px);
+      width: clamp(14px, 1.9vh, 17px);
+      height: clamp(14px, 1.9vh, 17px);
       border-radius: 50%;
       background: var(--accent-color);
       border: 2px solid #ffffff;
@@ -499,8 +516,8 @@
       position: absolute;
       cursor: pointer;
       inset: 0;
-      background-color: #262626;
-      border: 1px solid #404040;
+      background-color: #242428;
+      border: 1px solid #3f3f46;
       border-radius: 999px;
       transition: background-color 0.2s ease;
     }
@@ -526,7 +543,7 @@
       transform: translateX(16px);
     }
 
-    /* Modal de Instrucciones Generales */
+    /* Modal Autocontenido de Instrucciones Generales */
     #help-modal {
       position: fixed;
       inset: 0;
@@ -543,8 +560,8 @@
     }
 
     .modal-box {
-      background-color: #0a0a0a;
-      border: 1px solid #2a2a2a;
+      background-color: #09090b;
+      border: 1px solid #27272a;
       border-radius: 18px;
       max-width: 500px;
       width: 100%;
@@ -557,7 +574,7 @@
 
     .modal-header {
       padding: 14px 18px;
-      border-bottom: 1px solid #1c1c1c;
+      border-bottom: 1px solid #1c1c1f;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -571,15 +588,15 @@
     }
 
     .modal-title {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 800;
       color: #ffffff;
     }
 
     #close-help-modal {
-      background: #171717;
-      border: 1px solid #2e2e2e;
-      color: #d4d4d4;
+      background: #18181b;
+      border: 1px solid #2e2e32;
+      color: #d4d4d8;
       width: 30px;
       height: 30px;
       border-radius: 10px;
@@ -592,26 +609,26 @@
     }
 
     #close-help-modal:hover {
-      background: #262626;
+      background: #27272a;
       color: #ffffff;
     }
 
     .modal-body {
-      padding: 16px 18px;
+      padding: 15px 18px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 11px;
       font-size: 13px;
       line-height: 1.5;
-      color: #d4d4d4;
+      color: #d4d4d8;
     }
 
     .guide-item {
       background-color: #000000;
-      border: 1px solid #1c1c1c;
+      border: 1px solid #1c1c1f;
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 11px 14px;
     }
 
     .guide-item h3 {
@@ -622,7 +639,7 @@
     }
 
     .guide-item p, .guide-item li {
-      color: #a3a3a3;
+      color: #a1a1aa;
       font-size: 12.5px;
     }
 
@@ -635,20 +652,20 @@
     }
 
     .guide-item strong {
-      color: #f5f5f5;
+      color: #f4f4f5;
     }
 
     .modal-footer {
       padding: 12px 18px;
-      border-top: 1px solid #1c1c1c;
+      border-top: 1px solid #1c1c1f;
       display: flex;
       justify-content: flex-end;
       background-color: #050505;
     }
 
     #ok-help-modal {
-      background-color: #262626;
-      border: 1px solid #404040;
+      background-color: #27272a;
+      border: 1px solid #3f3f46;
       color: #ffffff;
       padding: 8px 18px;
       border-radius: 10px;
@@ -658,7 +675,7 @@
     }
 
     #ok-help-modal:hover {
-      background-color: #363636;
+      background-color: #3f3f46;
     }
   </style>
 </head>
@@ -674,12 +691,12 @@
           <span class="brand-title">Led<span id="brand-accent">Msg</span></span>
           <span class="help-badge" aria-hidden="true">?</span>
         </button>
-        <span class="header-hint">Pulsa el logo para ayuda • Doble clic en el cartel para pantalla completa</span>
+        <span class="header-hint">Pulsa el logo para ayuda • Doble clic en el cartel para pantalla completa horizontal</span>
       </div>
 
-      <div class="offline-pill" title="100% autocontenido y operativo sin conexión">
-        <span class="offline-dot"></span>
-        <span>Offline Listo</span>
+      <div class="status-pill" title="Aplicación 100% autocontenida y lista para modo offline">
+        <span class="status-pill-dot"></span>
+        <span>OFFLINE • PWA</span>
       </div>
     </header>
 
@@ -722,17 +739,18 @@
               <button type="button" class="color-preset" data-color="#ffaa00" style="background-color:#ffaa00;" title="Ámbar LED"></button>
               <button type="button" class="color-preset" data-color="#00e640" style="background-color:#00e640;" title="Verde LED"></button>
               <button type="button" class="color-preset" data-color="#1e90ff" style="background-color:#1e90ff;" title="Azul LED"></button>
-              <button type="button" class="color-preset" data-color="#00f0ff" style="background-color:#00f0ff;" title="Cian LED"></button>
               <button type="button" class="color-preset" data-color="#ffffff" style="background-color:#ffffff;" title="Blanco LED"></button>
+              <button type="button" class="color-preset" data-color="#00f0ff" style="background-color:#00f0ff;" title="Cian LED"></button>
+              <button type="button" class="color-preset" data-color="#ff00aa" style="background-color:#ff00aa;" title="Magenta LED"></button>
             </div>
             <input id="led-color-picker" type="color" value="#ff1e1e" title="Selector de color libre">
           </div>
         </div>
 
-        <!-- Control 2: Tamaño de los LEDs -->
+        <!-- Control 2: Tamaño / Densidad de los LEDs -->
         <div class="control-card">
           <div class="card-header">
-            <span class="card-label">Tamaño</span>
+            <span class="card-label">Tamaño LED</span>
             <span id="size-value" class="card-value">100%</span>
           </div>
           <input id="led-size" type="range" min="40" max="100" step="5" value="100" aria-label="Tamaño de los puntos LED">
@@ -775,7 +793,7 @@
 
   </div>
 
-  <!-- Modal de Instrucciones Generales de Uso -->
+  <!-- Modal Autocontenido de Instrucciones Generales -->
   <div id="help-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
     <div class="modal-box">
       <div class="modal-header">
@@ -788,33 +806,33 @@
 
       <div class="modal-body">
         <div class="guide-item">
-          <h3>1. Texto del Cartel LED</h3>
+          <h3>1. Escribir y Guardar Mensajes</h3>
           <p>
-            Escribe cualquier mensaje en la barra inferior. Admite mayúsculas, minúsculas, tildes (<strong>ÁÉÍÓÚÜ</strong>), <strong>Ñ</strong>, números y símbolos especiales como <strong>★ ♥ • ¿? ¡!</strong>. Todos tus ajustes se guardan automáticamente.
+            Escribe cualquier texto en la barra <strong>Mensaje</strong>. Soporta mayúsculas, minúsculas, vocales acentuadas (<strong>ÁÉÍÓÚÜ</strong>), <strong>Ñ</strong>, números y símbolos como <strong>★ ♥ • ¿? ¡!</strong>. Todos tus ajustes se conservan automáticamente en tu dispositivo.
           </p>
         </div>
 
         <div class="guide-item">
-          <h3>2. Personalización Visual</h3>
+          <h3>2. Controles de Color, Tamaño, Brillo y Movimiento</h3>
           <ul>
-            <li><strong>Color LED:</strong> Elige uno de los 6 colores clásicos o pulsa el círculo multicolor para seleccionar cualquier tono.</li>
-            <li><strong>Tamaño (40%–100%):</strong> Reduce el diámetro de los diodos para mostrar muchas más letras a la vez en pantalla.</li>
-            <li><strong>Brillo y Velocidad:</strong> Ajusta la potencia luminosa y la rapidez del desplazamiento (en <strong>0</strong> el texto queda fijo centrado).</li>
+            <li><strong>Color LED:</strong> Elige uno de los 7 colores clásicos o toca el círculo multicolor para seleccionar cualquier tono personalizado.</li>
+            <li><strong>Tamaño LED (40%–100%):</strong> Reduce el diámetro de los diodos para visualizar muchas más letras simultáneamente en pantalla.</li>
+            <li><strong>Brillo y Velocidad:</strong> Ajusta la potencia luminosa y la rapidez del desplazamiento (en <strong>0</strong> el mensaje queda fijo centrado).</li>
             <li><strong>Parpadeo:</strong> Activa el interruptor y regula la frecuencia entre <strong>1 Hz</strong> y <strong>10 Hz</strong>.</li>
           </ul>
         </div>
 
         <div class="guide-item">
-          <h3>3. Pantalla Completa Horizontal</h3>
+          <h3>3. Pantalla Completa Exclusivamente Horizontal</h3>
           <p>
-            Haz <strong>doble clic</strong> (o <strong>doble toque</strong> en móvil) sobre el panel LED para ocultar los controles y activar la pantalla completa bloqueada en horizontal. Repite el gesto o pulsa <strong>Esc</strong> para volver.
+            Haz <strong>doble clic</strong> (o <strong>doble toque</strong> táctil) directamente sobre el cartel LED para ocultar los controles y activar la pantalla completa en horizontal. Repite el gesto o pulsa <strong>Esc</strong> para salir y restaurar la orientación normal.
           </p>
         </div>
 
         <div class="guide-item">
-          <h3>4. Instalación en Android (Chrome) y Uso Offline</h3>
+          <h3>4. Instalación en Chrome Android y Uso Offline</h3>
           <p>
-            Esta aplicación es 100% autocontenida y funciona sin conexión a Internet. Para instalarla en Android desde <strong>Google Chrome</strong>, pulsa el menú superior derecho <strong>(⋮)</strong> y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>.
+            La aplicación es 100% autocontenida y operativa sin conexión. Para instalarla como app nativa en Android desde <strong>Google Chrome</strong>, abre el menú superior derecho <strong>(⋮)</strong> y selecciona <strong>"Instalar aplicación"</strong>.
           </p>
         </div>
       </div>
@@ -826,12 +844,119 @@
   </div>
 
   <script>
+    /**
+     * ============================================================================
+     * 1. CONFIGURACIÓN PWA DINÁMICA (BLOB MANIFEST + ICONOS MASKABLE) Y SW OFFLINE
+     * ============================================================================
+     */
+    (function setupDynamicPWAAndOffline() {
+      try {
+        function createPngIconDataUrl(size) {
+          const c = document.createElement('canvas');
+          c.width = size;
+          c.height = size;
+          const ctx = c.getContext('2d');
+          const r = size * 0.22;
+
+          // Fondo negro puro #000000
+          ctx.fillStyle = '#000000';
+          ctx.beginPath();
+          ctx.roundRect(0, 0, size, size, r);
+          ctx.fill();
+
+          // Marco sutil del panel LED
+          const inset = size * 0.08;
+          ctx.fillStyle = '#050505';
+          ctx.strokeStyle = '#242428';
+          ctx.lineWidth = Math.max(2, size * 0.02);
+          ctx.beginPath();
+          ctx.roundRect(inset, inset, size - inset * 2, size - inset * 2, r * 0.78);
+          ctx.fill();
+          ctx.stroke();
+
+          // Rejilla de LEDs apagados (4x4)
+          const step = size / 5;
+          for (let gx = 1; gx <= 4; gx++) {
+            for (let gy = 1; gy <= 4; gy++) {
+              ctx.fillStyle = '#18181b';
+              ctx.beginPath();
+              ctx.arc(gx * step, gy * step, size * 0.042, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          // Diodo central encendido con halo luminoso rojo
+          const cx = size * 0.5;
+          const cy = size * 0.5;
+          const glow = ctx.createRadialGradient(cx, cy, size * 0.03, cx, cy, size * 0.36);
+          glow.addColorStop(0, '#ffffff');
+          glow.addColorStop(0.28, '#ff1e1e');
+          glow.addColorStop(0.68, 'rgba(255, 30, 30, 0.38)');
+          glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(cx, cy, size * 0.36, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ff1e1e';
+          ctx.beginPath();
+          ctx.arc(cx, cy, size * 0.14, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.beginPath();
+          ctx.arc(cx - size * 0.04, cy - size * 0.04, size * 0.04, 0, Math.PI * 2);
+          ctx.fill();
+
+          return c.toDataURL('image/png');
+        }
+
+        const icon192 = createPngIconDataUrl(192);
+        const icon512 = createPngIconDataUrl(512);
+
+        const appleTouch = document.createElement('link');
+        appleTouch.rel = 'apple-touch-icon';
+        appleTouch.href = icon192;
+        document.head.appendChild(appleTouch);
+
+        const manifest = {
+          name: 'LedMsg - Cartel LED',
+          short_name: 'LedMsg',
+          description: 'Simulador de cartel luminoso de texto LED con scroll configurable en pantalla completa horizontal.',
+          start_url: location.href,
+          scope: './',
+          display: 'standalone',
+          orientation: 'any',
+          background_color: '#000000',
+          theme_color: '#000000',
+          icons: [
+            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const linkEl = document.getElementById('pwa-manifest-link');
+        if (linkEl) linkEl.setAttribute('href', manifestURL);
+      } catch (e) {}
+
+      // Registro silencioso de ./sw.js para ejecución 100% offline en servidor HTTPS / GitHub Pages
+      try {
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+      } catch (e) {}
+    })();
+
+    /**
+     * ============================================================================
+     * 2. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES
+     * ============================================================================
+     */
     (function () {
       'use strict';
 
-      // ========================================================================
-      // 1. FUENTE MATRICIAL BITMAP 10x16 DETERMINISTA
-      // ========================================================================
       const GLYPH_HEIGHT = 16;
       const GLYPH_WIDTH = 10;
       const LETTER_SPACING = 2;
@@ -1458,9 +1583,9 @@
       };
 
       // ========================================================================
-      // 2. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
+      // 3. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
       // ========================================================================
-      const STORAGE_KEY = 'ledmsg_settings_v1';
+      const STORAGE_KEY = 'ledmsg_settings_v2';
 
       const defaultSettings = {
         text: 'BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ ',
@@ -1502,9 +1627,7 @@
             blinkEnabled: state.blinkEnabled,
             blinkSpeed: state.blinkSpeed
           }));
-        } catch (err) {
-          // Ignorar errores de cuota de almacenamiento
-        }
+        } catch (err) {}
       }
 
       const saved = loadSettings();
@@ -1519,7 +1642,7 @@
       };
 
       // ========================================================================
-      // 3. REFERENCIAS AL DOM
+      // 4. REFERENCIAS AL DOM
       // ========================================================================
       const appRoot = document.getElementById('app-root');
       const canvas = document.getElementById('led-canvas');
@@ -1547,90 +1670,6 @@
       const helpModal = document.getElementById('help-modal');
       const closeHelpModal = document.getElementById('close-help-modal');
       const okHelpModal = document.getElementById('ok-help-modal');
-
-      // ========================================================================
-      // 4. MANIFIESTO PWA EN DATA URI (INSTALABLE EN CHROME ANDROID SIN SW BLOB)
-      // ========================================================================
-      function generateLedIconDataURL(size) {
-        const off = document.createElement('canvas');
-        off.width = size;
-        off.height = size;
-        const c = off.getContext('2d');
-
-        c.fillStyle = '#000000';
-        c.fillRect(0, 0, size, size);
-
-        const step = size / 4;
-        for (let gx = 1; gx <= 3; gx++) {
-          for (let gy = 1; gy <= 3; gy++) {
-            if (gx === 2 && gy === 2) continue;
-            c.fillStyle = '#181818';
-            c.beginPath();
-            c.arc(gx * step, gy * step, size * 0.065, 0, Math.PI * 2);
-            c.fill();
-          }
-        }
-
-        const cx = size / 2;
-        const cy = size / 2;
-        const glow = c.createRadialGradient(cx, cy, size * 0.04, cx, cy, size * 0.42);
-        glow.addColorStop(0, '#ffffff');
-        glow.addColorStop(0.28, '#ff1e1e');
-        glow.addColorStop(0.68, 'rgba(255, 30, 30, 0.38)');
-        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        c.fillStyle = glow;
-        c.beginPath();
-        c.arc(cx, cy, size * 0.42, 0, Math.PI * 2);
-        c.fill();
-
-        c.fillStyle = '#ff1e1e';
-        c.beginPath();
-        c.arc(cx, cy, size * 0.16, 0, Math.PI * 2);
-        c.fill();
-
-        c.fillStyle = 'rgba(255, 255, 255, 0.88)';
-        c.beginPath();
-        c.arc(cx - size * 0.045, cy - size * 0.045, size * 0.045, 0, Math.PI * 2);
-        c.fill();
-
-        return off.toDataURL('image/png');
-      }
-
-      function setupManifestPWA() {
-        try {
-          const icon192 = generateLedIconDataURL(192);
-          const icon512 = generateLedIconDataURL(512);
-
-          const appleTouch = document.createElement('link');
-          appleTouch.rel = 'apple-touch-icon';
-          appleTouch.href = icon192;
-          document.head.appendChild(appleTouch);
-
-          const manifest = {
-            name: 'LedMsg - Cartel LED',
-            short_name: 'LedMsg',
-            description: 'Simulador de cartel luminoso de texto LED con scroll configurable',
-            start_url: window.location.href,
-            scope: './',
-            display: 'standalone',
-            orientation: 'any',
-            background_color: '#000000',
-            theme_color: '#000000',
-            icons: [
-              { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-              { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-            ]
-          };
-
-          const manifestDataURI = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
-          const linkManifest = document.createElement('link');
-          linkManifest.rel = 'manifest';
-          linkManifest.href = manifestDataURI;
-          document.head.appendChild(linkManifest);
-        } catch (err) {
-          // Continuar sin interrupción
-        }
-      }
 
       // ========================================================================
       // 5. COMPILADOR MATRICIAL DETERMINISTA (TEXTO -> COLUMNAS DE 16 BITS)
@@ -1742,7 +1781,7 @@
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const radius = Math.max(1.2, pitch * 0.37);
 
-        // Sprite LED Apagado
+        // Sprite LED Apagado (rejilla física sobre #000000)
         const offSize = Math.max(4, Math.ceil(pitch * dpr));
         ledOffSprite.width = offSize;
         ledOffSprite.height = offSize;
@@ -1753,18 +1792,18 @@
         const cyOff = offSize / 2;
         const rOff = radius * dpr;
 
-        offCtx.fillStyle = '#0f0f0f';
+        offCtx.fillStyle = '#0f0f11';
         offCtx.beginPath();
         offCtx.arc(cxOff, cyOff, rOff, 0, Math.PI * 2);
         offCtx.fill();
 
         if (rOff >= 2.2) {
-          offCtx.strokeStyle = '#1b1b1b';
+          offCtx.strokeStyle = '#1b1b1f';
           offCtx.lineWidth = Math.max(0.75, 0.5 * dpr);
           offCtx.stroke();
         }
 
-        // Sprite LED Encendido
+        // Sprite LED Encendido (halo luminoso + núcleo + brillo especular)
         const padFactor = 2.5;
         const onSize = Math.max(8, Math.ceil(pitch * padFactor * dpr));
         ledOnSprite.width = onSize;
@@ -1885,7 +1924,7 @@
         const dt = Math.min(0.1, Math.max(0, (now - lastTimestamp) / 1000));
         lastTimestamp = now;
 
-        // 1. Actualizar scroll continuo
+        // 1. Actualizar desplazamiento horizontal continuo
         if (state.scrollSpeed > 0 && textBitmapCols > 0) {
           state.scrollOffset += state.scrollSpeed * dt;
           if (state.scrollOffset >= textBitmapCols) {
@@ -1893,7 +1932,7 @@
           }
         }
 
-        // 2. Actualizar parpadeo
+        // 2. Actualizar estado de parpadeo
         if (state.blinkEnabled) {
           state.blinkTimer += dt * state.blinkSpeed;
           state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
@@ -1910,7 +1949,7 @@
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, viewW, viewH);
 
-        // 4. Dibujar rejilla LED
+        // 4. Renderizar matriz LED
         if (currentPitch > 0 && textBitmapCols > 0) {
           // Pasada 1: LEDs apagados
           for (let c = 0; c < visibleCols; c++) {
@@ -1927,7 +1966,7 @@
             const onOffset = (onDrawSize - currentPitch) / 2;
 
             if (state.scrollSpeed === 0 && textWithoutTrailingPadCols <= visibleCols) {
-              // Si velocidad = 0 y el mensaje cabe completo, centrarlo en el cartel
+              // Centrar el mensaje cuando velocidad = 0 y cabe completo en el cartel
               const centerPad = Math.floor((visibleCols - textWithoutTrailingPadCols) / 2);
               for (let c = 0; c < textWithoutTrailingPadCols; c++) {
                 const colData = textBitmap[c];
@@ -1962,7 +2001,7 @@
       }
 
       // ========================================================================
-      // 8. SINCRONIZACIÓN DE CONTROLES Y EVENTOS
+      // 8. SINCRONIZACIÓN DE CONTROLES E INTERACCIÓN
       // ========================================================================
       function applyAccentColor(newHex) {
         state.color = newHex.toLowerCase();
@@ -1984,6 +2023,7 @@
 
       function syncUIWithState() {
         textInput.value = state.text;
+
         const pctSize = Math.round(state.textScale * 100);
         sizeSlider.value = String(pctSize);
         sizeValue.textContent = `${pctSize}%`;
@@ -2083,7 +2123,7 @@
       });
 
       // ========================================================================
-      // 9. PANTALLA COMPLETA HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
+      // 9. PANTALLA COMPLETA EXCLUSIVAMENTE HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
       // ========================================================================
       let toastTimer = null;
 
@@ -2093,7 +2133,7 @@
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
           fsToast.classList.remove('visible');
-        }, 2400);
+        }, 2300);
       }
 
       async function enterFullscreenLandscape() {
@@ -2103,12 +2143,14 @@
         try {
           if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
             await document.documentElement.requestFullscreen();
+          } else if (!document.webkitFullscreenElement && document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
           }
-          if (screen.orientation && screen.orientation.lock) {
+          if (screen.orientation && typeof screen.orientation.lock === 'function') {
             await screen.orientation.lock('landscape');
           }
         } catch (err) {
-          // Si el navegador no bloquea orientación nativa, syncOrientationFallback rotará 90deg por CSS
+          // Si el navegador no permite bloqueo nativo, syncOrientationFallback rotará 90° por CSS
         }
 
         resizeCanvas();
@@ -2120,15 +2162,15 @@
         appRoot.classList.remove('is-fullscreen', 'force-landscape');
 
         try {
-          if (screen.orientation && screen.orientation.unlock) {
+          if (screen.orientation && typeof screen.orientation.unlock === 'function') {
             screen.orientation.unlock();
           }
           if (document.fullscreenElement && document.exitFullscreen) {
             await document.exitFullscreen();
+          } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
           }
-        } catch (err) {
-          // Ignorar
-        }
+        } catch (err) {}
 
         resizeCanvas();
       }
@@ -2159,15 +2201,22 @@
         }
       }, { passive: false });
 
-      document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement && state.isFullscreenMode) {
+      const handleFullscreenChange = () => {
+        const isNativeFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+        if (!isNativeFs && state.isFullscreenMode) {
           state.isFullscreenMode = false;
           appRoot.classList.remove('is-fullscreen', 'force-landscape');
+          if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+            try { screen.orientation.unlock(); } catch (e) {}
+          }
           resizeCanvas();
         } else {
           setTimeout(resizeCanvas, 60);
         }
-      });
+      };
+
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -2190,10 +2239,9 @@
       });
 
       // ========================================================================
-      // 10. ARRANQUE INMEDIATO AL CARGAR EL DOCUMENTO
+      // 10. INICIALIZACIÓN AL CARGAR EL DOM
       // ========================================================================
       function init() {
-        setupManifestPWA();
         syncUIWithState();
         buildMessageMatrix(state.text);
         applyAccentColor(state.color);
