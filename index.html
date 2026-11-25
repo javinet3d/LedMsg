@@ -47,7 +47,7 @@
     header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       flex-shrink: 0;
     }
@@ -103,15 +103,6 @@
       font-weight: 700;
     }
 
-    .hint-pill {
-      font-size: clamp(10px, 1.5vh, 12px);
-      color: #71717a;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     /* Contenedor del cartel LED */
     #led-stage {
       position: relative;
@@ -123,7 +114,7 @@
       border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
-      touch-action: manipulation;
+      touch-action: none;
     }
 
     #led-canvas {
@@ -441,7 +432,6 @@
         <span class="logo-title">LedMsg</span>
         <span class="logo-help-badge">?</span>
       </button>
-      <span class="hint-pill">Doble toque LED = Pantalla completa</span>
     </header>
 
     <div id="led-stage" title="Doble clic o doble toque para pantalla completa horizontal">
@@ -479,9 +469,9 @@
         <div class="control-cell">
           <div class="control-header">
             <span>Brillo</span>
-            <span class="control-val" id="val-brightness">100%</span>
+            <span class="control-val" id="val-brightness">140%</span>
           </div>
-          <input type="range" id="ctrl-brightness" min="20" max="100" step="5" value="100">
+          <input type="range" id="ctrl-brightness" min="15" max="200" step="5" value="140">
         </div>
 
         <div class="control-cell">
@@ -515,10 +505,10 @@
       </div>
       <ul class="modal-list">
         <li><strong>Pantalla completa horizontal:</strong> Haz <strong>doble clic</strong> o <strong>doble toque</strong> sobre el panel LED para ocultar los controles y verlo siempre en apaisado. Repite el gesto para volver.</li>
-        <li><strong>Tamaño LED:</strong> Reduce el tamaño de los diodos (hasta el 35%) para ver muchas más letras a la vez en pantalla.</li>
-        <li><strong>Color y Brillo:</strong> Elige uno de los colores clásicos o cualquier tono personalizado y regula la intensidad luminosa.</li>
+        <li><strong>Pellizcar para zoom (Pinch-to-Zoom):</strong> En modo pantalla completa, pellizca con dos dedos sobre el cartel LED para ampliar o reducir el tamaño del texto en tiempo real.</li>
+        <li><strong>Tamaño y Brillo LED:</strong> Reduce el tamaño de los diodos (hasta el 35%) para ver más letras a la vez y sube el brillo hasta el 200% para máxima intensidad luminosa.</li>
         <li><strong>Parpadeo:</strong> Pulsa el interruptor <strong>OFF/ON</strong> y ajusta la frecuencia del destello con su deslizador.</li>
-        <li><strong>Uso Offline e Instalación:</strong> Funciona sin conexión a internet y guarda tu mensaje automáticamente. Desde Chrome en Android pulsa <strong>⋮ → Instalar aplicación</strong> para tenerla en tu cajón de apps.</li>
+        <li><strong>Uso Offline e Instalación:</strong> Funciona sin conexión a internet y guarda tus ajustes automáticamente. Desde Chrome en Android pulsa <strong>⋮ → Instalar aplicación</strong>.</li>
       </ul>
     </div>
   </div>
@@ -531,7 +521,7 @@
       });
     }
 
-    // Fuente matricial bitmap 10x16 determinista (sin depender de fuentes externas)
+    // Fuente matricial bitmap 10x16 determinista
     const GLYPHS = {
       ' ': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       'A': [0,0,56,108,198,198,198,254,198,198,198,198,198,0,0,0],
@@ -603,12 +593,12 @@
       '•': [0,0,0,0,0,56,124,124,56,0,0,0,0,0,0,0]
     };
 
-    const STORAGE_KEY = 'ledmsg_settings_v1';
+    const STORAGE_KEY = 'ledmsg_settings_v2';
     const state = {
       text: 'BIENVENIDOS A LEDMSG ★ ',
       color: '#ff2a2a',
       scale: 100,
-      brightness: 100,
+      brightness: 140,
       speed: 50,
       blink: false,
       blinkSpeed: 4,
@@ -664,7 +654,9 @@
     ctrlBlinkSpeed.value = state.blinkSpeed;
 
     function updateUILabels() {
-      valScale.textContent = `${state.scale}%`;
+      const roundedScale = Math.round(state.scale);
+      valScale.textContent = `${roundedScale}%`;
+      ctrlScale.value = roundedScale;
       valBrightness.textContent = `${state.brightness}%`;
       valSpeed.textContent = state.speed === 0 ? 'PAUSA' : `${state.speed}%`;
       blinkToggle.textContent = state.blink ? 'ON' : 'OFF';
@@ -694,10 +686,8 @@
           }
           cols.push(colBits);
         }
-        // 2 columnas de espacio entre caracteres
         cols.push(0, 0);
       }
-      // Añadir espacio final para bucle continuo suave
       cols.push(0, 0, 0, 0, 0, 0);
       messageColumns = cols;
     }
@@ -740,9 +730,11 @@
       offsetY = (h - visibleRows * cellStep) * 0.5;
       textRowOffset = Math.floor((visibleRows - 16) * 0.5);
 
-      const sprSize = Math.ceil(cellStep * 1.9);
+      const brightFactor = state.brightness / 100; // Rango 0.15 a 2.00
+      const sprScale = brightFactor > 1.0 ? (2.1 + (brightFactor - 1.0) * 0.55) : 2.1;
+      const sprSize = Math.ceil(cellStep * sprScale);
       const half = sprSize * 0.5;
-      const ledRadius = Math.max(1.5, cellStep * 0.37);
+      const ledRadius = Math.max(1.5, cellStep * (0.37 + Math.max(0, brightFactor - 1.0) * 0.04));
 
       // Sprite LED Apagado
       spriteOff.width = sprSize;
@@ -751,43 +743,47 @@
       offCtx.clearRect(0, 0, sprSize, sprSize);
       offCtx.fillStyle = '#141417';
       offCtx.beginPath();
-      offCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
+      offCtx.arc(half, half, Math.max(1.5, cellStep * 0.36), 0, Math.PI * 2);
       offCtx.fill();
 
-      // Sprite LED Encendido
+      // Sprite LED Encendido con rango ampliado hasta 200%
       spriteOn.width = sprSize;
       spriteOn.height = sprSize;
       const onCtx = spriteOn.getContext('2d');
       onCtx.clearRect(0, 0, sprSize, sprSize);
 
       const { r, g, b } = hexToRgb(state.color);
-      const bright = state.brightness / 100;
+      const normBright = Math.min(1, brightFactor);
+      const overDrive = Math.max(0, brightFactor - 1.0); // 0.0 a 1.0 cuando brillo > 100%
 
-      // Halo exterior
-      const glowR = Math.min(half, ledRadius * 2.1);
-      const grad = onCtx.createRadialGradient(half, half, ledRadius * 0.2, half, half, glowR);
-      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.85 * bright})`);
-      grad.addColorStop(0.55, `rgba(${r}, ${g}, ${b}, ${0.32 * bright})`);
+      // Halo luminoso exterior ampliado
+      const glowR = Math.min(half, ledRadius * (2.15 + overDrive * 0.65));
+      const grad = onCtx.createRadialGradient(half, half, ledRadius * 0.15, half, half, glowR);
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, 0.92 * normBright + overDrive * 0.08)})`);
+      grad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${Math.min(0.95, 0.42 * normBright + overDrive * 0.35)})`);
+      grad.addColorStop(0.78, `rgba(${r}, ${g}, ${b}, ${Math.min(0.65, 0.12 * normBright + overDrive * 0.22)})`);
       grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
       onCtx.fillStyle = grad;
       onCtx.beginPath();
       onCtx.arc(half, half, glowR, 0, Math.PI * 2);
       onCtx.fill();
 
-      // Núcleo del diodo
-      const coreR = Math.round(r * (0.35 + 0.65 * bright));
-      const coreG = Math.round(g * (0.35 + 0.65 * bright));
-      const coreB = Math.round(b * (0.35 + 0.65 * bright));
+      // Núcleo del diodo LED (con saturación luminosa hacia blanco puro en sobrebrillo)
+      const boostMix = overDrive * 0.55;
+      const coreR = Math.round((r + (255 - r) * boostMix) * (0.28 + 0.72 * normBright));
+      const coreG = Math.round((g + (255 - g) * boostMix) * (0.28 + 0.72 * normBright));
+      const coreB = Math.round((b + (255 - b) * boostMix) * (0.28 + 0.72 * normBright));
       onCtx.fillStyle = `rgb(${coreR}, ${coreG}, ${coreB})`;
       onCtx.beginPath();
       onCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
       onCtx.fill();
 
-      // Brillo especular central
-      if (bright > 0.35 && ledRadius >= 2.2) {
-        onCtx.fillStyle = `rgba(255, 255, 255, ${0.65 * bright})`;
+      // Punto caliente central de alta intensidad
+      if (brightFactor > 0.3 && ledRadius >= 1.8) {
+        const hotR = ledRadius * (0.36 + overDrive * 0.32);
+        onCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.55 * normBright + overDrive * 0.45)})`;
         onCtx.beginPath();
-        onCtx.arc(half - ledRadius * 0.25, half - ledRadius * 0.25, ledRadius * 0.34, 0, Math.PI * 2);
+        onCtx.arc(half - ledRadius * 0.12 * (1 - overDrive), half - ledRadius * 0.12 * (1 - overDrive), hotR, 0, Math.PI * 2);
         onCtx.fill();
       }
     }
@@ -802,7 +798,7 @@
       t.textContent = txt;
       t.style.opacity = '1';
       clearTimeout(window.__tTimer);
-      window.__tTimer = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+      window.__tTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
     }
 
     async function toggleFullscreen() {
@@ -820,7 +816,7 @@
             await screen.orientation.lock('landscape').catch(() => {});
           }
         } catch (e) {}
-        showToast('Doble toque para salir');
+        showToast('Pellizca para zoom • Doble toque para salir');
       } else {
         try {
           if (screen.orientation && screen.orientation.unlock) {
@@ -844,22 +840,92 @@
       }
     });
 
-    // Doble clic en ratón y doble toque fiable en móvil
+    // =========================================================================
+    // GESTOS EN EL CARTEL LED: DOBLE TOQUE + PINCH-TO-ZOOM EN PANTALLA COMPLETA
+    // =========================================================================
     let lastTap = 0;
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 100;
+    let lastPinchRebuild = 0;
+
+    function getTouchDistance(t1, t2) {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.hypot(dx, dy);
+    }
+
     stage.addEventListener('dblclick', (e) => {
       e.preventDefault();
       toggleFullscreen();
     });
-    stage.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTap < 300) {
+
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2 && state.fullscreen) {
+        isPinching = true;
+        pinchStartDist = getTouchDistance(e.touches[0], e.touches[1]);
+        pinchStartScale = state.scale;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', (e) => {
+      if (isPinching && e.touches.length === 2 && state.fullscreen) {
         e.preventDefault();
-        toggleFullscreen();
+        const currDist = getTouchDistance(e.touches[0], e.touches[1]);
+        if (pinchStartDist > 10) {
+          const ratio = currDist / pinchStartDist;
+          const nextScale = Math.max(35, Math.min(100, Math.round(pinchStartScale * ratio)));
+          if (nextScale !== state.scale) {
+            state.scale = nextScale;
+            updateUILabels();
+            const now = performance.now();
+            if (now - lastPinchRebuild > 35) {
+              lastPinchRebuild = now;
+              rebuildSprites();
+            }
+          }
+        }
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchend', (e) => {
+      if (isPinching) {
+        if (e.touches.length < 2) {
+          isPinching = false;
+          rebuildSprites();
+          saveState();
+          showToast(`Tamaño LED: ${Math.round(state.scale)}%`);
+        }
         lastTap = 0;
-      } else {
-        lastTap = now;
+        return;
+      }
+
+      if (e.touches.length === 0) {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+          e.preventDefault();
+          toggleFullscreen();
+          lastTap = 0;
+        } else {
+          lastTap = now;
+        }
       }
     });
+
+    // Soporte de zoom con rueda del ratón / trackpad en pantalla completa
+    stage.addEventListener('wheel', (e) => {
+      if (!state.fullscreen) return;
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 5 : -5;
+      const nextScale = Math.max(35, Math.min(100, state.scale + delta));
+      if (nextScale !== state.scale) {
+        state.scale = nextScale;
+        updateUILabels();
+        rebuildSprites();
+        saveState();
+        showToast(`Tamaño LED: ${state.scale}%`);
+      }
+    }, { passive: false });
 
     // Eventos de controles
     msgInput.addEventListener('input', (e) => {
