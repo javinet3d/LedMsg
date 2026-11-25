@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ledmsg-pwa-v2';
+const CACHE_NAME = 'ledmsg-pwa-v4';
 const ASSETS = [
   './',
   './index.html',
