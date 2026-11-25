@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,6 +29,7 @@
       color: #f4f4f5;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
+      touch-action: manipulation;
     }
 
     #app-container {
@@ -61,7 +62,6 @@
       padding: 5px 10px;
       color: #ffffff;
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
     }
 
     #logo-btn:active {
@@ -287,7 +287,7 @@
       color: #ffffff;
     }
 
-    /* Modo pantalla completa siempre horizontal */
+    /* Pantalla completa siempre horizontal */
     body.fs-mode header,
     body.fs-mode #controls-panel {
       display: none !important;
@@ -583,7 +583,7 @@
       '•': [0,0,0,0,0,56,124,124,56,0,0,0,0,0,0,0]
     };
 
-    const STORAGE_KEY = 'ledmsg_settings_v2';
+    const STORAGE_KEY = 'ledmsg_settings_v3';
     const state = {
       text: 'BIENVENIDOS A LEDMSG ★ ',
       color: '#ff2a2a',
@@ -601,3 +601,500 @@
         Object.assign(state, saved, { fullscreen: false });
       }
     } catch (e) {}
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          text: state.text,
+          color: state.color,
+          scale: Math.round(state.scale),
+          brightness: state.brightness,
+          speed: state.speed,
+          blink: state.blink,
+          blinkSpeed: state.blinkSpeed
+        }));
+      } catch (e) {}
+    }
+
+    const stage = document.getElementById('led-stage');
+    const canvas = document.getElementById('led-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const msgInput = document.getElementById('msg-input');
+    const btnClear = document.getElementById('btn-clear');
+    const colorPicker = document.getElementById('color-picker');
+    const swatches = document.querySelectorAll('.swatch');
+    const ctrlScale = document.getElementById('ctrl-scale');
+    const ctrlBrightness = document.getElementById('ctrl-brightness');
+    const ctrlSpeed = document.getElementById('ctrl-speed');
+    const blinkToggle = document.getElementById('blink-toggle');
+    const ctrlBlinkSpeed = document.getElementById('ctrl-blink-speed');
+
+    const valScale = document.getElementById('val-scale');
+    const valBrightness = document.getElementById('val-brightness');
+    const valSpeed = document.getElementById('val-speed');
+    const valBlink = document.getElementById('val-blink');
+
+    msgInput.value = state.text;
+    colorPicker.value = state.color;
+    ctrlScale.value = Math.round(state.scale);
+    ctrlBrightness.value = state.brightness;
+    ctrlSpeed.value = state.speed;
+    ctrlBlinkSpeed.value = state.blinkSpeed;
+
+    function updateUILabels() {
+      const roundedScale = Math.round(state.scale);
+      valScale.textContent = `${roundedScale}%`;
+      ctrlScale.value = roundedScale;
+      valBrightness.textContent = `${state.brightness}%`;
+      valSpeed.textContent = state.speed === 0 ? 'PAUSA' : `${state.speed}%`;
+      blinkToggle.textContent = state.blink ? 'ON' : 'OFF';
+      blinkToggle.classList.toggle('active', state.blink);
+      valBlink.textContent = state.blink ? `${state.blinkSpeed}/10` : 'OFF';
+      swatches.forEach(s => {
+        s.classList.toggle('active', s.dataset.color.toLowerCase() === state.color.toLowerCase());
+      });
+    }
+    updateUILabels();
+
+    let messageColumns = [];
+    function rebuildMessageMatrix() {
+      const raw = (state.text || ' ').toUpperCase();
+      const cols = [];
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        const glyph = GLYPHS[ch] || GLYPHS[' '];
+        for (let c = 0; c < 8; c++) {
+          let colBits = 0;
+          const mask = 1 << (7 - c);
+          for (let r = 0; r < 16; r++) {
+            if (glyph[r] & mask) {
+              colBits |= (1 << r);
+            }
+          }
+          cols.push(colBits);
+        }
+        cols.push(0, 0);
+      }
+      cols.push(0, 0, 0, 0, 0, 0);
+      messageColumns = cols;
+    }
+    rebuildMessageMatrix();
+
+    const spriteOn = document.createElement('canvas');
+    const spriteOff = document.createElement('canvas');
+    let cellStep = 14;
+    let visibleCols = 40;
+    let visibleRows = 16;
+    let offsetX = 0;
+    let offsetY = 0;
+    let textRowOffset = 0;
+    let stageLogicalW = 300;
+    let stageLogicalH = 160;
+
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '');
+      const num = parseInt(clean.length === 3 ? clean.split('').map(x => x + x).join('') : clean, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    function getStageDimensions() {
+      const isFs = state.fullscreen || document.body.classList.contains('fs-mode');
+      if (isFs) {
+        const vw = window.innerWidth || document.documentElement.clientWidth || 360;
+        const vh = window.innerHeight || document.documentElement.clientHeight || 640;
+        // En pantalla completa siempre trabajamos en horizontal (largo x corto)
+        return {
+          w: Math.max(vw, vh),
+          h: Math.min(vw, vh)
+        };
+      }
+      const rect = stage.getBoundingClientRect();
+      return {
+        w: Math.max(120, Math.floor(rect.width || window.innerWidth || 360)),
+        h: Math.max(90, Math.floor(rect.height || 200))
+      };
+    }
+
+    function rebuildSprites() {
+      const dims = getStageDimensions();
+      stageLogicalW = dims.w;
+      stageLogicalH = dims.h;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.floor(stageLogicalW * dpr);
+      canvas.height = Math.floor(stageLogicalH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const baseRows = 16;
+      const targetRows = Math.max(16, Math.round(baseRows * (100 / state.scale)));
+      cellStep = Math.max(4, stageLogicalH / targetRows);
+      visibleRows = Math.max(16, Math.floor(stageLogicalH / cellStep));
+      visibleCols = Math.max(8, Math.floor(stageLogicalW / cellStep));
+
+      offsetX = (stageLogicalW - visibleCols * cellStep) * 0.5;
+      offsetY = (stageLogicalH - visibleRows * cellStep) * 0.5;
+      textRowOffset = Math.floor((visibleRows - 16) * 0.5);
+
+      const brightFactor = state.brightness / 100;
+      const sprScale = brightFactor > 1.0 ? (2.1 + (brightFactor - 1.0) * 0.55) : 2.1;
+      const sprSize = Math.max(8, Math.ceil(cellStep * sprScale));
+      const half = sprSize * 0.5;
+      const ledRadius = Math.max(1.5, cellStep * (0.37 + Math.max(0, brightFactor - 1.0) * 0.04));
+
+      spriteOff.width = sprSize;
+      spriteOff.height = sprSize;
+      const offCtx = spriteOff.getContext('2d');
+      offCtx.clearRect(0, 0, sprSize, sprSize);
+      offCtx.fillStyle = '#141417';
+      offCtx.beginPath();
+      offCtx.arc(half, half, Math.max(1.5, cellStep * 0.36), 0, Math.PI * 2);
+      offCtx.fill();
+
+      spriteOn.width = sprSize;
+      spriteOn.height = sprSize;
+      const onCtx = spriteOn.getContext('2d');
+      onCtx.clearRect(0, 0, sprSize, sprSize);
+
+      const { r, g, b } = hexToRgb(state.color);
+      const normBright = Math.min(1, brightFactor);
+      const overDrive = Math.max(0, brightFactor - 1.0);
+
+      const glowR = Math.min(half, ledRadius * (2.15 + overDrive * 0.65));
+      const grad = onCtx.createRadialGradient(half, half, ledRadius * 0.15, half, half, glowR);
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, 0.92 * normBright + overDrive * 0.08)})`);
+      grad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${Math.min(0.95, 0.42 * normBright + overDrive * 0.35)})`);
+      grad.addColorStop(0.78, `rgba(${r}, ${g}, ${b}, ${Math.min(0.65, 0.12 * normBright + overDrive * 0.22)})`);
+      grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+      onCtx.fillStyle = grad;
+      onCtx.beginPath();
+      onCtx.arc(half, half, glowR, 0, Math.PI * 2);
+      onCtx.fill();
+
+      const boostMix = overDrive * 0.55;
+      const coreR = Math.round((r + (255 - r) * boostMix) * (0.28 + 0.72 * normBright));
+      const coreG = Math.round((g + (255 - g) * boostMix) * (0.28 + 0.72 * normBright));
+      const coreB = Math.round((b + (255 - b) * boostMix) * (0.28 + 0.72 * normBright));
+      onCtx.fillStyle = `rgb(${coreR}, ${coreG}, ${coreB})`;
+      onCtx.beginPath();
+      onCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
+      onCtx.fill();
+
+      if (brightFactor > 0.3 && ledRadius >= 1.8) {
+        const hotR = ledRadius * (0.36 + overDrive * 0.32);
+        onCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.55 * normBright + overDrive * 0.45)})`;
+        onCtx.beginPath();
+        onCtx.arc(half - ledRadius * 0.12 * (1 - overDrive), half - ledRadius * 0.12 * (1 - overDrive), hotR, 0, Math.PI * 2);
+        onCtx.fill();
+      }
+    }
+
+    const ro = new ResizeObserver(() => rebuildSprites());
+    ro.observe(stage);
+    window.addEventListener('resize', () => rebuildSprites());
+    rebuildSprites();
+
+    function showToast(txt) {
+      const t = document.getElementById('toast');
+      t.textContent = txt;
+      t.style.opacity = '1';
+      clearTimeout(window.__tTimer);
+      window.__tTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+    }
+
+    function isFullscreenActive() {
+      return state.fullscreen || document.body.classList.contains('fs-mode');
+    }
+
+    async function toggleFullscreen() {
+      state.fullscreen = !isFullscreenActive();
+      document.body.classList.toggle('fs-mode', state.fullscreen);
+      rebuildSprites();
+
+      if (state.fullscreen) {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+          }
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape').catch(() => {});
+          }
+        } catch (e) {}
+        showToast('Pellizca para zoom • Doble toque para salir');
+      } else {
+        try {
+          if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+          }
+          if (document.fullscreenElement || document.webkitFullscreenElement) {
+            if (document.exitFullscreen) await document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          }
+        } catch (e) {}
+      }
+      setTimeout(rebuildSprites, 80);
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && state.fullscreen) {
+        state.fullscreen = false;
+        document.body.classList.remove('fs-mode');
+        try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+        rebuildSprites();
+        setTimeout(rebuildSprites, 80);
+      }
+    });
+
+    // =========================================================================
+    // GESTOS TÁCTILES NATIVOS PARA ANDROID: PINCH-TO-ZOOM + DOBLE TOQUE
+    // =========================================================================
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 100;
+    let lastPinchRebuild = 0;
+    let pinchCooldownUntil = 0;
+    let lastTap = 0;
+    let touchMoved = false;
+    let touchStartPos = { x: 0, y: 0 };
+
+    function getTouchesDistance(t1, t2) {
+      return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+    }
+
+    stage.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      if (performance.now() < pinchCooldownUntil) return;
+      toggleFullscreen();
+    });
+
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchMoved = false;
+        touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length >= 2) {
+        e.preventDefault();
+        isPinching = true;
+        touchMoved = true;
+        lastTap = 0;
+        pinchStartDist = getTouchesDistance(e.touches[0], e.touches[1]);
+        pinchStartScale = state.scale;
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && !isPinching) {
+        if (Math.hypot(e.touches[0].clientX - touchStartPos.x, e.touches[0].clientY - touchStartPos.y) > 12) {
+          touchMoved = true;
+        }
+        return;
+      }
+
+      if (e.touches.length >= 2) {
+        e.preventDefault();
+        const currDist = getTouchesDistance(e.touches[0], e.touches[1]);
+
+        if (!isPinching || pinchStartDist < 10) {
+          isPinching = true;
+          pinchStartDist = currDist;
+          pinchStartScale = state.scale;
+          return;
+        }
+
+        const ratio = currDist / pinchStartDist;
+        const nextScale = Math.max(35, Math.min(100, pinchStartScale * ratio));
+
+        if (Math.abs(nextScale - state.scale) >= 0.5) {
+          state.scale = nextScale;
+          updateUILabels();
+          const now = performance.now();
+          if (now - lastPinchRebuild > 30) {
+            lastPinchRebuild = now;
+            rebuildSprites();
+          }
+        }
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchend', (e) => {
+      if (isPinching) {
+        if (e.touches.length < 2) {
+          isPinching = false;
+          state.scale = Math.round(state.scale);
+          updateUILabels();
+          rebuildSprites();
+          saveState();
+          showToast(`Tamaño LED: ${state.scale}%`);
+          pinchCooldownUntil = performance.now() + 450;
+          lastTap = 0;
+        }
+        return;
+      }
+
+      if (e.touches.length === 0 && !touchMoved) {
+        const now = performance.now();
+        if (now < pinchCooldownUntil) {
+          lastTap = 0;
+          return;
+        }
+        if (now - lastTap < 320) {
+          e.preventDefault();
+          toggleFullscreen();
+          lastTap = 0;
+        } else {
+          lastTap = now;
+        }
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchcancel', () => {
+      isPinching = false;
+    });
+
+    // Zoom con rueda / trackpad en escritorio
+    stage.addEventListener('wheel', (e) => {
+      if (!isFullscreenActive()) return;
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 4 : -4;
+      const nextScale = Math.max(35, Math.min(100, Math.round(state.scale + delta)));
+      if (nextScale !== Math.round(state.scale)) {
+        state.scale = nextScale;
+        updateUILabels();
+        rebuildSprites();
+        saveState();
+        showToast(`Tamaño LED: ${state.scale}%`);
+      }
+    }, { passive: false });
+
+    // Eventos de controles
+    msgInput.addEventListener('input', (e) => {
+      state.text = e.target.value;
+      rebuildMessageMatrix();
+      saveState();
+    });
+
+    btnClear.addEventListener('click', () => {
+      state.text = '';
+      msgInput.value = '';
+      msgInput.focus();
+      rebuildMessageMatrix();
+      saveState();
+    });
+
+    swatches.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.color = btn.dataset.color;
+        colorPicker.value = state.color;
+        updateUILabels();
+        rebuildSprites();
+        saveState();
+      });
+    });
+
+    colorPicker.addEventListener('input', (e) => {
+      state.color = e.target.value;
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlScale.addEventListener('input', (e) => {
+      state.scale = parseInt(e.target.value, 10);
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlBrightness.addEventListener('input', (e) => {
+      state.brightness = parseInt(e.target.value, 10);
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlSpeed.addEventListener('input', (e) => {
+      state.speed = parseInt(e.target.value, 10);
+      updateUILabels();
+      saveState();
+    });
+
+    blinkToggle.addEventListener('click', () => {
+      state.blink = !state.blink;
+      updateUILabels();
+      saveState();
+    });
+
+    ctrlBlinkSpeed.addEventListener('input', (e) => {
+      state.blinkSpeed = parseInt(e.target.value, 10);
+      if (!state.blink) state.blink = true;
+      updateUILabels();
+      saveState();
+    });
+
+    // Modal de instrucciones al pulsar el logotipo
+    const logoBtn = document.getElementById('logo-btn');
+    const helpModal = document.getElementById('help-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    logoBtn.addEventListener('click', () => helpModal.classList.add('open'));
+    modalCloseBtn.addEventListener('click', () => helpModal.classList.remove('open'));
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) helpModal.classList.remove('open');
+    });
+
+    // Bucle de animación a 60 FPS
+    let scrollPos = -10;
+    let lastTime = performance.now();
+    let blinkTimer = 0;
+
+    function animate(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, stageLogicalW, stageLogicalH);
+
+      const totalCols = messageColumns.length;
+      if (totalCols > 0 && state.speed > 0) {
+        const colsPerSec = (state.speed / 100) * 32;
+        scrollPos += colsPerSec * dt;
+        if (scrollPos >= totalCols) {
+          scrollPos -= totalCols;
+        }
+      }
+
+      let isBlinkHidden = false;
+      if (state.blink) {
+        blinkTimer += dt * (state.blinkSpeed * 1.4);
+        isBlinkHidden = Math.sin(blinkTimer * Math.PI * 2) < 0;
+      }
+
+      const startCol = Math.floor(scrollPos);
+      const sprHalf = spriteOn.width * 0.5;
+
+      for (let c = 0; c < visibleCols; c++) {
+        const cx = offsetX + (c + 0.5) * cellStep - sprHalf;
+        let colBits = 0;
+
+        if (!isBlinkHidden && totalCols > 0) {
+          let msgIdx = (startCol + c) % totalCols;
+          if (msgIdx < 0) msgIdx += totalCols;
+          colBits = messageColumns[msgIdx] || 0;
+        }
+
+        for (let r = 0; r < visibleRows; r++) {
+          const cy = offsetY + (r + 0.5) * cellStep - sprHalf;
+          const glyphRow = r - textRowOffset;
+          const isLit = (glyphRow >= 0 && glyphRow < 16) && ((colBits & (1 << glyphRow)) !== 0);
+          ctx.drawImage(isLit ? spriteOn : spriteOff, cx, cy);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+    setTimeout(() => showToast('Doble toque en el cartel para pantalla completa'), 600);
+  </script>
+</body>
+</html>
