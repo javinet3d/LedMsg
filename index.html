@@ -4,201 +4,126 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#000000">
-  <meta name="background-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="LedMsg">
-  <meta name="application-name" content="LedMsg">
-  <meta name="description" content="Simulador de cartel luminoso LED de una línea con scroll configurable en pantalla completa horizontal">
   <title>LedMsg - Cartel LED</title>
-
-  <!-- Favicon SVG directo con matriz LED y puntos luminosos sobre fondo negro puro #000000 -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000000'/%3E%3Crect x='3' y='3' width='58' height='58' rx='12' fill='%23050505' stroke='%23222222' stroke-width='2'/%3E%3Cg fill='%231a1a1a'%3E%3Ccircle cx='14' cy='16' r='3.5'/%3E%3Ccircle cx='26' cy='16' r='3.5'/%3E%3Ccircle cx='38' cy='16' r='3.5'/%3E%3Ccircle cx='50' cy='16' r='3.5'/%3E%3Ccircle cx='14' cy='48' r='3.5'/%3E%3Ccircle cx='26' cy='48' r='3.5'/%3E%3Ccircle cx='38' cy='48' r='3.5'/%3E%3Ccircle cx='50' cy='48' r='3.5'/%3E%3C/g%3E%3Cdefs%3E%3CradialGradient id='ledGlow' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='40%25' stop-color='%23ff1e1e'/%3E%3Cstop offset='100%25' stop-color='%23ff1e1e' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='url(%23ledGlow)'%3E%3Ccircle cx='14' cy='27' r='6'/%3E%3Ccircle cx='14' cy='37' r='6'/%3E%3Ccircle cx='26' cy='27' r='6'/%3E%3Ccircle cx='26' cy='37' r='6'/%3E%3Ccircle cx='38' cy='27' r='6'/%3E%3Ccircle cx='38' cy='37' r='6'/%3E%3Ccircle cx='50' cy='27' r='6'/%3E%3Ccircle cx='50' cy='37' r='6'/%3E%3C/g%3E%3Cg fill='%23ff1e1e'%3E%3Ccircle cx='14' cy='27' r='3.6'/%3E%3Ccircle cx='14' cy='37' r='3.6'/%3E%3Ccircle cx='26' cy='27' r='3.6'/%3E%3Ccircle cx='26' cy='37' r='3.6'/%3E%3Ccircle cx='38' cy='27' r='3.6'/%3E%3Ccircle cx='38' cy='37' r='3.6'/%3E%3Ccircle cx='50' cy='27' r='3.6'/%3E%3Ccircle cx='50' cy='37' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
-  <link id="pwa-manifest-link" rel="manifest" href="">
-
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Crect x='3' y='3' width='58' height='58' rx='11' fill='%230c0c0e' stroke='%232e2e36' stroke-width='2'/%3E%3Ccircle cx='18' cy='22' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='18' cy='32' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='18' cy='42' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='28' cy='42' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='42' cy='22' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='42' cy='32' r='4' fill='%23ff2a2a'/%3E%3Ccircle cx='42' cy='42' r='4' fill='%23ff2a2a'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest.json">
   <style>
-    /* ========================================================================
-       ESTILOS 100% AUTOCONTENIDOS (SIN CDNs EXTERNOS, SIN SCROLL, NEGRO PURO)
-       ======================================================================== */
-    :root {
-      --accent-color: #ff1e1e;
-      --bg-pure: #000000;
-      --card-bg: #090909;
-      --card-border: #1e1e1e;
-      --text-main: #f5f5f5;
-      --text-muted: #9ca3af;
-    }
-
-    *, *::before, *::after {
+    * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
 
     html, body {
+      margin: 0;
+      padding: 0;
       width: 100%;
       height: 100dvh;
       min-height: 100dvh;
-      max-height: 100dvh;
-      background-color: #000000 !important;
-      color: var(--text-main);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      overflow: hidden !important;
-      touch-action: manipulation;
+      background-color: #000000;
+      color: #f4f4f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
     }
 
-    /* Contenedor raíz sin barras de desplazamiento */
-    #app-root {
+    #app-container {
       width: 100%;
       height: 100dvh;
+      background-color: #000000;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      background-color: #000000;
+      padding: clamp(6px, 1.5vh, 12px) clamp(8px, 2vw, 16px);
+      gap: clamp(6px, 1.4vh, 10px);
       overflow: hidden;
     }
 
-    /* Cabecera superior compacta */
-    #top-bar {
-      width: 100%;
-      padding: clamp(6px, 0.95vh, 10px) clamp(12px, 2vw, 20px);
+    /* Cabecera compacta */
+    header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #161616;
-      background-color: #000000;
+      gap: 8px;
       flex-shrink: 0;
-      z-index: 20;
     }
 
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    #btn-logo-help {
+    #logo-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 11px;
-      border-radius: 12px;
-      background-color: #0c0c0c;
-      border: 1px solid #262626;
+      background: #0d0d10;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 5px 10px;
       color: #ffffff;
       cursor: pointer;
-      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      transition: border-color 0.15s, background 0.15s;
     }
 
-    #btn-logo-help:hover {
-      background-color: #161616;
-      border-color: #3f3f46;
+    #logo-btn:active {
+      background: #18181b;
+      border-color: #52525b;
     }
 
-    #btn-logo-help:active {
-      transform: scale(0.96);
+    .logo-dots {
+      display: grid;
+      grid-template-columns: repeat(3, 5px);
+      gap: 2px;
     }
 
-    #status-dot {
-      width: 10px;
-      height: 10px;
+    .logo-dots span {
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      background-color: var(--accent-color);
-      box-shadow: 0 0 10px var(--accent-color);
-      display: inline-block;
-      flex-shrink: 0;
-      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      background: #ff2a2a;
+      box-shadow: 0 0 6px #ff2a2a;
     }
 
-    .brand-title {
-      font-size: clamp(0.98rem, 2vh, 1.15rem);
+    .logo-title {
       font-weight: 800;
+      font-size: clamp(14px, 2.2vh, 17px);
       letter-spacing: -0.02em;
-      color: #ffffff;
     }
 
-    #brand-accent {
-      color: var(--accent-color);
-      transition: color 0.2s ease;
-    }
-
-    .help-badge {
+    .logo-help-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       border-radius: 50%;
-      background-color: #242424;
-      border: 1px solid #383838;
-      color: #f4f4f5;
+      background: #27272a;
+      color: #d4d4d8;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
-    .header-hint {
-      font-size: 11px;
+    .hint-pill {
+      font-size: clamp(10px, 1.5vh, 12px);
       color: #71717a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: none;
     }
 
-    @media (min-width: 660px) {
-      .header-hint {
-        display: inline;
-      }
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background-color: #0a0a0a;
-      border: 1px solid #1f1f1f;
-      font-size: 11px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      color: #a1a1aa;
-      flex-shrink: 0;
-    }
-
-    .status-pill-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: #10b981;
-      box-shadow: 0 0 6px #10b981;
-    }
-
-    /* Escenario Central del Cartel LED */
+    /* Contenedor del cartel LED */
     #led-stage {
       position: relative;
       flex: 1 1 auto;
       min-height: 0;
       width: 100%;
       background-color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 1px solid #1f1f23;
+      border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
-    }
-
-    #canvas-wrapper {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 8px;
-      background-color: #000000;
+      touch-action: manipulation;
     }
 
     #led-canvas {
@@ -208,350 +133,221 @@
       background-color: #000000;
     }
 
-    /* Aviso flotante temporal */
-    #fs-toast {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 14px;
-      border-radius: 999px;
-      background-color: rgba(14, 14, 16, 0.92);
-      border: 1px solid #2e2e32;
-      color: #e4e4e7;
-      font-size: 11.5px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      z-index: 30;
-    }
-
-    #fs-toast.visible {
-      opacity: 1;
-    }
-
-    /* Modo Pantalla Completa: Ocultar cabecera y controles */
-    #app-root.is-fullscreen #top-bar,
-    #app-root.is-fullscreen #control-panel {
-      display: none !important;
-    }
-
-    #app-root.is-fullscreen #led-stage {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100dvh;
-      z-index: 40;
-      background-color: #000000;
-    }
-
-    /* Rotación automática a 90° si el dispositivo sigue en vertical durante pantalla completa */
-    #app-root.is-fullscreen.force-landscape #led-stage {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 100vh;
-      height: 100vw;
-      transform: translate(-50%, -50%) rotate(90deg);
-      transform-origin: center center;
-    }
-
-    /* Panel Inferior de Controles Compactos */
-    #control-panel {
-      width: 100%;
-      background-color: #000000;
-      border-top: 1px solid #161616;
-      padding: clamp(6px, 0.95vh, 10px) clamp(10px, 2vw, 18px) clamp(8px, 1.2vh, 12px);
+    /* Panel de controles compacto sin scroll */
+    #controls-panel {
+      flex-shrink: 0;
+      background-color: #09090b;
+      border: 1px solid #1f1f23;
+      border-radius: 12px;
+      padding: clamp(8px, 1.5vh, 12px);
       display: flex;
       flex-direction: column;
-      gap: clamp(6px, 0.85vh, 10px);
-      flex-shrink: 0;
-      z-index: 20;
+      gap: clamp(6px, 1.3vh, 10px);
     }
 
-    /* Caja de texto para incorporar el mensaje */
-    .message-bar {
+    .msg-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: clamp(5px, 0.75vh, 8px) 12px;
+      gap: 6px;
     }
 
-    .message-bar label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    #led-text-input {
+    #msg-input {
       flex: 1;
       min-width: 0;
-      background: transparent;
-      border: none;
-      outline: none;
+      height: clamp(34px, 4.8vh, 42px);
+      background: #000000;
+      border: 1px solid #2e2e34;
+      border-radius: 8px;
+      padding: 0 10px;
       color: #ffffff;
-      font-size: clamp(0.88rem, 1.8vh, 1rem);
+      font-size: clamp(13px, 2vh, 15px);
       font-weight: 600;
       user-select: text;
+      outline: none;
     }
 
-    #led-text-input::placeholder {
-      color: #52525b;
+    #msg-input:focus {
+      border-color: #ff2a2a;
     }
 
-    #btn-clear-text {
-      background-color: #161618;
-      border: 1px solid #2c2c30;
-      color: #a1a1aa;
+    .btn-clear {
+      height: clamp(34px, 4.8vh, 42px);
+      padding: 0 10px;
+      background: #141417;
+      border: 1px solid #2e2e34;
       border-radius: 8px;
-      padding: 4px 9px;
-      font-size: 11px;
+      color: #a1a1aa;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.15s ease, color 0.15s ease;
-      flex-shrink: 0;
     }
 
-    #btn-clear-text:hover {
-      background-color: #242428;
+    .btn-clear:active {
+      background: #27272a;
       color: #ffffff;
     }
 
-    /* Rejilla responsiva de tarjetas de control */
-    .controls-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: clamp(6px, 0.85vh, 10px);
-    }
-
-    @media (min-width: 820px) {
-      .controls-grid {
-        grid-template-columns: 1.45fr 1fr 1fr 1fr 1fr;
-      }
-    }
-
-    .control-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: clamp(6px, 0.85vh, 9px) clamp(8px, 1.1vw, 12px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: clamp(4px, 0.55vh, 6px);
-      min-width: 0;
-    }
-
-    .control-card.span-2-mobile {
-      grid-column: span 2;
-    }
-
-    @media (min-width: 820px) {
-      .control-card.span-2-mobile {
-        grid-column: span 1;
-      }
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-    }
-
-    .card-label {
-      font-size: clamp(0.65rem, 1.2vh, 0.74rem);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    .card-value {
-      font-size: clamp(0.68rem, 1.25vh, 0.76rem);
-      font-weight: 700;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      color: #ffffff;
-      white-space: nowrap;
-    }
-
-    /* Selector de color libre + 7 colores clásicos LED */
+    /* Fila de colores */
     .color-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 5px;
+      gap: 6px;
     }
 
-    .presets-group {
+    .color-swatches {
       display: flex;
       align-items: center;
-      gap: clamp(4px, 0.55vw, 6px);
+      gap: clamp(5px, 1.5vw, 9px);
       flex-wrap: nowrap;
     }
 
-    .color-preset {
-      width: clamp(18px, 2.4vh, 22px);
-      height: clamp(18px, 2.4vh, 22px);
+    .swatch {
+      width: clamp(22px, 3.2vh, 28px);
+      height: clamp(22px, 3.2vh, 28px);
       border-radius: 50%;
+      border: 2px solid #27272a;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s, border-color 0.1s;
+    }
+
+    .swatch.active {
+      border-color: #ffffff;
+      transform: scale(1.12);
+    }
+
+    #color-picker {
+      width: clamp(26px, 3.5vh, 32px);
+      height: clamp(22px, 3.2vh, 28px);
       border: 1px solid #3f3f46;
+      border-radius: 6px;
+      background: #000000;
+      padding: 1px;
       cursor: pointer;
-      transition: transform 0.12s ease, border-color 0.12s ease;
-      padding: 0;
-      flex-shrink: 0;
     }
 
-    .color-preset.active {
-      border: 2px solid #ffffff;
-      transform: scale(1.13);
+    /* Rejilla de sliders */
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(6px, 1.2vh, 10px) clamp(10px, 2.5vw, 16px);
     }
 
-    input[type="color"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: clamp(21px, 2.7vh, 25px);
-      height: clamp(21px, 2.7vh, 25px);
-      border: none;
-      background: none;
-      cursor: pointer;
-      padding: 0;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .control-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    input[type="color"]::-webkit-color-swatch-wrapper {
-      padding: 0;
+    .control-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: clamp(10px, 1.5vh, 12px);
+      color: #a1a1aa;
+      font-weight: 600;
     }
 
-    input[type="color"]::-webkit-color-swatch {
-      border: 2px solid #52525b;
-      border-radius: 50%;
+    .control-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #e4e4e7;
+      font-size: clamp(10px, 1.5vh, 11px);
     }
 
-    /* Sliders personalizados */
     input[type="range"] {
       -webkit-appearance: none;
-      appearance: none;
       width: 100%;
-      background: transparent;
-      cursor: pointer;
-      height: 18px;
-    }
-
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 5px;
+      height: 6px;
+      background: #1c1c20;
       border-radius: 999px;
-      background: #1f1f23;
-      border: 1px solid #323238;
+      outline: none;
+      margin: 2px 0;
     }
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: clamp(14px, 1.9vh, 17px);
-      height: clamp(14px, 1.9vh, 17px);
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      background: var(--accent-color);
-      border: 2px solid #ffffff;
-      margin-top: -7px;
-      box-shadow: 0 0 8px var(--accent-color);
-      transition: transform 0.12s ease;
+      background: #f4f4f5;
+      border: 2px solid #09090b;
+      cursor: pointer;
     }
 
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-    }
-
-    input[type="range"]::-moz-range-track {
-      height: 5px;
-      border-radius: 999px;
-      background: #1f1f23;
-      border: 1px solid #323238;
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: clamp(14px, 1.9vh, 17px);
-      height: clamp(14px, 1.9vh, 17px);
-      border-radius: 50%;
-      background: var(--accent-color);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 8px var(--accent-color);
-    }
-
-    input[type="range"]:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-
-    /* Switch de Parpadeo */
     .blink-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 36px;
-      height: 20px;
+    #blink-toggle {
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 800;
+      font-family: ui-monospace, monospace;
+      border: 1px solid #3f3f46;
+      background: #18181b;
+      color: #a1a1aa;
+      cursor: pointer;
       flex-shrink: 0;
     }
 
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
+    #blink-toggle.active {
+      background: #ff2a2a;
+      border-color: #fca5a5;
+      color: #ffffff;
     }
 
-    .slider-switch {
-      position: absolute;
-      cursor: pointer;
-      inset: 0;
-      background-color: #242428;
-      border: 1px solid #3f3f46;
-      border-radius: 999px;
-      transition: background-color 0.2s ease;
+    /* ============================================================
+       MODO PANTALLA COMPLETA SIEMPRE HORIZONTAL (DOBLE CLIC/TOQUE)
+       ============================================================ */
+    body.fs-mode header,
+    body.fs-mode #controls-panel {
+      display: none !important;
     }
 
-    .slider-switch::before {
-      content: "";
-      position: absolute;
-      height: 14px;
-      width: 14px;
-      left: 2px;
-      bottom: 2px;
-      background-color: #ffffff;
-      border-radius: 50%;
-      transition: transform 0.2s ease;
+    body.fs-mode #app-container {
+      padding: 0 !important;
+      gap: 0 !important;
+      background: #000000 !important;
     }
 
-    .switch input:checked + .slider-switch {
-      background-color: var(--accent-color);
-      border-color: #ffffff;
+    body.fs-mode #led-stage {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100dvh !important;
+      border: none !important;
+      border-radius: 0 !important;
+      z-index: 40 !important;
+      background: #000000 !important;
     }
 
-    .switch input:checked + .slider-switch::before {
-      transform: translateX(16px);
+    /* Si el dispositivo sigue en vertical porque el navegador bloquea orientation.lock, rota 90° */
+    @media screen and (orientation: portrait) {
+      body.fs-mode #led-stage {
+        width: 100dvh !important;
+        height: 100vw !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: translate(-50%, -50%) rotate(90deg) !important;
+        transform-origin: center center !important;
+      }
     }
 
-    /* Modal Autocontenido de Instrucciones Generales */
+    /* Modal de instrucciones */
     #help-modal {
       position: fixed;
       inset: 0;
       z-index: 60;
+      background: rgba(0, 0, 0, 0.85);
       display: none;
       align-items: center;
       justify-content: center;
-      background-color: rgba(0, 0, 0, 0.88);
       padding: 16px;
     }
 
@@ -559,1703 +355,642 @@
       display: flex;
     }
 
-    .modal-box {
-      background-color: #09090b;
-      border: 1px solid #27272a;
-      border-radius: 18px;
-      max-width: 500px;
+    .modal-card {
       width: 100%;
-      max-height: 88dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
+      max-width: 420px;
+      background: #0d0d10;
+      border: 1px solid #2e2e36;
+      border-radius: 14px;
+      padding: 16px;
+      color: #e4e4e7;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.95);
     }
 
     .modal-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid #1c1c1f;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: #050505;
-    }
-
-    .modal-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #1f1f23;
+      padding-bottom: 8px;
     }
 
     .modal-title {
-      font-size: 15.5px;
+      font-size: 16px;
       font-weight: 800;
       color: #ffffff;
     }
 
-    #close-help-modal {
-      background: #18181b;
-      border: 1px solid #2e2e32;
-      color: #d4d4d8;
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #close-help-modal:hover {
-      background: #27272a;
-      color: #ffffff;
-    }
-
-    .modal-body {
-      padding: 15px 18px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #d4d4d8;
-    }
-
-    .guide-item {
-      background-color: #000000;
-      border: 1px solid #1c1c1f;
-      border-radius: 12px;
-      padding: 11px 14px;
-    }
-
-    .guide-item h3 {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
-
-    .guide-item p, .guide-item li {
-      color: #a1a1aa;
-      font-size: 12.5px;
-    }
-
-    .guide-item ul {
-      padding-left: 18px;
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .guide-item strong {
-      color: #f4f4f5;
-    }
-
-    .modal-footer {
-      padding: 12px 18px;
-      border-top: 1px solid #1c1c1f;
-      display: flex;
-      justify-content: flex-end;
-      background-color: #050505;
-    }
-
-    #ok-help-modal {
-      background-color: #27272a;
+    .modal-close {
+      background: #1c1c21;
       border: 1px solid #3f3f46;
       color: #ffffff;
-      padding: 8px 18px;
-      border-radius: 10px;
-      font-size: 13px;
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    #ok-help-modal:hover {
-      background-color: #3f3f46;
+    .modal-list {
+      margin: 0;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #d4d4d8;
+    }
+
+    .modal-list strong {
+      color: #ffffff;
+    }
+
+    /* Toast discreto */
+    #toast {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 70;
+      background: rgba(24, 24, 27, 0.92);
+      border: 1px solid #3f3f46;
+      color: #f4f4f5;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      padding: 5px 12px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
+  <div id="toast">Doble toque en el cartel para pantalla completa</div>
 
-  <div id="app-root">
-
-    <!-- Cabecera superior con logotipo interactivo -->
-    <header id="top-bar">
-      <div class="brand-group">
-        <button id="btn-logo-help" type="button" title="Pulsa para ver las instrucciones generales">
-          <span id="status-dot"></span>
-          <span class="brand-title">Led<span id="brand-accent">Msg</span></span>
-          <span class="help-badge" aria-hidden="true">?</span>
-        </button>
-        <span class="header-hint">Pulsa el logo para ayuda • Doble clic en el cartel para pantalla completa horizontal</span>
-      </div>
-
-      <div class="status-pill" title="Aplicación 100% autocontenida y lista para modo offline">
-        <span class="status-pill-dot"></span>
-        <span>OFFLINE • PWA</span>
-      </div>
+  <div id="app-container">
+    <header>
+      <button id="logo-btn" type="button" aria-label="Instrucciones de LedMsg">
+        <span class="logo-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </span>
+        <span class="logo-title">LedMsg</span>
+        <span class="logo-help-badge">?</span>
+      </button>
+      <span class="hint-pill">Doble toque LED = Pantalla completa</span>
     </header>
 
-    <!-- Escenario Central del Cartel LED -->
-    <main id="led-stage" title="Doble clic o doble toque para alternar pantalla completa horizontal">
-      <div id="canvas-wrapper">
-        <canvas id="led-canvas"></canvas>
-      </div>
-      <div id="fs-toast" role="status" aria-live="polite"></div>
-    </main>
+    <div id="led-stage" title="Doble clic o doble toque para pantalla completa horizontal">
+      <canvas id="led-canvas"></canvas>
+    </div>
 
-    <!-- Panel Inferior de Controles Compactos -->
-    <section id="control-panel" aria-label="Controles del cartel LED">
-      <!-- Fila 1: Caja de mensaje -->
-      <div class="message-bar">
-        <label for="led-text-input">Mensaje</label>
-        <input
-          id="led-text-input"
-          type="text"
-          maxlength="240"
-          autocomplete="off"
-          spellcheck="false"
-          placeholder="Escribe aquí tu mensaje LED..."
-          value="BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ "
-        >
-        <button id="btn-clear-text" type="button" title="Borrar mensaje">Limpiar</button>
+    <section id="controls-panel" aria-label="Controles del cartel LED">
+      <div class="msg-row">
+        <input type="text" id="msg-input" maxlength="160" placeholder="Escribe tu mensaje LED..." value="BIENVENIDOS A LEDMSG ★ ">
+        <button type="button" id="btn-clear" class="btn-clear">Borrar</button>
       </div>
 
-      <!-- Fila 2: 5 controles compactos -->
-      <div class="controls-grid">
-        <!-- Control 1: Color de los LEDs -->
-        <div class="control-card span-2-mobile">
-          <div class="card-header">
-            <span class="card-label">Color LED</span>
-            <span id="color-hex-label" class="card-value">#FF1E1E</span>
+      <div class="color-row">
+        <div class="color-swatches" id="swatch-list">
+          <button type="button" class="swatch active" data-color="#ff2a2a" style="background:#ff2a2a" aria-label="Rojo"></button>
+          <button type="button" class="swatch" data-color="#ff9900" style="background:#ff9900" aria-label="Ámbar"></button>
+          <button type="button" class="swatch" data-color="#ffe600" style="background:#ffe600" aria-label="Amarillo"></button>
+          <button type="button" class="swatch" data-color="#00ff66" style="background:#00ff66" aria-label="Verde"></button>
+          <button type="button" class="swatch" data-color="#00d8ff" style="background:#00d8ff" aria-label="Cian"></button>
+          <button type="button" class="swatch" data-color="#d946ef" style="background:#d946ef" aria-label="Magenta"></button>
+          <button type="button" class="swatch" data-color="#ffffff" style="background:#ffffff" aria-label="Blanco"></button>
+        </div>
+        <input type="color" id="color-picker" value="#ff2a2a" aria-label="Color personalizado">
+      </div>
+
+      <div class="sliders-grid">
+        <div class="control-cell">
+          <div class="control-header">
+            <span>Tamaño LED</span>
+            <span class="control-val" id="val-scale">100%</span>
           </div>
-          <div class="color-row">
-            <div class="presets-group">
-              <button type="button" class="color-preset active" data-color="#ff1e1e" style="background-color:#ff1e1e;" title="Rojo LED"></button>
-              <button type="button" class="color-preset" data-color="#ffaa00" style="background-color:#ffaa00;" title="Ámbar LED"></button>
-              <button type="button" class="color-preset" data-color="#00e640" style="background-color:#00e640;" title="Verde LED"></button>
-              <button type="button" class="color-preset" data-color="#1e90ff" style="background-color:#1e90ff;" title="Azul LED"></button>
-              <button type="button" class="color-preset" data-color="#ffffff" style="background-color:#ffffff;" title="Blanco LED"></button>
-              <button type="button" class="color-preset" data-color="#00f0ff" style="background-color:#00f0ff;" title="Cian LED"></button>
-              <button type="button" class="color-preset" data-color="#ff00aa" style="background-color:#ff00aa;" title="Magenta LED"></button>
-            </div>
-            <input id="led-color-picker" type="color" value="#ff1e1e" title="Selector de color libre">
-          </div>
+          <input type="range" id="ctrl-scale" min="35" max="100" step="5" value="100">
         </div>
 
-        <!-- Control 2: Tamaño / Densidad de los LEDs -->
-        <div class="control-card">
-          <div class="card-header">
-            <span class="card-label">Tamaño LED</span>
-            <span id="size-value" class="card-value">100%</span>
+        <div class="control-cell">
+          <div class="control-header">
+            <span>Brillo</span>
+            <span class="control-val" id="val-brightness">100%</span>
           </div>
-          <input id="led-size" type="range" min="40" max="100" step="5" value="100" aria-label="Tamaño de los puntos LED">
+          <input type="range" id="ctrl-brightness" min="20" max="100" step="5" value="100">
         </div>
 
-        <!-- Control 3: Intensidad de Brillo -->
-        <div class="control-card">
-          <div class="card-header">
-            <span class="card-label">Brillo</span>
-            <span id="brightness-value" class="card-value">85%</span>
+        <div class="control-cell">
+          <div class="control-header">
+            <span>Velocidad</span>
+            <span class="control-val" id="val-speed">50%</span>
           </div>
-          <input id="led-brightness" type="range" min="20" max="100" step="5" value="85" aria-label="Intensidad de brillo LED">
+          <input type="range" id="ctrl-speed" min="0" max="100" step="2" value="50">
         </div>
 
-        <!-- Control 4: Velocidad de Scroll -->
-        <div class="control-card">
-          <div class="card-header">
-            <span class="card-label">Velocidad</span>
-            <span id="speed-value" class="card-value">20 col/s</span>
-          </div>
-          <input id="led-speed" type="range" min="0" max="100" step="2" value="20" aria-label="Velocidad de desplazamiento">
-        </div>
-
-        <!-- Control 5: Parpadeo y Frecuencia -->
-        <div class="control-card">
-          <div class="card-header">
-            <span class="card-label">Parpadeo</span>
-            <span id="blink-speed-label" class="card-value">Off</span>
+        <div class="control-cell">
+          <div class="control-header">
+            <span>Parpadeo</span>
+            <span class="control-val" id="val-blink">OFF</span>
           </div>
           <div class="blink-controls">
-            <label class="switch" title="Activar o desactivar parpadeo">
-              <input id="led-blink-toggle" type="checkbox">
-              <span class="slider-switch"></span>
-            </label>
-            <input id="led-blink-speed" type="range" min="1" max="10" step="1" value="4" disabled aria-label="Velocidad de parpadeo en Hz">
+            <button type="button" id="blink-toggle">OFF</button>
+            <input type="range" id="ctrl-blink-speed" min="1" max="10" step="1" value="4" aria-label="Velocidad de parpadeo">
           </div>
         </div>
       </div>
     </section>
-
   </div>
 
-  <!-- Modal Autocontenido de Instrucciones Generales -->
+  <!-- Modal de Instrucciones Generales -->
   <div id="help-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
-    <div class="modal-box">
+    <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title-wrap">
-          <span style="width:10px;height:10px;border-radius:50%;background:#ff1e1e;box-shadow:0 0 8px #ff1e1e;display:inline-block;"></span>
-          <h2 id="modal-heading" class="modal-title">Instrucciones de Uso — LedMsg</h2>
-        </div>
-        <button id="close-help-modal" type="button" aria-label="Cerrar instrucciones">✕</button>
+        <span class="modal-title" id="modal-heading">Guía rápida • LedMsg</span>
+        <button type="button" id="modal-close-btn" class="modal-close">Cerrar</button>
       </div>
-
-      <div class="modal-body">
-        <div class="guide-item">
-          <h3>1. Escribir y Guardar Mensajes</h3>
-          <p>
-            Escribe cualquier texto en la barra <strong>Mensaje</strong>. Soporta mayúsculas, minúsculas, vocales acentuadas (<strong>ÁÉÍÓÚÜ</strong>), <strong>Ñ</strong>, números y símbolos como <strong>★ ♥ • ¿? ¡!</strong>. Todos tus ajustes se conservan automáticamente en tu dispositivo.
-          </p>
-        </div>
-
-        <div class="guide-item">
-          <h3>2. Controles de Color, Tamaño, Brillo y Movimiento</h3>
-          <ul>
-            <li><strong>Color LED:</strong> Elige uno de los 7 colores clásicos o toca el círculo multicolor para seleccionar cualquier tono personalizado.</li>
-            <li><strong>Tamaño LED (40%–100%):</strong> Reduce el diámetro de los diodos para visualizar muchas más letras simultáneamente en pantalla.</li>
-            <li><strong>Brillo y Velocidad:</strong> Ajusta la potencia luminosa y la rapidez del desplazamiento (en <strong>0</strong> el mensaje queda fijo centrado).</li>
-            <li><strong>Parpadeo:</strong> Activa el interruptor y regula la frecuencia entre <strong>1 Hz</strong> y <strong>10 Hz</strong>.</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h3>3. Pantalla Completa Exclusivamente Horizontal</h3>
-          <p>
-            Haz <strong>doble clic</strong> (o <strong>doble toque</strong> táctil) directamente sobre el cartel LED para ocultar los controles y activar la pantalla completa en horizontal. Repite el gesto o pulsa <strong>Esc</strong> para salir y restaurar la orientación normal.
-          </p>
-        </div>
-
-        <div class="guide-item">
-          <h3>4. Instalación en Chrome Android y Uso Offline</h3>
-          <p>
-            La aplicación es 100% autocontenida y operativa sin conexión. Para instalarla como app nativa en Android desde <strong>Google Chrome</strong>, abre el menú superior derecho <strong>(⋮)</strong> y selecciona <strong>"Instalar aplicación"</strong>.
-          </p>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button id="ok-help-modal" type="button">Entendido</button>
-      </div>
+      <ul class="modal-list">
+        <li><strong>Pantalla completa horizontal:</strong> Haz <strong>doble clic</strong> o <strong>doble toque</strong> sobre el panel LED para ocultar los controles y verlo siempre en apaisado. Repite el gesto para volver.</li>
+        <li><strong>Tamaño LED:</strong> Reduce el tamaño de los diodos (hasta el 35%) para ver muchas más letras a la vez en pantalla.</li>
+        <li><strong>Color y Brillo:</strong> Elige uno de los colores clásicos o cualquier tono personalizado y regula la intensidad luminosa.</li>
+        <li><strong>Parpadeo:</strong> Pulsa el interruptor <strong>OFF/ON</strong> y ajusta la frecuencia del destello con su deslizador.</li>
+        <li><strong>Uso Offline e Instalación:</strong> Funciona sin conexión a internet y guarda tu mensaje automáticamente. Desde Chrome en Android pulsa <strong>⋮ → Instalar aplicación</strong> para tenerla en tu cajón de apps.</li>
+      </ul>
     </div>
   </div>
 
   <script>
-    /**
-     * ============================================================================
-     * 1. CONFIGURACIÓN PWA DINÁMICA (BLOB MANIFEST + ICONOS MASKABLE) Y SW OFFLINE
-     * ============================================================================
-     */
-    (function setupDynamicPWAAndOffline() {
+    // Registro del Service Worker para funcionamiento 100% Offline
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    // Fuente matricial bitmap 10x16 determinista (sin depender de fuentes externas)
+    const GLYPHS = {
+      ' ': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      'A': [0,0,56,108,198,198,198,254,198,198,198,198,198,0,0,0],
+      'B': [0,0,252,198,198,198,252,198,198,198,198,252,0,0,0,0],
+      'C': [0,0,124,198,192,192,192,192,192,192,198,124,0,0,0,0],
+      'D': [0,0,248,204,198,198,198,198,198,198,204,248,0,0,0,0],
+      'E': [0,0,254,192,192,192,248,192,192,192,192,254,0,0,0,0],
+      'F': [0,0,254,192,192,192,248,192,192,192,192,192,0,0,0,0],
+      'G': [0,0,124,198,192,192,192,206,198,198,198,126,0,0,0,0],
+      'H': [0,0,198,198,198,198,254,198,198,198,198,198,0,0,0,0],
+      'I': [0,0,124,24,24,24,24,24,24,24,24,124,0,0,0,0],
+      'J': [0,0,30,12,12,12,12,12,12,204,204,120,0,0,0,0],
+      'K': [0,0,198,204,216,240,224,240,216,204,198,198,0,0,0,0],
+      'L': [0,0,192,192,192,192,192,192,192,192,192,254,0,0,0,0],
+      'M': [0,0,198,238,254,254,214,198,198,198,198,198,0,0,0,0],
+      'N': [0,0,198,230,246,254,222,206,198,198,198,198,0,0,0,0],
+      'Ñ': [56,108,0,198,230,246,254,222,206,198,198,198,0,0,0,0],
+      'O': [0,0,124,198,198,198,198,198,198,198,198,124,0,0,0,0],
+      'P': [0,0,252,198,198,198,252,192,192,192,192,192,0,0,0,0],
+      'Q': [0,0,124,198,198,198,198,198,198,214,220,126,6,0,0,0],
+      'R': [0,0,252,198,198,198,252,216,204,198,198,198,0,0,0,0],
+      'S': [0,0,124,198,192,192,124,6,6,6,198,124,0,0,0,0],
+      'T': [0,0,254,24,24,24,24,24,24,24,24,24,0,0,0,0],
+      'U': [0,0,198,198,198,198,198,198,198,198,198,124,0,0,0,0],
+      'V': [0,0,198,198,198,198,198,198,108,108,56,16,0,0,0,0],
+      'W': [0,0,198,198,198,198,198,214,254,254,238,198,0,0,0,0],
+      'X': [0,0,198,198,108,56,16,56,108,198,198,198,0,0,0,0],
+      'Y': [0,0,198,198,108,56,24,24,24,24,24,24,0,0,0,0],
+      'Z': [0,0,254,6,12,24,48,96,192,192,192,254,0,0,0,0],
+      'Á': [12,24,56,108,198,198,198,254,198,198,198,198,0,0,0,0],
+      'É': [12,24,254,192,192,192,248,192,192,192,192,254,0,0,0,0],
+      'Í': [12,24,124,24,24,24,24,24,24,24,24,124,0,0,0,0],
+      'Ó': [12,24,124,198,198,198,198,198,198,198,198,124,0,0,0,0],
+      'Ú': [12,24,198,198,198,198,198,198,198,198,198,124,0,0,0,0],
+      'Ü': [108,108,0,198,198,198,198,198,198,198,198,124,0,0,0,0],
+      '0': [0,0,124,198,206,222,246,230,198,198,198,124,0,0,0,0],
+      '1': [0,0,24,56,120,24,24,24,24,24,24,126,0,0,0,0],
+      '2': [0,0,124,198,6,12,24,48,96,192,198,254,0,0,0,0],
+      '3': [0,0,124,198,6,6,60,6,6,6,198,124,0,0,0,0],
+      '4': [0,0,12,28,60,108,204,254,12,12,12,30,0,0,0,0],
+      '5': [0,0,254,192,192,252,6,6,6,6,198,124,0,0,0,0],
+      '6': [0,0,60,96,192,192,252,198,198,198,198,124,0,0,0,0],
+      '7': [0,0,254,198,6,12,24,48,48,48,48,48,0,0,0,0],
+      '8': [0,0,124,198,198,198,124,198,198,198,198,124,0,0,0,0],
+      '9': [0,0,124,198,198,198,126,6,6,6,12,120,0,0,0,0],
+      '!': [0,0,24,24,24,24,24,24,24,0,24,24,0,0,0,0],
+      '¡': [0,0,24,24,0,24,24,24,24,24,24,24,0,0,0,0],
+      '?': [0,0,124,198,198,12,24,24,24,0,24,24,0,0,0,0],
+      '¿': [0,0,24,24,0,24,24,24,48,198,198,124,0,0,0,0],
+      '.': [0,0,0,0,0,0,0,0,0,0,24,24,0,0,0,0],
+      ',': [0,0,0,0,0,0,0,0,0,0,24,24,24,48,0,0],
+      ':': [0,0,0,0,24,24,0,0,0,24,24,0,0,0,0,0],
+      ';': [0,0,0,0,24,24,0,0,0,24,24,24,48,0,0,0],
+      '-': [0,0,0,0,0,0,126,126,0,0,0,0,0,0,0,0],
+      '_': [0,0,0,0,0,0,0,0,0,0,0,0,254,254,0,0],
+      '+': [0,0,0,0,24,24,126,24,24,0,0,0,0,0,0,0],
+      '=': [0,0,0,0,0,126,0,126,0,0,0,0,0,0,0,0],
+      '/': [0,0,2,6,12,24,48,96,192,128,0,0,0,0,0,0],
+      '(': [0,0,12,24,48,48,48,48,48,48,24,12,0,0,0,0],
+      ')': [0,0,48,24,12,12,12,12,12,12,24,48,0,0,0,0],
+      '@': [0,0,124,198,198,222,222,222,220,192,198,124,0,0,0,0],
+      '#': [0,0,108,108,254,108,108,108,254,108,108,0,0,0,0,0],
+      '$': [0,24,124,214,192,124,30,22,214,124,24,0,0,0,0,0],
+      '%': [0,0,194,198,12,24,48,96,198,134,0,0,0,0,0,0],
+      '&': [0,0,56,108,108,56,118,220,204,204,118,0,0,0,0,0],
+      '*': [0,0,0,24,126,60,126,24,0,0,0,0,0,0,0,0],
+      '★': [0,0,16,56,56,254,124,56,108,198,0,0,0,0,0,0],
+      '♥': [0,0,0,108,254,254,254,124,56,16,0,0,0,0,0,0],
+      '•': [0,0,0,0,0,56,124,124,56,0,0,0,0,0,0,0]
+    };
+
+    const STORAGE_KEY = 'ledmsg_settings_v1';
+    const state = {
+      text: 'BIENVENIDOS A LEDMSG ★ ',
+      color: '#ff2a2a',
+      scale: 100,
+      brightness: 100,
+      speed: 50,
+      blink: false,
+      blinkSpeed: 4,
+      fullscreen: false
+    };
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        Object.assign(state, saved, { fullscreen: false });
+      }
+    } catch (e) {}
+
+    function saveState() {
       try {
-        function createPngIconDataUrl(size) {
-          const c = document.createElement('canvas');
-          c.width = size;
-          c.height = size;
-          const ctx = c.getContext('2d');
-          const r = size * 0.22;
-
-          // Fondo negro puro #000000
-          ctx.fillStyle = '#000000';
-          ctx.beginPath();
-          ctx.roundRect(0, 0, size, size, r);
-          ctx.fill();
-
-          // Marco sutil del panel LED
-          const inset = size * 0.08;
-          ctx.fillStyle = '#050505';
-          ctx.strokeStyle = '#242428';
-          ctx.lineWidth = Math.max(2, size * 0.02);
-          ctx.beginPath();
-          ctx.roundRect(inset, inset, size - inset * 2, size - inset * 2, r * 0.78);
-          ctx.fill();
-          ctx.stroke();
-
-          // Rejilla de LEDs apagados (4x4)
-          const step = size / 5;
-          for (let gx = 1; gx <= 4; gx++) {
-            for (let gy = 1; gy <= 4; gy++) {
-              ctx.fillStyle = '#18181b';
-              ctx.beginPath();
-              ctx.arc(gx * step, gy * step, size * 0.042, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-
-          // Diodo central encendido con halo luminoso rojo
-          const cx = size * 0.5;
-          const cy = size * 0.5;
-          const glow = ctx.createRadialGradient(cx, cy, size * 0.03, cx, cy, size * 0.36);
-          glow.addColorStop(0, '#ffffff');
-          glow.addColorStop(0.28, '#ff1e1e');
-          glow.addColorStop(0.68, 'rgba(255, 30, 30, 0.38)');
-          glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = glow;
-          ctx.beginPath();
-          ctx.arc(cx, cy, size * 0.36, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = '#ff1e1e';
-          ctx.beginPath();
-          ctx.arc(cx, cy, size * 0.14, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.beginPath();
-          ctx.arc(cx - size * 0.04, cy - size * 0.04, size * 0.04, 0, Math.PI * 2);
-          ctx.fill();
-
-          return c.toDataURL('image/png');
-        }
-
-        const icon192 = createPngIconDataUrl(192);
-        const icon512 = createPngIconDataUrl(512);
-
-        const appleTouch = document.createElement('link');
-        appleTouch.rel = 'apple-touch-icon';
-        appleTouch.href = icon192;
-        document.head.appendChild(appleTouch);
-
-        const manifest = {
-          name: 'LedMsg - Cartel LED',
-          short_name: 'LedMsg',
-          description: 'Simulador de cartel luminoso de texto LED con scroll configurable en pantalla completa horizontal.',
-          start_url: location.href,
-          scope: './',
-          display: 'standalone',
-          orientation: 'any',
-          background_color: '#000000',
-          theme_color: '#000000',
-          icons: [
-            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-          ]
-        };
-
-        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        const linkEl = document.getElementById('pwa-manifest-link');
-        if (linkEl) linkEl.setAttribute('href', manifestURL);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          text: state.text,
+          color: state.color,
+          scale: state.scale,
+          brightness: state.brightness,
+          speed: state.speed,
+          blink: state.blink,
+          blinkSpeed: state.blinkSpeed
+        }));
       } catch (e) {}
+    }
 
-      // Registro silencioso de ./sw.js para ejecución 100% offline en servidor HTTPS / GitHub Pages
-      try {
-        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-          navigator.serviceWorker.register('./sw.js').catch(() => {});
-        }
-      } catch (e) {}
-    })();
+    // Referencias DOM
+    const stage = document.getElementById('led-stage');
+    const canvas = document.getElementById('led-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const msgInput = document.getElementById('msg-input');
+    const btnClear = document.getElementById('btn-clear');
+    const colorPicker = document.getElementById('color-picker');
+    const swatches = document.querySelectorAll('.swatch');
+    const ctrlScale = document.getElementById('ctrl-scale');
+    const ctrlBrightness = document.getElementById('ctrl-brightness');
+    const ctrlSpeed = document.getElementById('ctrl-speed');
+    const blinkToggle = document.getElementById('blink-toggle');
+    const ctrlBlinkSpeed = document.getElementById('ctrl-blink-speed');
 
-    /**
-     * ============================================================================
-     * 2. FUENTE BITMAP MATRICIAL DETERMINISTA DE 10x16 PÍXELES
-     * ============================================================================
-     */
-    (function () {
-      'use strict';
+    const valScale = document.getElementById('val-scale');
+    const valBrightness = document.getElementById('val-brightness');
+    const valSpeed = document.getElementById('val-speed');
+    const valBlink = document.getElementById('val-blink');
 
-      const GLYPH_HEIGHT = 16;
-      const GLYPH_WIDTH = 10;
-      const LETTER_SPACING = 2;
+    // Sincronizar UI con estado guardado
+    msgInput.value = state.text;
+    colorPicker.value = state.color;
+    ctrlScale.value = state.scale;
+    ctrlBrightness.value = state.brightness;
+    ctrlSpeed.value = state.speed;
+    ctrlBlinkSpeed.value = state.blinkSpeed;
 
-      const BITMAP_FONT_10X16 = {
-        ' ': [
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        'A': [
-          '..........','...####...','..######..','.###..###.',
-          '###....###','###....###','###....###','##########',
-          '##########','###....###','###....###','###....###',
-          '###....###','###....###','..........','..........'
-        ],
-        'B': [
-          '..........','#########.', '##########','###....###',
-          '###....###','###....###','#########.', '#########.',
-          '###....###','###....###','###....###','###....###',
-          '##########','#########.', '..........','..........'
-        ],
-        'C': [
-          '..........','..######..','.########.','###....###',
-          '###.......','###.......','###.......','###.......',
-          '###.......','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'D': [
-          '..........','########..','#########.', '###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','#########.',
-          '########..','..........','..........','..........'
-        ],
-        'E': [
-          '..........','##########','##########','###.......',
-          '###.......','###.......','########..','########..',
-          '###.......','###.......','###.......','##########',
-          '##########','..........','..........','..........'
-        ],
-        'F': [
-          '..........','##########','##########','###.......',
-          '###.......','###.......','########..','########..',
-          '###.......','###.......','###.......','###.......',
-          '###.......','..........','..........','..........'
-        ],
-        'G': [
-          '..........','..######..','.########.','###....###',
-          '###.......','###.......','###..#####','###..#####',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'H': [
-          '..........','###....###','###....###','###....###',
-          '###....###','###....###','##########','##########',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'I': [
-          '..........','.########.','.########.','....##....',
-          '....##....','....##....','....##....','....##....',
-          '....##....','....##....','....##....','.########.',
-          '.########.','..........','..........','..........'
-        ],
-        'J': [
-          '..........','...#######','...#######','.......###',
-          '.......###','.......###','.......###','.......###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'K': [
-          '..........','###....###','###...###.','###..###..',
-          '###.###...','######....','#####.....','######....',
-          '###.###...','###..###..','###...###.','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'L': [
-          '..........','###.......','###.......','###.......',
-          '###.......','###.......','###.......','###.......',
-          '###.......','###.......','###.......','##########',
-          '##########','..........','..........','..........'
-        ],
-        'M': [
-          '..........','###....###','####..####','##########',
-          '##########','###.##.###','###.##.###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'N': [
-          '..........','###....###','####...###','#####..###',
-          '######.###','###.######','###..#####','###...####',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'Ñ': [
-          '.###..###.','.########.','..........','###....###',
-          '####...###','#####..###','######.###','###.######',
-          '###..#####','###...####','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'O': [
-          '..........','..######..','.########.','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'P': [
-          '..........','#########.', '##########','###....###',
-          '###....###','###....###','##########','#########.',
-          '###.......','###.......','###.......','###.......',
-          '###.......','..........','..........','..........'
-        ],
-        'Q': [
-          '..........','..######..','.########.','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###.##.###','###..#####','.########.','..######..',
-          '......####','..........','..........','..........'
-        ],
-        'R': [
-          '..........','#########.', '##########','###....###',
-          '###....###','###....###','##########','#########.',
-          '###..###..','###...###.','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'S': [
-          '..........','..######..','.########.','###....###',
-          '###.......','.#######..','..#######.','.......###',
-          '.......###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        'T': [
-          '..........','##########','##########','....##....',
-          '....##....','....##....','....##....','....##....',
-          '....##....','....##....','....##....','....##....',
-          '....##....','..........','..........','..........'
-        ],
-        'U': [
-          '..........','###....###','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'V': [
-          '..........','###....###','###....###','###....###',
-          '###....###','###....###','###....###','.###..###.',
-          '.###..###.','..######..','..######..','...####...',
-          '....##....','..........','..........','..........'
-        ],
-        'W': [
-          '..........','###....###','###....###','###....###',
-          '###....###','###....###','###.##.###','###.##.###',
-          '##########','##########','####..####','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'X': [
-          '..........','###....###','.###..###.','..######..',
-          '...####...','....##....','...####...','..######..',
-          '.###..###.','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'Y': [
-          '..........','###....###','###....###','.###..###.',
-          '..######..','...####...','....##....','....##....',
-          '....##....','....##....','....##....','....##....',
-          '....##....','..........','..........','..........'
-        ],
-        'Z': [
-          '..........','##########','##########','......###.',
-          '.....###..','....###...','...###....','..###.....',
-          '.###......','###.......','##########','##########',
-          '..........','..........','..........','..........'
-        ],
-        'Á': [
-          '.....###..','....###...','...####...','..######..',
-          '.###..###.','###....###','##########','##########',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'É': [
-          '.....###..','....###...','##########','##########',
-          '###.......','###.......','########..','########..',
-          '###.......','###.......','##########','##########',
-          '..........','..........','..........','..........'
-        ],
-        'Í': [
-          '.....###..','....###...','.########.','.########.',
-          '....##....','....##....','....##....','....##....',
-          '....##....','....##....','.########.','.########.',
-          '..........','..........','..........','..........'
-        ],
-        'Ó': [
-          '.....###..','....###...','..######..','.########.',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        'Ú': [
-          '.....###..','....###...','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        'Ü': [
-          '..##..##..','..##..##..','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        'a': [
-          '..........','..........','..........','..........',
-          '..######..','.########.','.......###','.#########',
-          '##########','###....###','###....###','.#########',
-          '..#####.##','..........','..........','..........'
-        ],
-        'b': [
-          '..........','###.......','###.......','###.......',
-          '#########.', '##########','###....###','###....###',
-          '###....###','###....###','###....###','##########',
-          '#########.', '..........','..........','..........'
-        ],
-        'c': [
-          '..........','..........','..........','..........',
-          '..######..','.########.','###....###','###.......',
-          '###.......','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'd': [
-          '..........','.......###','.......###','.......###',
-          '.#########','##########','###....###','###....###',
-          '###....###','###....###','###....###','##########',
-          '.#########','..........','..........','..........'
-        ],
-        'e': [
-          '..........','..........','..........','..........',
-          '..######..','.########.','###....###','##########',
-          '##########','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'f': [
-          '..........','...#####..','..#######.','..##...##.',
-          '..##......','.######...','.######...','..##......',
-          '..##......','..##......','..##......','..##......',
-          '..##......','..........','..........','..........'
-        ],
-        'g': [
-          '..........','..........','..........','..........',
-          '..######..','.#########','###....###','###....###',
-          '###....###','.#########','..#######.','.......###',
-          '.########.','..######..','..........','..........'
-        ],
-        'h': [
-          '..........','###.......','###.......','###.......',
-          '#########.', '##########','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'i': [
-          '..........','....##....','....##....','..........',
-          '...###....','...###....','....##....','....##....',
-          '....##....','....##....','....##....','..######..',
-          '..######..','..........','..........','..........'
-        ],
-        'j': [
-          '..........','.....##...','.....##...','..........',
-          '....###...','....###...','.....##...','.....##...',
-          '.....##...','.....##...','##...##...','.######...',
-          '..####....','..........','..........','..........'
-        ],
-        'k': [
-          '..........','###.......','###.......','###.......',
-          '###...###.','###..###..','###.###...','######....',
-          '######....','###.###...','###..###..','###...###.',
-          '###....###','..........','..........','..........'
-        ],
-        'l': [
-          '..........','..###.....','..###.....','...##.....',
-          '...##.....','...##.....','...##.....','...##.....',
-          '...##.....','...##.....','...##.....','..#####...',
-          '...####...','..........','..........','..........'
-        ],
-        'm': [
-          '..........','..........','..........','..........',
-          '####..###.','##########','###.##.###','###.##.###',
-          '###.##.###','###.##.###','###.##.###','###.##.###',
-          '###.##.###','..........','..........','..........'
-        ],
-        'n': [
-          '..........','..........','..........','..........',
-          '#########.', '##########','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'ñ': [
-          '..........','.###..###.','.########.','..........',
-          '#########.', '##########','###....###','###....###',
-          '###....###','###....###','###....###','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'o': [
-          '..........','..........','..........','..........',
-          '..######..','.########.','###....###','###....###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'p': [
-          '..........','..........','..........','..........',
-          '#########.', '##########','###....###','###....###',
-          '###....###','##########','#########.', '###.......',
-          '###.......','###.......','..........','..........'
-        ],
-        'q': [
-          '..........','..........','..........','..........',
-          '.#########','##########','###....###','###....###',
-          '###....###','##########','.#########','.......###',
-          '.......###','.......###','..........','..........'
-        ],
-        'r': [
-          '..........','..........','..........','..........',
-          '###.#####.','##########','####...###','###.......',
-          '###.......','###.......','###.......','###.......',
-          '###.......','..........','..........','..........'
-        ],
-        's': [
-          '..........','..........','..........','..........',
-          '..######..','.########.','###....###','.######...',
-          '..######..','.......###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        't': [
-          '..........','...##.....','...##.....','...##.....',
-          '.#######..','.#######..','...##.....','...##.....',
-          '...##.....','...##.....','...##..##.','....#####.',
-          '.....###..','..........','..........','..........'
-        ],
-        'u': [
-          '..........','..........','..........','..........',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','##########',
-          '.#########','..........','..........','..........'
-        ],
-        'v': [
-          '..........','..........','..........','..........',
-          '###....###','###....###','###....###','###....###',
-          '.###..###.','.###..###.','..######..','...####...',
-          '....##....','..........','..........','..........'
-        ],
-        'w': [
-          '..........','..........','..........','..........',
-          '###....###','###....###','###.##.###','###.##.###',
-          '###.##.###','##########','##########','.###..###.',
-          '.###..###.','..........','..........','..........'
-        ],
-        'x': [
-          '..........','..........','..........','..........',
-          '###....###','.###..###.','..######..','...####...',
-          '...####...','..######..','.###..###.','###....###',
-          '###....###','..........','..........','..........'
-        ],
-        'y': [
-          '..........','..........','..........','..........',
-          '###....###','###....###','###....###','###....###',
-          '.#########','..#######.','.......###','###....###',
-          '.########.','..######..','..........','..........'
-        ],
-        'z': [
-          '..........','..........','..........','..........',
-          '##########','##########','......###.','.....###..',
-          '....###...','...###....','..###.....','##########',
-          '##########','..........','..........','..........'
-        ],
-        'á': [
-          '..........','.....###..','....###...','..........',
-          '..######..','.########.','.......###','.#########',
-          '##########','###....###','###....###','.#########',
-          '..#####.##','..........','..........','..........'
-        ],
-        'é': [
-          '..........','.....###..','....###...','..........',
-          '..######..','.########.','###....###','##########',
-          '##########','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'í': [
-          '..........','.....###..','....###...','..........',
-          '...###....','...###....','....##....','....##....',
-          '....##....','....##....','....##....','..######..',
-          '..######..','..........','..........','..........'
-        ],
-        'ó': [
-          '..........','.....###..','....###...','..........',
-          '..######..','.########.','###....###','###....###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        'ú': [
-          '..........','.....###..','....###...','..........',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','##########',
-          '.#########','..........','..........','..........'
-        ],
-        'ü': [
-          '..........','..##..##..','..##..##..','..........',
-          '###....###','###....###','###....###','###....###',
-          '###....###','###....###','###....###','##########',
-          '.#########','..........','..........','..........'
-        ],
-        '0': [
-          '..........','..######..','.########.','###...####',
-          '###..#####','###.##.###','#####..###','####...###',
-          '###....###','###....###','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        '1': [
-          '..........','....###...','...####...','..#####...',
-          '.######...','....###...','....###...','....###...',
-          '....###...','....###...','....###...','.#########',
-          '.#########','..........','..........','..........'
-        ],
-        '2': [
-          '..........','..######..','.########.','###....###',
-          '.......###','......###.','....####..','..#####...',
-          '.####.....','###.......','##########','##########',
-          '..........','..........','..........','..........'
-        ],
-        '3': [
-          '..........','..######..','.########.','###....###',
-          '.......###','....#####.','....#####.','.......###',
-          '.......###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        '4': [
-          '..........','.....####.','....#####.','...######.',
-          '..###.###.','.###..###.','###...###.','##########',
-          '##########','......###.','......###.','......###.',
-          '......###.','..........','..........','..........'
-        ],
-        '5': [
-          '..........','##########','##########','###.......',
-          '###.......','#########.', '##########','.......###',
-          '.......###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        '6': [
-          '..........','..######..','.########.','###....###',
-          '###.......','#########.', '##########','###....###',
-          '###....###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        '7': [
-          '..........','##########','##########','.......###',
-          '......###.','.....###..','....###...','...###....',
-          '...###....','...###....','...###....','...###....',
-          '...###....','..........','..........','..........'
-        ],
-        '8': [
-          '..........','..######..','.########.','###....###',
-          '###....###','.########.','.########.','###....###',
-          '###....###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        '9': [
-          '..........','..######..','.########.','###....###',
-          '###....###','###....###','.#########','..########',
-          '.......###','###....###','.########.','..######..',
-          '..........','..........','..........','..........'
-        ],
-        '.': [
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','...###....','...###....',
-          '...###....','..........','..........','..........'
-        ],
-        ',': [
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','...###....','...###....','....##....',
-          '...##.....','..........','..........','..........'
-        ],
-        ':': [
-          '..........','..........','..........','...###....',
-          '...###....','...###....','..........','..........',
-          '..........','...###....','...###....','...###....',
-          '..........','..........','..........','..........'
-        ],
-        ';': [
-          '..........','..........','..........','...###....',
-          '...###....','..........','..........','..........',
-          '..........','...###....','...###....','....##....',
-          '...##.....','..........','..........','..........'
-        ],
-        '!': [
-          '..........','...####...','...####...','...####...',
-          '...####...','...####...','...####...','....##....',
-          '....##....','..........','...####...','...####...',
-          '...####...','..........','..........','..........'
-        ],
-        '¡': [
-          '..........','...####...','...####...','...####...',
-          '..........','....##....','....##....','...####...',
-          '...####...','...####...','...####...','...####...',
-          '...####...','..........','..........','..........'
-        ],
-        '?': [
-          '..........','..######..','.########.','###....###',
-          '.......###','.....####.','....####..','....###...',
-          '....###...','..........','....###...','....###...',
-          '....###...','..........','..........','..........'
-        ],
-        '¿': [
-          '..........','....###...','....###...','....###...',
-          '..........','....###...','....###...','...####...',
-          '..####....','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        '-': [
-          '..........','..........','..........','..........',
-          '..........','..........','.########.','.########.',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '_': [
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '##########','##########','..........','..........'
-        ],
-        '+': [
-          '..........','..........','..........','....##....',
-          '....##....','....##....','.########.','.########.',
-          '....##....','....##....','....##....','..........',
-          '..........','..........','..........','..........'
-        ],
-        '=': [
-          '..........','..........','..........','..........',
-          '.########.','.########.','..........','.########.',
-          '.########.','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '*': [
-          '..........','..........','....##....','.##.##.##.',
-          '..######..','.########.','..######..','.##.##.##.',
-          '....##....','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '/': [
-          '..........','.......###','......###.','......###.',
-          '.....###..','....###...','....###...','...###....',
-          '..###.....','..###.....','.###......','###.......',
-          '..........','..........','..........','..........'
-        ],
-        '(': [
-          '..........','.....###..','....###...','...###....',
-          '..###.....','..###.....','..###.....','..###.....',
-          '..###.....','...###....','....###...','.....###..',
-          '..........','..........','..........','..........'
-        ],
-        ')': [
-          '..........','..###.....','...###....','....###...',
-          '.....###..','.....###..','.....###..','.....###..',
-          '.....###..','....###...','...###....','..###.....',
-          '..........','..........','..........','..........'
-        ],
-        '@': [
-          '..........','..######..','.########.','###....###',
-          '###..#####','###.##.###','###.##.###','###.######',
-          '###..####.','###.......','###....###','.########.',
-          '..######..','..........','..........','..........'
-        ],
-        '#': [
-          '..........','..##..##..','..##..##..','.########.',
-          '.########.','..##..##..','..##..##..','.########.',
-          '.########.','..##..##..','..##..##..','..........',
-          '..........','..........','..........','..........'
-        ],
-        '$': [
-          '..........','....##....','..######..','.########.',
-          '###.##....','.#######..','..#######.','....##.###',
-          '.########.','..######..','....##....','..........',
-          '..........','..........','..........','..........'
-        ],
-        '%': [
-          '..........','.###...###','.###..###.','.....###..',
-          '....###...','...###....','..###.....','.###..###.',
-          '###...###.','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '&': [
-          '..........','..####....','.######...','###..###..',
-          '.######...','..#####...','.#######..','###..####.',
-          '###...###.','.########.','..#####.##','..........',
-          '..........','..........','..........','..........'
-        ],
-        '"': [
-          '..........','..##..##..','..##..##..','..##..##..',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        "'": [
-          '..........','....##....','....##....','....##....',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '•': [
-          '..........','..........','..........','..........',
-          '...####...','..######..','..######..','..######..',
-          '...####...','..........','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '★': [
-          '..........','....##....','....##....','...####...',
-          '##########','.########.','..######..','.########.',
-          '.###..###.','###....###','..........','..........',
-          '..........','..........','..........','..........'
-        ],
-        '♥': [
-          '..........','..........','.###..###.','##########',
-          '##########','##########','.########.','..######..',
-          '...####...','....##....','..........','..........',
-          '..........','..........','..........','..........'
-        ]
-      };
+    function updateUILabels() {
+      valScale.textContent = `${state.scale}%`;
+      valBrightness.textContent = `${state.brightness}%`;
+      valSpeed.textContent = state.speed === 0 ? 'PAUSA' : `${state.speed}%`;
+      blinkToggle.textContent = state.blink ? 'ON' : 'OFF';
+      blinkToggle.classList.toggle('active', state.blink);
+      valBlink.textContent = state.blink ? `${state.blinkSpeed}/10` : 'OFF';
+      swatches.forEach(s => {
+        s.classList.toggle('active', s.dataset.color.toLowerCase() === state.color.toLowerCase());
+      });
+    }
+    updateUILabels();
 
-      // ========================================================================
-      // 3. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
-      // ========================================================================
-      const STORAGE_KEY = 'ledmsg_settings_v2';
-
-      const defaultSettings = {
-        text: 'BIENVENIDO A LEDMSG ★ CARTEL LUMINOSO EN VIVO ♥ ',
-        color: '#ff1e1e',
-        textScale: 1.0,
-        brightness: 0.85,
-        scrollSpeed: 20,
-        blinkEnabled: false,
-        blinkSpeed: 4
-      };
-
-      function loadSettings() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { ...defaultSettings };
-          const parsed = JSON.parse(raw);
-          return {
-            text: typeof parsed.text === 'string' ? parsed.text : defaultSettings.text,
-            color: typeof parsed.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(parsed.color) ? parsed.color : defaultSettings.color,
-            textScale: typeof parsed.textScale === 'number' ? Math.min(1, Math.max(0.4, parsed.textScale)) : defaultSettings.textScale,
-            brightness: typeof parsed.brightness === 'number' ? Math.min(1, Math.max(0.2, parsed.brightness)) : defaultSettings.brightness,
-            scrollSpeed: typeof parsed.scrollSpeed === 'number' ? Math.min(100, Math.max(0, parsed.scrollSpeed)) : defaultSettings.scrollSpeed,
-            blinkEnabled: Boolean(parsed.blinkEnabled),
-            blinkSpeed: typeof parsed.blinkSpeed === 'number' ? Math.min(10, Math.max(1, parsed.blinkSpeed)) : defaultSettings.blinkSpeed
-          };
-        } catch (err) {
-          return { ...defaultSettings };
-        }
-      }
-
-      function saveSettings() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            text: state.text,
-            color: state.color,
-            textScale: state.textScale,
-            brightness: state.brightness,
-            scrollSpeed: state.scrollSpeed,
-            blinkEnabled: state.blinkEnabled,
-            blinkSpeed: state.blinkSpeed
-          }));
-        } catch (err) {}
-      }
-
-      const saved = loadSettings();
-      const state = {
-        ...saved,
-        textRows: GLYPH_HEIGHT,
-        rows: GLYPH_HEIGHT,
-        scrollOffset: 0,
-        blinkTimer: 0,
-        isBlinkOn: true,
-        isFullscreenMode: false
-      };
-
-      // ========================================================================
-      // 4. REFERENCIAS AL DOM
-      // ========================================================================
-      const appRoot = document.getElementById('app-root');
-      const canvas = document.getElementById('led-canvas');
-      const ctx = canvas.getContext('2d', { alpha: false });
-      const canvasWrapper = document.getElementById('canvas-wrapper');
-      const ledStage = document.getElementById('led-stage');
-      const fsToast = document.getElementById('fs-toast');
-
-      const textInput = document.getElementById('led-text-input');
-      const btnClearText = document.getElementById('btn-clear-text');
-      const colorPicker = document.getElementById('led-color-picker');
-      const colorHexLabel = document.getElementById('color-hex-label');
-      const colorPresets = document.querySelectorAll('.color-preset');
-      const sizeSlider = document.getElementById('led-size');
-      const sizeValue = document.getElementById('size-value');
-      const brightnessSlider = document.getElementById('led-brightness');
-      const brightnessValue = document.getElementById('brightness-value');
-      const speedSlider = document.getElementById('led-speed');
-      const speedValue = document.getElementById('speed-value');
-      const blinkToggle = document.getElementById('led-blink-toggle');
-      const blinkSpeedSlider = document.getElementById('led-blink-speed');
-      const blinkSpeedLabel = document.getElementById('blink-speed-label');
-
-      const btnLogoHelp = document.getElementById('btn-logo-help');
-      const helpModal = document.getElementById('help-modal');
-      const closeHelpModal = document.getElementById('close-help-modal');
-      const okHelpModal = document.getElementById('ok-help-modal');
-
-      // ========================================================================
-      // 5. COMPILADOR MATRICIAL DETERMINISTA (TEXTO -> COLUMNAS DE 16 BITS)
-      // ========================================================================
-      let textBitmap = [];
-      let textBitmapCols = 0;
-      let textWithoutTrailingPadCols = 0;
-
-      function resolveGlyph(char) {
-        if (BITMAP_FONT_10X16[char]) {
-          return BITMAP_FONT_10X16[char];
-        }
-        const upper = char.toUpperCase();
-        if (BITMAP_FONT_10X16[upper]) {
-          return BITMAP_FONT_10X16[upper];
-        }
-        const normalized = upper.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        if (BITMAP_FONT_10X16[normalized]) {
-          return BITMAP_FONT_10X16[normalized];
-        }
-        return [
-          '..........','.########.','.########.','.##....##.',
-          '.##....##.','.##....##.','.##....##.','.##....##.',
-          '.##....##.','.##....##.','.########.','.########.',
-          '..........','..........','..........','..........'
-        ];
-      }
-
-      function buildMessageMatrix(rawText) {
-        const displayText = rawText && rawText.length > 0 ? rawText : ' ';
-        const matrix = [];
-
-        for (let i = 0; i < displayText.length; i++) {
-          const ch = displayText[i];
-          const glyph = resolveGlyph(ch);
-
-          let minX = 0;
-          let maxX = GLYPH_WIDTH - 1;
-
-          if (ch === ' ') {
-            minX = 0;
-            maxX = 4;
-          } else {
-            let foundMin = GLYPH_WIDTH;
-            let foundMax = -1;
-            for (let r = 0; r < GLYPH_HEIGHT; r++) {
-              const rowStr = glyph[r];
-              for (let c = 0; c < GLYPH_WIDTH; c++) {
-                if (rowStr[c] === '#') {
-                  if (c < foundMin) foundMin = c;
-                  if (c > foundMax) foundMax = c;
-                }
-              }
-            }
-            if (foundMax >= foundMin) {
-              minX = foundMin;
-              maxX = foundMax;
+    // Construcción de matriz de columnas del mensaje
+    let messageColumns = [];
+    function rebuildMessageMatrix() {
+      const raw = (state.text || ' ').toUpperCase();
+      const cols = [];
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        const glyph = GLYPHS[ch] || GLYPHS[' '];
+        for (let c = 0; c < 8; c++) {
+          let colBits = 0;
+          const mask = 1 << (7 - c);
+          for (let r = 0; r < 16; r++) {
+            if (glyph[r] & mask) {
+              colBits |= (1 << r);
             }
           }
-
-          for (let c = minX; c <= maxX; c++) {
-            const colBits = new Uint8Array(GLYPH_HEIGHT);
-            for (let r = 0; r < GLYPH_HEIGHT; r++) {
-              colBits[r] = glyph[r][c] === '#' ? 1 : 0;
-            }
-            matrix.push(colBits);
-          }
-
-          if (ch !== ' ' && i < displayText.length - 1) {
-            for (let s = 0; s < LETTER_SPACING; s++) {
-              matrix.push(new Uint8Array(GLYPH_HEIGHT));
-            }
-          }
+          cols.push(colBits);
         }
-
-        textWithoutTrailingPadCols = matrix.length;
-
-        // Separación visual de 8 columnas al final del mensaje para el bucle continuo
-        for (let pad = 0; pad < 8; pad++) {
-          matrix.push(new Uint8Array(GLYPH_HEIGHT));
-        }
-
-        textBitmap = matrix;
-        textBitmapCols = matrix.length;
-        if (state.scrollOffset >= textBitmapCols) {
-          state.scrollOffset = 0;
-        }
+        // 2 columnas de espacio entre caracteres
+        cols.push(0, 0);
       }
+      // Añadir espacio final para bucle continuo suave
+      cols.push(0, 0, 0, 0, 0, 0);
+      messageColumns = cols;
+    }
+    rebuildMessageMatrix();
 
-      // ========================================================================
-      // 6. PRE-RENDERIZADO DE SPRITES LED OFFSCREEN (APAGADO Y ENCENDIDO)
-      // ========================================================================
-      const ledOffSprite = document.createElement('canvas');
-      const ledOnSprite = document.createElement('canvas');
-      let currentPitch = 0;
+    // Sprites pre-renderizados de LED encendido y apagado
+    const spriteOn = document.createElement('canvas');
+    const spriteOff = document.createElement('canvas');
+    let cellStep = 14;
+    let visibleCols = 40;
+    let visibleRows = 16;
+    let offsetX = 0;
+    let offsetY = 0;
+    let textRowOffset = 0;
 
-      function hexToRgb(hex) {
-        const clean = hex.replace('#', '');
-        const num = parseInt(clean, 16);
-        return {
-          r: (num >> 16) & 255,
-          g: (num >> 8) & 255,
-          b: num & 255
-        };
-      }
+    function hexToRgb(hex) {
+      const clean = hex.replace('#', '');
+      const num = parseInt(clean.length === 3 ? clean.split('').map(x => x + x).join('') : clean, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
 
-      function rebuildLedSprites(pitch) {
-        if (pitch <= 0) return;
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const radius = Math.max(1.2, pitch * 0.37);
+    function rebuildSprites() {
+      const rect = stage.getBoundingClientRect();
+      const w = Math.max(100, Math.floor(rect.width));
+      const h = Math.max(80, Math.floor(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        // Sprite LED Apagado (rejilla física sobre #000000)
-        const offSize = Math.max(4, Math.ceil(pitch * dpr));
-        ledOffSprite.width = offSize;
-        ledOffSprite.height = offSize;
-        const offCtx = ledOffSprite.getContext('2d');
-        offCtx.clearRect(0, 0, offSize, offSize);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        const cxOff = offSize / 2;
-        const cyOff = offSize / 2;
-        const rOff = radius * dpr;
+      // Base: 16 filas al 100%, hasta ~45 filas al 35%
+      const baseRows = 16;
+      const targetRows = Math.max(16, Math.round(baseRows * (100 / state.scale)));
+      cellStep = Math.max(4, h / targetRows);
+      visibleRows = Math.max(16, Math.floor(h / cellStep));
+      visibleCols = Math.max(8, Math.floor(w / cellStep));
 
-        offCtx.fillStyle = '#0f0f11';
-        offCtx.beginPath();
-        offCtx.arc(cxOff, cyOff, rOff, 0, Math.PI * 2);
-        offCtx.fill();
+      offsetX = (w - visibleCols * cellStep) * 0.5;
+      offsetY = (h - visibleRows * cellStep) * 0.5;
+      textRowOffset = Math.floor((visibleRows - 16) * 0.5);
 
-        if (rOff >= 2.2) {
-          offCtx.strokeStyle = '#1b1b1f';
-          offCtx.lineWidth = Math.max(0.75, 0.5 * dpr);
-          offCtx.stroke();
-        }
+      const sprSize = Math.ceil(cellStep * 1.9);
+      const half = sprSize * 0.5;
+      const ledRadius = Math.max(1.5, cellStep * 0.37);
 
-        // Sprite LED Encendido (halo luminoso + núcleo + brillo especular)
-        const padFactor = 2.5;
-        const onSize = Math.max(8, Math.ceil(pitch * padFactor * dpr));
-        ledOnSprite.width = onSize;
-        ledOnSprite.height = onSize;
-        const onCtx = ledOnSprite.getContext('2d');
-        onCtx.clearRect(0, 0, onSize, onSize);
+      // Sprite LED Apagado
+      spriteOff.width = sprSize;
+      spriteOff.height = sprSize;
+      const offCtx = spriteOff.getContext('2d');
+      offCtx.clearRect(0, 0, sprSize, sprSize);
+      offCtx.fillStyle = '#141417';
+      offCtx.beginPath();
+      offCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
+      offCtx.fill();
 
-        const cxOn = onSize / 2;
-        const cyOn = onSize / 2;
-        const rOn = radius * dpr;
-        const { r, g, b } = hexToRgb(state.color);
-        const br = state.brightness;
+      // Sprite LED Encendido
+      spriteOn.width = sprSize;
+      spriteOn.height = sprSize;
+      const onCtx = spriteOn.getContext('2d');
+      onCtx.clearRect(0, 0, sprSize, sprSize);
 
-        const glowRadius = rOn * (1.55 + br * 1.15);
-        const glowGrad = onCtx.createRadialGradient(cxOn, cyOn, rOn * 0.15, cxOn, cyOn, glowRadius);
-        glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, br * 0.95)})`);
-        glowGrad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${br * 0.42})`);
-        glowGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+      const { r, g, b } = hexToRgb(state.color);
+      const bright = state.brightness / 100;
 
-        onCtx.fillStyle = glowGrad;
+      // Halo exterior
+      const glowR = Math.min(half, ledRadius * 2.1);
+      const grad = onCtx.createRadialGradient(half, half, ledRadius * 0.2, half, half, glowR);
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.85 * bright})`);
+      grad.addColorStop(0.55, `rgba(${r}, ${g}, ${b}, ${0.32 * bright})`);
+      grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+      onCtx.fillStyle = grad;
+      onCtx.beginPath();
+      onCtx.arc(half, half, glowR, 0, Math.PI * 2);
+      onCtx.fill();
+
+      // Núcleo del diodo
+      const coreR = Math.round(r * (0.35 + 0.65 * bright));
+      const coreG = Math.round(g * (0.35 + 0.65 * bright));
+      const coreB = Math.round(b * (0.35 + 0.65 * bright));
+      onCtx.fillStyle = `rgb(${coreR}, ${coreG}, ${coreB})`;
+      onCtx.beginPath();
+      onCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
+      onCtx.fill();
+
+      // Brillo especular central
+      if (bright > 0.35 && ledRadius >= 2.2) {
+        onCtx.fillStyle = `rgba(255, 255, 255, ${0.65 * bright})`;
         onCtx.beginPath();
-        onCtx.arc(cxOn, cyOn, glowRadius, 0, Math.PI * 2);
+        onCtx.arc(half - ledRadius * 0.25, half - ledRadius * 0.25, ledRadius * 0.34, 0, Math.PI * 2);
         onCtx.fill();
-
-        const bodyAlpha = 0.25 + br * 0.75;
-        onCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${bodyAlpha})`;
-        onCtx.beginPath();
-        onCtx.arc(cxOn, cyOn, rOn, 0, Math.PI * 2);
-        onCtx.fill();
-
-        if (br > 0.35) {
-          const coreAlpha = (br - 0.35) * 1.25;
-          const coreGrad = onCtx.createRadialGradient(
-            cxOn - rOn * 0.16,
-            cyOn - rOn * 0.16,
-            0,
-            cxOn,
-            cyOn,
-            rOn * 0.78
-          );
-          coreGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.min(0.95, coreAlpha)})`);
-          coreGrad.addColorStop(0.55, `rgba(${Math.min(255, r + 65)}, ${Math.min(255, g + 65)}, ${Math.min(255, b + 65)}, ${coreAlpha * 0.6})`);
-          coreGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-
-          onCtx.fillStyle = coreGrad;
-          onCtx.beginPath();
-          onCtx.arc(cxOn, cyOn, rOn * 0.85, 0, Math.PI * 2);
-          onCtx.fill();
-        }
       }
+    }
 
-      // ========================================================================
-      // 7. DIMENSIONAMIENTO RESPONSIVO Y BUCLE DE RENDERIZADO A 60 FPS
-      // ========================================================================
-      let visibleCols = 40;
-      let startX = 0;
-      let startY = 0;
-      let textStartRow = 0;
+    const ro = new ResizeObserver(() => rebuildSprites());
+    ro.observe(stage);
+    rebuildSprites();
 
-      function syncOrientationFallback() {
-        if (!state.isFullscreenMode) {
-          appRoot.classList.remove('force-landscape');
-          return;
-        }
-        const isPortrait = window.innerHeight > window.innerWidth;
-        if (isPortrait) {
-          appRoot.classList.add('force-landscape');
-        } else {
-          appRoot.classList.remove('force-landscape');
-        }
-      }
+    // Pantalla completa siempre horizontal por doble clic / doble toque
+    function showToast(txt) {
+      const t = document.getElementById('toast');
+      t.textContent = txt;
+      t.style.opacity = '1';
+      clearTimeout(window.__tTimer);
+      window.__tTimer = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+    }
 
-      function resizeCanvas() {
-        syncOrientationFallback();
+    async function toggleFullscreen() {
+      state.fullscreen = !state.fullscreen;
+      document.body.classList.toggle('fs-mode', state.fullscreen);
 
-        const isForcedLandscape = appRoot.classList.contains('force-landscape');
-        const rect = canvasWrapper.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-        const cssWidth = isForcedLandscape
-          ? Math.max(200, window.innerHeight)
-          : Math.max(200, rect.width || window.innerWidth);
-        const cssHeight = isForcedLandscape
-          ? Math.max(120, window.innerWidth)
-          : Math.max(96, rect.height || (window.innerHeight * 0.55));
-
-        canvas.width = Math.floor(cssWidth * dpr);
-        canvas.height = Math.floor(cssHeight * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-        const maxBoardHeight = state.isFullscreenMode
-          ? cssHeight * 0.94
-          : Math.min(cssHeight * 0.94, cssWidth * 0.58);
-        const effectiveHeight = Math.max(Math.min(cssHeight * 0.88, 92), maxBoardHeight);
-
-        const basePitch = effectiveHeight / state.textRows;
-        const newPitch = Math.max(3, basePitch * state.textScale);
-
-        state.rows = Math.max(state.textRows, Math.floor((cssHeight * 0.96) / newPitch));
-        textStartRow = Math.floor((state.rows - state.textRows) / 2);
-        visibleCols = Math.max(12, Math.floor((cssWidth * 0.98) / newPitch));
-
-        const totalBoardWidth = visibleCols * newPitch;
-        const totalBoardHeight = state.rows * newPitch;
-
-        startX = (cssWidth - totalBoardWidth) / 2;
-        startY = (cssHeight - totalBoardHeight) / 2;
-
-        if (Math.abs(newPitch - currentPitch) > 0.05) {
-          currentPitch = newPitch;
-          rebuildLedSprites(currentPitch);
-        }
-      }
-
-      let lastTimestamp = performance.now();
-
-      function renderLoop(now) {
-        const dt = Math.min(0.1, Math.max(0, (now - lastTimestamp) / 1000));
-        lastTimestamp = now;
-
-        // 1. Actualizar desplazamiento horizontal continuo
-        if (state.scrollSpeed > 0 && textBitmapCols > 0) {
-          state.scrollOffset += state.scrollSpeed * dt;
-          if (state.scrollOffset >= textBitmapCols) {
-            state.scrollOffset %= textBitmapCols;
-          }
-        }
-
-        // 2. Actualizar estado de parpadeo
-        if (state.blinkEnabled) {
-          state.blinkTimer += dt * state.blinkSpeed;
-          state.isBlinkOn = (state.blinkTimer % 1) < 0.5;
-        } else {
-          state.isBlinkOn = true;
-          state.blinkTimer = 0;
-        }
-
-        // 3. Fondo negro puro #000000
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const viewW = canvas.width / dpr;
-        const viewH = canvas.height / dpr;
-
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, viewW, viewH);
-
-        // 4. Renderizar matriz LED
-        if (currentPitch > 0 && textBitmapCols > 0) {
-          // Pasada 1: LEDs apagados
-          for (let c = 0; c < visibleCols; c++) {
-            const x = startX + c * currentPitch;
-            for (let r = 0; r < state.rows; r++) {
-              const y = startY + r * currentPitch;
-              ctx.drawImage(ledOffSprite, x, y, currentPitch, currentPitch);
-            }
-          }
-
-          // Pasada 2: LEDs encendidos
-          if (state.isBlinkOn) {
-            const onDrawSize = currentPitch * 2.5;
-            const onOffset = (onDrawSize - currentPitch) / 2;
-
-            if (state.scrollSpeed === 0 && textWithoutTrailingPadCols <= visibleCols) {
-              // Centrar el mensaje cuando velocidad = 0 y cabe completo en el cartel
-              const centerPad = Math.floor((visibleCols - textWithoutTrailingPadCols) / 2);
-              for (let c = 0; c < textWithoutTrailingPadCols; c++) {
-                const colData = textBitmap[c];
-                if (!colData) continue;
-                const x = startX + (centerPad + c) * currentPitch - onOffset;
-                for (let r = 0; r < state.textRows; r++) {
-                  if (colData[r] === 1) {
-                    const y = startY + (textStartRow + r) * currentPitch - onOffset;
-                    ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
-                  }
-                }
-              }
-            } else {
-              const baseColOffset = Math.floor(state.scrollOffset);
-              for (let c = 0; c < visibleCols; c++) {
-                const textColIndex = (baseColOffset + c) % textBitmapCols;
-                const colData = textBitmap[textColIndex];
-                if (!colData) continue;
-                const x = startX + c * currentPitch - onOffset;
-                for (let r = 0; r < state.textRows; r++) {
-                  if (colData[r] === 1) {
-                    const y = startY + (textStartRow + r) * currentPitch - onOffset;
-                    ctx.drawImage(ledOnSprite, x, y, onDrawSize, onDrawSize);
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        requestAnimationFrame(renderLoop);
-      }
-
-      // ========================================================================
-      // 8. SINCRONIZACIÓN DE CONTROLES E INTERACCIÓN
-      // ========================================================================
-      function applyAccentColor(newHex) {
-        state.color = newHex.toLowerCase();
-        colorPicker.value = state.color;
-        colorHexLabel.textContent = state.color.toUpperCase();
-        document.documentElement.style.setProperty('--accent-color', state.color);
-
-        colorPresets.forEach((btn) => {
-          if (btn.dataset.color.toLowerCase() === state.color) {
-            btn.classList.add('active');
-          } else {
-            btn.classList.remove('active');
-          }
-        });
-
-        rebuildLedSprites(currentPitch);
-        saveSettings();
-      }
-
-      function syncUIWithState() {
-        textInput.value = state.text;
-
-        const pctSize = Math.round(state.textScale * 100);
-        sizeSlider.value = String(pctSize);
-        sizeValue.textContent = `${pctSize}%`;
-
-        const pctBright = Math.round(state.brightness * 100);
-        brightnessSlider.value = String(pctBright);
-        brightnessValue.textContent = `${pctBright}%`;
-
-        speedSlider.value = String(state.scrollSpeed);
-        speedValue.textContent = state.scrollSpeed === 0 ? 'Fijo' : `${state.scrollSpeed} col/s`;
-
-        blinkToggle.checked = state.blinkEnabled;
-        blinkSpeedSlider.value = String(state.blinkSpeed);
-        blinkSpeedSlider.disabled = !state.blinkEnabled;
-        blinkSpeedLabel.textContent = state.blinkEnabled ? `${state.blinkSpeed} Hz` : 'Off';
-      }
-
-      textInput.addEventListener('input', (e) => {
-        state.text = e.target.value;
-        buildMessageMatrix(state.text);
-        saveSettings();
-      });
-
-      btnClearText.addEventListener('click', () => {
-        state.text = '';
-        textInput.value = '';
-        buildMessageMatrix('');
-        saveSettings();
-        textInput.focus();
-      });
-
-      colorPicker.addEventListener('input', (e) => {
-        applyAccentColor(e.target.value);
-      });
-
-      colorPresets.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          applyAccentColor(btn.dataset.color);
-        });
-      });
-
-      sizeSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10);
-        state.textScale = val / 100;
-        sizeValue.textContent = `${val}%`;
-        resizeCanvas();
-        saveSettings();
-      });
-
-      brightnessSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10);
-        state.brightness = val / 100;
-        brightnessValue.textContent = `${val}%`;
-        rebuildLedSprites(currentPitch);
-        saveSettings();
-      });
-
-      speedSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10);
-        state.scrollSpeed = val;
-        speedValue.textContent = val === 0 ? 'Fijo' : `${val} col/s`;
-        saveSettings();
-      });
-
-      blinkToggle.addEventListener('change', (e) => {
-        state.blinkEnabled = e.target.checked;
-        blinkSpeedSlider.disabled = !state.blinkEnabled;
-        blinkSpeedLabel.textContent = state.blinkEnabled ? `${state.blinkSpeed} Hz` : 'Off';
-        saveSettings();
-      });
-
-      blinkSpeedSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10);
-        state.blinkSpeed = val;
-        if (state.blinkEnabled) {
-          blinkSpeedLabel.textContent = `${val} Hz`;
-        }
-        saveSettings();
-      });
-
-      // Modal de Instrucciones Generales
-      function openHelpModal() {
-        helpModal.classList.add('open');
-      }
-
-      function closeHelpDialog() {
-        helpModal.classList.remove('open');
-      }
-
-      btnLogoHelp.addEventListener('click', openHelpModal);
-      closeHelpModal.addEventListener('click', closeHelpDialog);
-      okHelpModal.addEventListener('click', closeHelpDialog);
-      helpModal.addEventListener('click', (e) => {
-        if (e.target === helpModal) {
-          closeHelpDialog();
-        }
-      });
-
-      // ========================================================================
-      // 9. PANTALLA COMPLETA EXCLUSIVAMENTE HORIZONTAL POR DOBLE CLIC / DOBLE TOQUE
-      // ========================================================================
-      let toastTimer = null;
-
-      function showToast(msg) {
-        fsToast.textContent = msg;
-        fsToast.classList.add('visible');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => {
-          fsToast.classList.remove('visible');
-        }, 2300);
-      }
-
-      async function enterFullscreenLandscape() {
-        state.isFullscreenMode = true;
-        appRoot.classList.add('is-fullscreen');
-
+      if (state.fullscreen) {
         try {
-          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          if (document.documentElement.requestFullscreen) {
             await document.documentElement.requestFullscreen();
-          } else if (!document.webkitFullscreenElement && document.documentElement.webkitRequestFullscreen) {
+          } else if (document.documentElement.webkitRequestFullscreen) {
             document.documentElement.webkitRequestFullscreen();
           }
-          if (screen.orientation && typeof screen.orientation.lock === 'function') {
-            await screen.orientation.lock('landscape');
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape').catch(() => {});
           }
-        } catch (err) {
-          // Si el navegador no permite bloqueo nativo, syncOrientationFallback rotará 90° por CSS
-        }
-
-        resizeCanvas();
-        showToast('Doble clic / doble toque para salir de pantalla completa');
-      }
-
-      async function exitFullscreenLandscape() {
-        state.isFullscreenMode = false;
-        appRoot.classList.remove('is-fullscreen', 'force-landscape');
-
+        } catch (e) {}
+        showToast('Doble toque para salir');
+      } else {
         try {
-          if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+          if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
           }
-          if (document.fullscreenElement && document.exitFullscreen) {
-            await document.exitFullscreen();
-          } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
+          if (document.fullscreenElement || document.webkitFullscreenElement) {
+            if (document.exitFullscreen) await document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
           }
-        } catch (err) {}
-
-        resizeCanvas();
+        } catch (e) {}
       }
+      setTimeout(rebuildSprites, 60);
+    }
 
-      function toggleFullscreenLandscape() {
-        if (state.isFullscreenMode) {
-          exitFullscreenLandscape();
-        } else {
-          enterFullscreenLandscape();
-        }
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && state.fullscreen) {
+        state.fullscreen = false;
+        document.body.classList.remove('fs-mode');
+        try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+        setTimeout(rebuildSprites, 60);
       }
+    });
 
-      ledStage.addEventListener('dblclick', (e) => {
+    // Doble clic en ratón y doble toque fiable en móvil
+    let lastTap = 0;
+    stage.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      toggleFullscreen();
+    });
+    stage.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTap < 300) {
         e.preventDefault();
-        toggleFullscreenLandscape();
-      });
-
-      let lastTapTime = 0;
-      ledStage.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        const delta = now - lastTapTime;
-        if (delta > 0 && delta < 320) {
-          e.preventDefault();
-          toggleFullscreenLandscape();
-          lastTapTime = 0;
-        } else {
-          lastTapTime = now;
-        }
-      }, { passive: false });
-
-      const handleFullscreenChange = () => {
-        const isNativeFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-        if (!isNativeFs && state.isFullscreenMode) {
-          state.isFullscreenMode = false;
-          appRoot.classList.remove('is-fullscreen', 'force-landscape');
-          if (screen.orientation && typeof screen.orientation.unlock === 'function') {
-            try { screen.orientation.unlock(); } catch (e) {}
-          }
-          resizeCanvas();
-        } else {
-          setTimeout(resizeCanvas, 60);
-        }
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (helpModal.classList.contains('open')) {
-            closeHelpDialog();
-          } else if (state.isFullscreenMode) {
-            exitFullscreenLandscape();
-          }
-        }
-      });
-
-      if ('ResizeObserver' in window) {
-        const ro = new ResizeObserver(() => resizeCanvas());
-        ro.observe(canvasWrapper);
-      }
-
-      window.addEventListener('resize', resizeCanvas);
-      window.addEventListener('orientationchange', () => {
-        setTimeout(resizeCanvas, 100);
-      });
-
-      // ========================================================================
-      // 10. INICIALIZACIÓN AL CARGAR EL DOM
-      // ========================================================================
-      function init() {
-        syncUIWithState();
-        buildMessageMatrix(state.text);
-        applyAccentColor(state.color);
-        resizeCanvas();
-        showToast('Doble clic / doble toque en el cartel para pantalla completa');
-        requestAnimationFrame(renderLoop);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        toggleFullscreen();
+        lastTap = 0;
       } else {
-        init();
+        lastTap = now;
       }
-    })();
+    });
+
+    // Eventos de controles
+    msgInput.addEventListener('input', (e) => {
+      state.text = e.target.value;
+      rebuildMessageMatrix();
+      saveState();
+    });
+
+    btnClear.addEventListener('click', () => {
+      state.text = '';
+      msgInput.value = '';
+      msgInput.focus();
+      rebuildMessageMatrix();
+      saveState();
+    });
+
+    swatches.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.color = btn.dataset.color;
+        colorPicker.value = state.color;
+        updateUILabels();
+        rebuildSprites();
+        saveState();
+      });
+    });
+
+    colorPicker.addEventListener('input', (e) => {
+      state.color = e.target.value;
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlScale.addEventListener('input', (e) => {
+      state.scale = parseInt(e.target.value, 10);
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlBrightness.addEventListener('input', (e) => {
+      state.brightness = parseInt(e.target.value, 10);
+      updateUILabels();
+      rebuildSprites();
+      saveState();
+    });
+
+    ctrlSpeed.addEventListener('input', (e) => {
+      state.speed = parseInt(e.target.value, 10);
+      updateUILabels();
+      saveState();
+    });
+
+    blinkToggle.addEventListener('click', () => {
+      state.blink = !state.blink;
+      updateUILabels();
+      saveState();
+    });
+
+    ctrlBlinkSpeed.addEventListener('input', (e) => {
+      state.blinkSpeed = parseInt(e.target.value, 10);
+      if (!state.blink) state.blink = true;
+      updateUILabels();
+      saveState();
+    });
+
+    // Modal de instrucciones al pulsar el logotipo
+    const logoBtn = document.getElementById('logo-btn');
+    const helpModal = document.getElementById('help-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    logoBtn.addEventListener('click', () => helpModal.classList.add('open'));
+    modalCloseBtn.addEventListener('click', () => helpModal.classList.remove('open'));
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) helpModal.classList.remove('open');
+    });
+
+    // Bucle de animación a 60 FPS
+    let scrollPos = -10;
+    let lastTime = performance.now();
+    let blinkTimer = 0;
+
+    function animate(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      const rect = stage.getBoundingClientRect();
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      const totalCols = messageColumns.length;
+      if (totalCols > 0 && state.speed > 0) {
+        const colsPerSec = (state.speed / 100) * 32;
+        scrollPos += colsPerSec * dt;
+        if (scrollPos >= totalCols) {
+          scrollPos -= totalCols;
+        }
+      }
+
+      let isBlinkHidden = false;
+      if (state.blink) {
+        blinkTimer += dt * (state.blinkSpeed * 1.4);
+        isBlinkHidden = Math.sin(blinkTimer * Math.PI * 2) < 0;
+      }
+
+      const startCol = Math.floor(scrollPos);
+      const sprHalf = spriteOn.width * 0.5;
+
+      for (let c = 0; c < visibleCols; c++) {
+        const cx = offsetX + (c + 0.5) * cellStep - sprHalf;
+        let colBits = 0;
+
+        if (!isBlinkHidden && totalCols > 0) {
+          let msgIdx = (startCol + c) % totalCols;
+          if (msgIdx < 0) msgIdx += totalCols;
+          colBits = messageColumns[msgIdx] || 0;
+        }
+
+        for (let r = 0; r < visibleRows; r++) {
+          const cy = offsetY + (r + 0.5) * cellStep - sprHalf;
+          const glyphRow = r - textRowOffset;
+          const isLit = (glyphRow >= 0 && glyphRow < 16) && ((colBits & (1 << glyphRow)) !== 0);
+          ctx.drawImage(isLit ? spriteOn : spriteOff, cx, cy);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+    setTimeout(() => showToast('Doble toque en el cartel para pantalla completa'), 600);
   </script>
 </body>
 </html>

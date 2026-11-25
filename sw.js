@@ -1,7 +1,10 @@
 const CACHE_NAME = 'ledmsg-pwa-v1';
 const ASSETS = [
   './',
-  './index.html'
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
