@@ -43,7 +43,6 @@
       overflow: hidden;
     }
 
-    /* Cabecera compacta */
     header {
       display: flex;
       align-items: center;
@@ -103,7 +102,6 @@
       font-weight: 700;
     }
 
-    /* Contenedor del cartel LED */
     #led-stage {
       position: relative;
       flex: 1 1 auto;
@@ -122,9 +120,9 @@
       width: 100%;
       height: 100%;
       background-color: #000000;
+      touch-action: none;
     }
 
-    /* Panel de controles compacto sin scroll */
     #controls-panel {
       flex-shrink: 0;
       background-color: #09090b;
@@ -178,7 +176,6 @@
       color: #ffffff;
     }
 
-    /* Fila de colores */
     .color-row {
       display: flex;
       align-items: center;
@@ -218,7 +215,6 @@
       cursor: pointer;
     }
 
-    /* Rejilla de sliders */
     .sliders-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -291,9 +287,7 @@
       color: #ffffff;
     }
 
-    /* ============================================================
-       MODO PANTALLA COMPLETA SIEMPRE HORIZONTAL (DOBLE CLIC/TOQUE)
-       ============================================================ */
+    /* Modo pantalla completa siempre horizontal */
     body.fs-mode header,
     body.fs-mode #controls-panel {
       display: none !important;
@@ -316,7 +310,6 @@
       background: #000000 !important;
     }
 
-    /* Si el dispositivo sigue en vertical porque el navegador bloquea orientation.lock, rota 90° */
     @media screen and (orientation: portrait) {
       body.fs-mode #led-stage {
         width: 100dvh !important;
@@ -398,7 +391,6 @@
       color: #ffffff;
     }
 
-    /* Toast discreto */
     #toast {
       position: fixed;
       top: 12px;
@@ -463,7 +455,7 @@
             <span>Tamaño LED</span>
             <span class="control-val" id="val-scale">100%</span>
           </div>
-          <input type="range" id="ctrl-scale" min="35" max="100" step="5" value="100">
+          <input type="range" id="ctrl-scale" min="35" max="100" step="1" value="100">
         </div>
 
         <div class="control-cell">
@@ -514,14 +506,12 @@
   </div>
 
   <script>
-    // Registro del Service Worker para funcionamiento 100% Offline
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
 
-    // Fuente matricial bitmap 10x16 determinista
     const GLYPHS = {
       ' ': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       'A': [0,0,56,108,198,198,198,254,198,198,198,198,198,0,0,0],
@@ -611,452 +601,3 @@
         Object.assign(state, saved, { fullscreen: false });
       }
     } catch (e) {}
-
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          text: state.text,
-          color: state.color,
-          scale: state.scale,
-          brightness: state.brightness,
-          speed: state.speed,
-          blink: state.blink,
-          blinkSpeed: state.blinkSpeed
-        }));
-      } catch (e) {}
-    }
-
-    // Referencias DOM
-    const stage = document.getElementById('led-stage');
-    const canvas = document.getElementById('led-canvas');
-    const ctx = canvas.getContext('2d', { alpha: false });
-    const msgInput = document.getElementById('msg-input');
-    const btnClear = document.getElementById('btn-clear');
-    const colorPicker = document.getElementById('color-picker');
-    const swatches = document.querySelectorAll('.swatch');
-    const ctrlScale = document.getElementById('ctrl-scale');
-    const ctrlBrightness = document.getElementById('ctrl-brightness');
-    const ctrlSpeed = document.getElementById('ctrl-speed');
-    const blinkToggle = document.getElementById('blink-toggle');
-    const ctrlBlinkSpeed = document.getElementById('ctrl-blink-speed');
-
-    const valScale = document.getElementById('val-scale');
-    const valBrightness = document.getElementById('val-brightness');
-    const valSpeed = document.getElementById('val-speed');
-    const valBlink = document.getElementById('val-blink');
-
-    // Sincronizar UI con estado guardado
-    msgInput.value = state.text;
-    colorPicker.value = state.color;
-    ctrlScale.value = state.scale;
-    ctrlBrightness.value = state.brightness;
-    ctrlSpeed.value = state.speed;
-    ctrlBlinkSpeed.value = state.blinkSpeed;
-
-    function updateUILabels() {
-      const roundedScale = Math.round(state.scale);
-      valScale.textContent = `${roundedScale}%`;
-      ctrlScale.value = roundedScale;
-      valBrightness.textContent = `${state.brightness}%`;
-      valSpeed.textContent = state.speed === 0 ? 'PAUSA' : `${state.speed}%`;
-      blinkToggle.textContent = state.blink ? 'ON' : 'OFF';
-      blinkToggle.classList.toggle('active', state.blink);
-      valBlink.textContent = state.blink ? `${state.blinkSpeed}/10` : 'OFF';
-      swatches.forEach(s => {
-        s.classList.toggle('active', s.dataset.color.toLowerCase() === state.color.toLowerCase());
-      });
-    }
-    updateUILabels();
-
-    // Construcción de matriz de columnas del mensaje
-    let messageColumns = [];
-    function rebuildMessageMatrix() {
-      const raw = (state.text || ' ').toUpperCase();
-      const cols = [];
-      for (let i = 0; i < raw.length; i++) {
-        const ch = raw[i];
-        const glyph = GLYPHS[ch] || GLYPHS[' '];
-        for (let c = 0; c < 8; c++) {
-          let colBits = 0;
-          const mask = 1 << (7 - c);
-          for (let r = 0; r < 16; r++) {
-            if (glyph[r] & mask) {
-              colBits |= (1 << r);
-            }
-          }
-          cols.push(colBits);
-        }
-        cols.push(0, 0);
-      }
-      cols.push(0, 0, 0, 0, 0, 0);
-      messageColumns = cols;
-    }
-    rebuildMessageMatrix();
-
-    // Sprites pre-renderizados de LED encendido y apagado
-    const spriteOn = document.createElement('canvas');
-    const spriteOff = document.createElement('canvas');
-    let cellStep = 14;
-    let visibleCols = 40;
-    let visibleRows = 16;
-    let offsetX = 0;
-    let offsetY = 0;
-    let textRowOffset = 0;
-
-    function hexToRgb(hex) {
-      const clean = hex.replace('#', '');
-      const num = parseInt(clean.length === 3 ? clean.split('').map(x => x + x).join('') : clean, 16);
-      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-    }
-
-    function rebuildSprites() {
-      const rect = stage.getBoundingClientRect();
-      const w = Math.max(100, Math.floor(rect.width));
-      const h = Math.max(80, Math.floor(rect.height));
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // Base: 16 filas al 100%, hasta ~45 filas al 35%
-      const baseRows = 16;
-      const targetRows = Math.max(16, Math.round(baseRows * (100 / state.scale)));
-      cellStep = Math.max(4, h / targetRows);
-      visibleRows = Math.max(16, Math.floor(h / cellStep));
-      visibleCols = Math.max(8, Math.floor(w / cellStep));
-
-      offsetX = (w - visibleCols * cellStep) * 0.5;
-      offsetY = (h - visibleRows * cellStep) * 0.5;
-      textRowOffset = Math.floor((visibleRows - 16) * 0.5);
-
-      const brightFactor = state.brightness / 100; // Rango 0.15 a 2.00
-      const sprScale = brightFactor > 1.0 ? (2.1 + (brightFactor - 1.0) * 0.55) : 2.1;
-      const sprSize = Math.ceil(cellStep * sprScale);
-      const half = sprSize * 0.5;
-      const ledRadius = Math.max(1.5, cellStep * (0.37 + Math.max(0, brightFactor - 1.0) * 0.04));
-
-      // Sprite LED Apagado
-      spriteOff.width = sprSize;
-      spriteOff.height = sprSize;
-      const offCtx = spriteOff.getContext('2d');
-      offCtx.clearRect(0, 0, sprSize, sprSize);
-      offCtx.fillStyle = '#141417';
-      offCtx.beginPath();
-      offCtx.arc(half, half, Math.max(1.5, cellStep * 0.36), 0, Math.PI * 2);
-      offCtx.fill();
-
-      // Sprite LED Encendido con rango ampliado hasta 200%
-      spriteOn.width = sprSize;
-      spriteOn.height = sprSize;
-      const onCtx = spriteOn.getContext('2d');
-      onCtx.clearRect(0, 0, sprSize, sprSize);
-
-      const { r, g, b } = hexToRgb(state.color);
-      const normBright = Math.min(1, brightFactor);
-      const overDrive = Math.max(0, brightFactor - 1.0); // 0.0 a 1.0 cuando brillo > 100%
-
-      // Halo luminoso exterior ampliado
-      const glowR = Math.min(half, ledRadius * (2.15 + overDrive * 0.65));
-      const grad = onCtx.createRadialGradient(half, half, ledRadius * 0.15, half, half, glowR);
-      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1, 0.92 * normBright + overDrive * 0.08)})`);
-      grad.addColorStop(0.45, `rgba(${r}, ${g}, ${b}, ${Math.min(0.95, 0.42 * normBright + overDrive * 0.35)})`);
-      grad.addColorStop(0.78, `rgba(${r}, ${g}, ${b}, ${Math.min(0.65, 0.12 * normBright + overDrive * 0.22)})`);
-      grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-      onCtx.fillStyle = grad;
-      onCtx.beginPath();
-      onCtx.arc(half, half, glowR, 0, Math.PI * 2);
-      onCtx.fill();
-
-      // Núcleo del diodo LED (con saturación luminosa hacia blanco puro en sobrebrillo)
-      const boostMix = overDrive * 0.55;
-      const coreR = Math.round((r + (255 - r) * boostMix) * (0.28 + 0.72 * normBright));
-      const coreG = Math.round((g + (255 - g) * boostMix) * (0.28 + 0.72 * normBright));
-      const coreB = Math.round((b + (255 - b) * boostMix) * (0.28 + 0.72 * normBright));
-      onCtx.fillStyle = `rgb(${coreR}, ${coreG}, ${coreB})`;
-      onCtx.beginPath();
-      onCtx.arc(half, half, ledRadius, 0, Math.PI * 2);
-      onCtx.fill();
-
-      // Punto caliente central de alta intensidad
-      if (brightFactor > 0.3 && ledRadius >= 1.8) {
-        const hotR = ledRadius * (0.36 + overDrive * 0.32);
-        onCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.55 * normBright + overDrive * 0.45)})`;
-        onCtx.beginPath();
-        onCtx.arc(half - ledRadius * 0.12 * (1 - overDrive), half - ledRadius * 0.12 * (1 - overDrive), hotR, 0, Math.PI * 2);
-        onCtx.fill();
-      }
-    }
-
-    const ro = new ResizeObserver(() => rebuildSprites());
-    ro.observe(stage);
-    rebuildSprites();
-
-    // Pantalla completa siempre horizontal por doble clic / doble toque
-    function showToast(txt) {
-      const t = document.getElementById('toast');
-      t.textContent = txt;
-      t.style.opacity = '1';
-      clearTimeout(window.__tTimer);
-      window.__tTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
-    }
-
-    async function toggleFullscreen() {
-      state.fullscreen = !state.fullscreen;
-      document.body.classList.toggle('fs-mode', state.fullscreen);
-
-      if (state.fullscreen) {
-        try {
-          if (document.documentElement.requestFullscreen) {
-            await document.documentElement.requestFullscreen();
-          } else if (document.documentElement.webkitRequestFullscreen) {
-            document.documentElement.webkitRequestFullscreen();
-          }
-          if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape').catch(() => {});
-          }
-        } catch (e) {}
-        showToast('Pellizca para zoom • Doble toque para salir');
-      } else {
-        try {
-          if (screen.orientation && screen.orientation.unlock) {
-            screen.orientation.unlock();
-          }
-          if (document.fullscreenElement || document.webkitFullscreenElement) {
-            if (document.exitFullscreen) await document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          }
-        } catch (e) {}
-      }
-      setTimeout(rebuildSprites, 60);
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement && state.fullscreen) {
-        state.fullscreen = false;
-        document.body.classList.remove('fs-mode');
-        try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
-        setTimeout(rebuildSprites, 60);
-      }
-    });
-
-    // =========================================================================
-    // GESTOS EN EL CARTEL LED: DOBLE TOQUE + PINCH-TO-ZOOM EN PANTALLA COMPLETA
-    // =========================================================================
-    let lastTap = 0;
-    let isPinching = false;
-    let pinchStartDist = 0;
-    let pinchStartScale = 100;
-    let lastPinchRebuild = 0;
-
-    function getTouchDistance(t1, t2) {
-      const dx = t1.clientX - t2.clientX;
-      const dy = t1.clientY - t2.clientY;
-      return Math.hypot(dx, dy);
-    }
-
-    stage.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      toggleFullscreen();
-    });
-
-    stage.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2 && state.fullscreen) {
-        isPinching = true;
-        pinchStartDist = getTouchDistance(e.touches[0], e.touches[1]);
-        pinchStartScale = state.scale;
-      }
-    }, { passive: true });
-
-    stage.addEventListener('touchmove', (e) => {
-      if (isPinching && e.touches.length === 2 && state.fullscreen) {
-        e.preventDefault();
-        const currDist = getTouchDistance(e.touches[0], e.touches[1]);
-        if (pinchStartDist > 10) {
-          const ratio = currDist / pinchStartDist;
-          const nextScale = Math.max(35, Math.min(100, Math.round(pinchStartScale * ratio)));
-          if (nextScale !== state.scale) {
-            state.scale = nextScale;
-            updateUILabels();
-            const now = performance.now();
-            if (now - lastPinchRebuild > 35) {
-              lastPinchRebuild = now;
-              rebuildSprites();
-            }
-          }
-        }
-      }
-    }, { passive: false });
-
-    stage.addEventListener('touchend', (e) => {
-      if (isPinching) {
-        if (e.touches.length < 2) {
-          isPinching = false;
-          rebuildSprites();
-          saveState();
-          showToast(`Tamaño LED: ${Math.round(state.scale)}%`);
-        }
-        lastTap = 0;
-        return;
-      }
-
-      if (e.touches.length === 0) {
-        const now = Date.now();
-        if (now - lastTap < 300) {
-          e.preventDefault();
-          toggleFullscreen();
-          lastTap = 0;
-        } else {
-          lastTap = now;
-        }
-      }
-    });
-
-    // Soporte de zoom con rueda del ratón / trackpad en pantalla completa
-    stage.addEventListener('wheel', (e) => {
-      if (!state.fullscreen) return;
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 5 : -5;
-      const nextScale = Math.max(35, Math.min(100, state.scale + delta));
-      if (nextScale !== state.scale) {
-        state.scale = nextScale;
-        updateUILabels();
-        rebuildSprites();
-        saveState();
-        showToast(`Tamaño LED: ${state.scale}%`);
-      }
-    }, { passive: false });
-
-    // Eventos de controles
-    msgInput.addEventListener('input', (e) => {
-      state.text = e.target.value;
-      rebuildMessageMatrix();
-      saveState();
-    });
-
-    btnClear.addEventListener('click', () => {
-      state.text = '';
-      msgInput.value = '';
-      msgInput.focus();
-      rebuildMessageMatrix();
-      saveState();
-    });
-
-    swatches.forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.color = btn.dataset.color;
-        colorPicker.value = state.color;
-        updateUILabels();
-        rebuildSprites();
-        saveState();
-      });
-    });
-
-    colorPicker.addEventListener('input', (e) => {
-      state.color = e.target.value;
-      updateUILabels();
-      rebuildSprites();
-      saveState();
-    });
-
-    ctrlScale.addEventListener('input', (e) => {
-      state.scale = parseInt(e.target.value, 10);
-      updateUILabels();
-      rebuildSprites();
-      saveState();
-    });
-
-    ctrlBrightness.addEventListener('input', (e) => {
-      state.brightness = parseInt(e.target.value, 10);
-      updateUILabels();
-      rebuildSprites();
-      saveState();
-    });
-
-    ctrlSpeed.addEventListener('input', (e) => {
-      state.speed = parseInt(e.target.value, 10);
-      updateUILabels();
-      saveState();
-    });
-
-    blinkToggle.addEventListener('click', () => {
-      state.blink = !state.blink;
-      updateUILabels();
-      saveState();
-    });
-
-    ctrlBlinkSpeed.addEventListener('input', (e) => {
-      state.blinkSpeed = parseInt(e.target.value, 10);
-      if (!state.blink) state.blink = true;
-      updateUILabels();
-      saveState();
-    });
-
-    // Modal de instrucciones al pulsar el logotipo
-    const logoBtn = document.getElementById('logo-btn');
-    const helpModal = document.getElementById('help-modal');
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-
-    logoBtn.addEventListener('click', () => helpModal.classList.add('open'));
-    modalCloseBtn.addEventListener('click', () => helpModal.classList.remove('open'));
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) helpModal.classList.remove('open');
-    });
-
-    // Bucle de animación a 60 FPS
-    let scrollPos = -10;
-    let lastTime = performance.now();
-    let blinkTimer = 0;
-
-    function animate(now) {
-      const dt = Math.min((now - lastTime) / 1000, 0.05);
-      lastTime = now;
-
-      const rect = stage.getBoundingClientRect();
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, rect.width, rect.height);
-
-      const totalCols = messageColumns.length;
-      if (totalCols > 0 && state.speed > 0) {
-        const colsPerSec = (state.speed / 100) * 32;
-        scrollPos += colsPerSec * dt;
-        if (scrollPos >= totalCols) {
-          scrollPos -= totalCols;
-        }
-      }
-
-      let isBlinkHidden = false;
-      if (state.blink) {
-        blinkTimer += dt * (state.blinkSpeed * 1.4);
-        isBlinkHidden = Math.sin(blinkTimer * Math.PI * 2) < 0;
-      }
-
-      const startCol = Math.floor(scrollPos);
-      const sprHalf = spriteOn.width * 0.5;
-
-      for (let c = 0; c < visibleCols; c++) {
-        const cx = offsetX + (c + 0.5) * cellStep - sprHalf;
-        let colBits = 0;
-
-        if (!isBlinkHidden && totalCols > 0) {
-          let msgIdx = (startCol + c) % totalCols;
-          if (msgIdx < 0) msgIdx += totalCols;
-          colBits = messageColumns[msgIdx] || 0;
-        }
-
-        for (let r = 0; r < visibleRows; r++) {
-          const cy = offsetY + (r + 0.5) * cellStep - sprHalf;
-          const glyphRow = r - textRowOffset;
-          const isLit = (glyphRow >= 0 && glyphRow < 16) && ((colBits & (1 << glyphRow)) !== 0);
-          ctx.drawImage(isLit ? spriteOn : spriteOff, cx, cy);
-        }
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    requestAnimationFrame(animate);
-    setTimeout(() => showToast('Doble toque en el cartel para pantalla completa'), 600);
-  </script>
-</body>
-</html>
